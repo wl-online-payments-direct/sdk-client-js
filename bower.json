@@ -1,0 +1,20 @@
+{
+  "name": "direct-sdk-client-js",
+  "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Ingenico platform",
+  "main": "gulpfile.js",
+  "authors": [
+    "Ingenico"
+  ],
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "moduleType": [
+    "globals"
+  ],
+  "homepage": "https://github.com/Ingenico/direct-sdk-client-js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -1,0 +1,15 @@
+node_modules
+/.project
+/npm-debug.log
+.vscode
+.idea
+*.iml
+
+# Distribution
+/dist
+
+# Test report generation
+tests/e2e/allure
+tests/e2e/screenshots
+tests/e2e/config.js
+tests/e2e/api-logs
