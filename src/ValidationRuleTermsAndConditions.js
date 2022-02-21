@@ -1,4 +1,4 @@
-define("directsdk.ValidationRuleTermsAndConditions", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.ValidationRuleTermsAndConditions", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var ValidationRuleTermsAndConditions = function(json) {
 		this.json = json;
@@ -10,6 +10,6 @@ define("directsdk.ValidationRuleTermsAndConditions", ["directsdk.core"], functio
 		};
 	};
 
-	directsdk.ValidationRuleTermsAndConditions = ValidationRuleTermsAndConditions;
+	onlinepaymentssdk.ValidationRuleTermsAndConditions = ValidationRuleTermsAndConditions;
 	return ValidationRuleTermsAndConditions;
 });

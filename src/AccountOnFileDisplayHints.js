@@ -1,4 +1,4 @@
-define("directsdk.AccountOnFileDisplayHints", ["directsdk.core", "directsdk.LabelTemplateElement"], function(directsdk, LabelTemplateElement) {
+define("onlinepaymentssdk.AccountOnFileDisplayHints", ["onlinepaymentssdk.core", "onlinepaymentssdk.LabelTemplateElement"], function(onlinepaymentssdk, LabelTemplateElement) {
 
 	var _parseJSON = function (_json, _labelTemplate, _labelTemplateElementByAttributeKey) {
 		if (_json.labelTemplate) {
@@ -18,6 +18,6 @@ define("directsdk.AccountOnFileDisplayHints", ["directsdk.core", "directsdk.Labe
 		_parseJSON(json, this.labelTemplate, this.labelTemplateElementByAttributeKey);
 	};
 
-	directsdk.AccountOnFileDisplayHints = AccountOnFileDisplayHints;
+	onlinepaymentssdk.AccountOnFileDisplayHints = AccountOnFileDisplayHints;
 	return AccountOnFileDisplayHints;
 });

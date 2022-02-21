@@ -1,4 +1,4 @@
-define("directsdk.C2SCommunicatorConfiguration", ["directsdk.core"], function (directsdk) {
+define("onlinepaymentssdk.C2SCommunicatorConfiguration", ["onlinepaymentssdk.core"], function (onlinepaymentssdk) {
 
     var C2SCommunicatorConfiguration = function (sessionDetails, apiVersion) {
         // clientSessionID, assetBaseUrl and apiBaseUrl are deprecated but still may be used. Here we check for presense of new variables, if they dont exist... Use the old variables.
@@ -25,10 +25,10 @@ define("directsdk.C2SCommunicatorConfiguration", ["directsdk.core"], function (d
         this.clientApiUrl = sessionDetails.clientApiUrl;
         this.assetUrl = sessionDetails.assetUrl;
         if (!this.clientApiUrl) {
-            throw new Error("This version of the directsdk requires an clientApiUrl, which you did not provide.");
+            throw new Error("This version of the onlinepaymentssdk requires an clientApiUrl, which you did not provide.");
         }
         if (!this.assetUrl) {
-            throw new Error("This version of the directsdk requires an assetUrl, which you did not provide.");
+            throw new Error("This version of the onlinepaymentssdk requires an assetUrl, which you did not provide.");
         }
 
         // now that the clientApiUrl is set check when if the api version is set in the URL, its the correct version break if not.
@@ -47,9 +47,9 @@ define("directsdk.C2SCommunicatorConfiguration", ["directsdk.core"], function (d
         } else if (path === 'client') { //If path == client
             this.clientApiUrl += "/" + apiVersion.split('/')[1];
         } else if (path.indexOf(apiVersion) !== 0 || path.length !== apiVersion.length) {
-            throw new Error("This version of the directsdk is only compatible with " + apiVersion + ", you supplied: '" + path + "'");
+            throw new Error("This version of the onlinepaymentssdk is only compatible with " + apiVersion + ", you supplied: '" + path + "'");
         }
     };
-    directsdk.C2SCommunicatorConfiguration = C2SCommunicatorConfiguration;
+    onlinepaymentssdk.C2SCommunicatorConfiguration = C2SCommunicatorConfiguration;
     return C2SCommunicatorConfiguration;
 });

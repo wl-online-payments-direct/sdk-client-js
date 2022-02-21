@@ -1,4 +1,4 @@
-define("directsdk.MaskedString", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.MaskedString", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var MaskedString = function(formattedValue, cursorIndex) {
 
@@ -6,6 +6,6 @@ define("directsdk.MaskedString", ["directsdk.core"], function(directsdk) {
 		this.cursorIndex = cursorIndex;
 	};
 
-	directsdk.MaskedString = MaskedString;
+	onlinepaymentssdk.MaskedString = MaskedString;
 	return MaskedString;
 });

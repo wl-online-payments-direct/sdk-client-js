@@ -1,4 +1,4 @@
-define("directsdk.ValueMappingElement", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.ValueMappingElement", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var ValueMappingElement = function (json) {
 		this.json = json;
@@ -6,6 +6,6 @@ define("directsdk.ValueMappingElement", ["directsdk.core"], function(directsdk) 
 		this.value = json.value;
 	};
 
-	directsdk.ValueMappingElement = ValueMappingElement;
+	onlinepaymentssdk.ValueMappingElement = ValueMappingElement;
 	return ValueMappingElement;
 });

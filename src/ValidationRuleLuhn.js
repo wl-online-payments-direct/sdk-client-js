@@ -1,4 +1,4 @@
-define("directsdk.ValidationRuleLuhn", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.ValidationRuleLuhn", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var ValidationRuleLuhn = function (json) {
 		this.json = json;
@@ -15,6 +15,6 @@ define("directsdk.ValidationRuleLuhn", ["directsdk.core"], function(directsdk) {
 		};
 	};
 
-	directsdk.ValidationRuleLuhn = ValidationRuleLuhn;
+	onlinepaymentssdk.ValidationRuleLuhn = ValidationRuleLuhn;
 	return ValidationRuleLuhn;
 });

@@ -1,4 +1,4 @@
-define("directsdk.C2SPaymentProductContext", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.C2SPaymentProductContext", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
     var C2SPaymentProductContext = function (payload) {
         this.totalAmount = typeof payload.totalAmount !== 'undefined' ? payload.totalAmount : '';
@@ -14,6 +14,6 @@ define("directsdk.C2SPaymentProductContext", ["directsdk.core"], function(direct
         }
     };
 
-  directsdk.C2SPaymentProductContext = C2SPaymentProductContext;
+  onlinepaymentssdk.C2SPaymentProductContext = C2SPaymentProductContext;
   return C2SPaymentProductContext;
 });

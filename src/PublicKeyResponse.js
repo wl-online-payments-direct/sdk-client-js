@@ -1,4 +1,4 @@
-define("directsdk.PublicKeyResponse", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.PublicKeyResponse", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var PublicKeyResponse = function(json) {
 		this.json = json;
@@ -6,6 +6,6 @@ define("directsdk.PublicKeyResponse", ["directsdk.core"], function(directsdk) {
 		this.publicKey = json.publicKey;
 	};
 
-	directsdk.PublicKeyResponse = PublicKeyResponse;
+	onlinepaymentssdk.PublicKeyResponse = PublicKeyResponse;
 	return PublicKeyResponse;
 });

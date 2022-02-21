@@ -1,4 +1,4 @@
-define("directsdk.ValidationRuleEmailAddress", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.ValidationRuleEmailAddress", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var ValidationRuleEmailAddress = function(json) {
 		this.json = json;
@@ -11,6 +11,6 @@ define("directsdk.ValidationRuleEmailAddress", ["directsdk.core"], function(dire
 		};
 	};
 
-	directsdk.ValidationRuleEmailAddress = ValidationRuleEmailAddress;
+	onlinepaymentssdk.ValidationRuleEmailAddress = ValidationRuleEmailAddress;
 	return ValidationRuleEmailAddress;
 });

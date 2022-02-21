@@ -1,4 +1,4 @@
-define("directsdk.Encryptor", ["directsdk.core", "directsdk.promise", "directsdk.JOSEEncryptor", "directsdk.Util"], function(directsdk, Promise, JOSEEncryptor, Util) {
+define("onlinepaymentssdk.Encryptor", ["onlinepaymentssdk.core", "onlinepaymentssdk.promise", "onlinepaymentssdk.JOSEEncryptor", "onlinepaymentssdk.Util"], function(onlinepaymentssdk, Promise, JOSEEncryptor, Util) {
 
 	var _util = Util.getInstance();
 
@@ -49,6 +49,6 @@ define("directsdk.Encryptor", ["directsdk.core", "directsdk.promise", "directsdk
 		};
 	};
 
-	directsdk.Encryptor = Encryptor;
+	onlinepaymentssdk.Encryptor = Encryptor;
 	return Encryptor;
 });

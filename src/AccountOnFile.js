@@ -1,4 +1,4 @@
-define("directsdk.AccountOnFile", ["directsdk.core" ,"directsdk.AccountOnFileDisplayHints", "directsdk.Attribute"], function(directsdk, AccountOnFileDisplayHints, Attribute) {
+define("onlinepaymentssdk.AccountOnFile", ["onlinepaymentssdk.core" ,"onlinepaymentssdk.AccountOnFileDisplayHints", "onlinepaymentssdk.Attribute"], function(onlinepaymentssdk, AccountOnFileDisplayHints, Attribute) {
 
 	var _parseJSON = function (_json, _attributes, _attributeByKey) {
 		if (_json.attributes) {
@@ -26,7 +26,7 @@ define("directsdk.AccountOnFile", ["directsdk.core" ,"directsdk.AccountOnFileDis
 				wildcardMask = this.displayHints.labelTemplateElementByAttributeKey[attributeKey].wildcardMask;
 			} catch (e) {}
 			if (value !== undefined && wildcardMask !== undefined) {
-				var maskingUtil = new directsdk.MaskingUtil();
+				var maskingUtil = new onlinepaymentssdk.MaskingUtil();
 				return maskingUtil.applyMask(wildcardMask, value);
 			}
 			return undefined;
@@ -35,6 +35,6 @@ define("directsdk.AccountOnFile", ["directsdk.core" ,"directsdk.AccountOnFileDis
 		_parseJSON(json, this.attributes, this.attributeByKey);
 	};
 
-	directsdk.AccountOnFile = AccountOnFile;
+	onlinepaymentssdk.AccountOnFile = AccountOnFile;
 	return AccountOnFile;
 });

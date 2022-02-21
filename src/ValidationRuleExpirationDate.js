@@ -1,4 +1,4 @@
-define("directsdk.ValidationRuleExpirationDate", ["directsdk.core"], function (directsdk) {
+define("onlinepaymentssdk.ValidationRuleExpirationDate", ["onlinepaymentssdk.core"], function (onlinepaymentssdk) {
 
 	var _validateDateFormat = function (value) {
 		// value is mmYY or mmYYYY
@@ -47,6 +47,6 @@ define("directsdk.ValidationRuleExpirationDate", ["directsdk.core"], function (d
 		};
 	};
 
-	directsdk.ValidationRuleExpirationDate = ValidationRuleExpirationDate;
+	onlinepaymentssdk.ValidationRuleExpirationDate = ValidationRuleExpirationDate;
 	return ValidationRuleExpirationDate;
 });

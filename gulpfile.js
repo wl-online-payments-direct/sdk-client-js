@@ -79,7 +79,7 @@ const buildSdk = ({source, destName, done}) => {
 gulp.task('createFullSdk', (done) => {
   buildSdk({
     source: fullSdkSrc,
-    destName: 'directsdk.js',
+    destName: 'onlinepaymentssdk.js',
     done
   });
 });
@@ -87,7 +87,7 @@ gulp.task('createFullSdk', (done) => {
 gulp.task('createSdkNoEncryption', (done) => {
   buildSdk({
     source: sdkSrcNoEncryption,
-    destName: 'directsdk.noEncrypt.js',
+    destName: 'onlinepaymentssdk.noEncrypt.js',
     done
   });
 });

@@ -1,4 +1,4 @@
-define('directsdk.net', ['directsdk.core'], function(directsdk) {
+define('onlinepaymentssdk.net', ['onlinepaymentssdk.core'], function(onlinepaymentssdk) {
   var net = {};
 
   /**
@@ -66,9 +66,9 @@ define('directsdk.net', ['directsdk.core'], function(directsdk) {
   };
 
   /**
-    * JSON.parse support can be inferred using `directsdk.detect('JSON.parse')`.
+    * JSON.parse support can be inferred using `onlinepaymentssdk.detect('JSON.parse')`.
     */
-  //directsdk.addDetectionTest('JSON.parse', function() {
+  //onlinepaymentssdk.addDetectionTest('JSON.parse', function() {
   //  return window.JSON && window.JSON.parse;
   //});
 
@@ -82,7 +82,7 @@ define('directsdk.net', ['directsdk.core'], function(directsdk) {
     if (typeof string !== 'string' || !string) return null;
     string = trim(string);
     /*
-    return directsdk.detect('JSON.parse') ?
+    return onlinepaymentssdk.detect('JSON.parse') ?
       window.JSON.parse(string) :
       (new Function('return ' + string))();
     */
@@ -141,8 +141,8 @@ define('directsdk.net', ['directsdk.core'], function(directsdk) {
         then,
         response = {},
         chain;
-    if (directsdk.Promise) {
-      promise = new directsdk.Promise();
+    if (onlinepaymentssdk.Promise) {
+      promise = new onlinepaymentssdk.Promise();
     }
 
     function respondToReadyState(readyState) {
@@ -261,7 +261,7 @@ define('directsdk.net', ['directsdk.core'], function(directsdk) {
   function JSONPCallback(url, success, failure) {
     var self = this;
     this.url = url;
-    this.methodName = '__directsdk_jsonp_' + parseInt(new Date().getTime());
+    this.methodName = '__onlinepaymentssdk_jsonp_' + parseInt(new Date().getTime());
     this.success = success;
     this.failure = failure;
 
@@ -338,7 +338,7 @@ define('directsdk.net', ['directsdk.core'], function(directsdk) {
    *     var url = 'http://feeds.delicious.com/v1/json/';
    *     url += 'alex_young/javascript?callback={callback}';
    *
-   *     directsdk.net.jsonp(url, {
+   *     onlinepaymentssdk.net.jsonp(url, {
    *       success: function(json) {
    *         console.log(json);
    *       }
@@ -353,18 +353,18 @@ define('directsdk.net', ['directsdk.core'], function(directsdk) {
   };
 
   /**
-    * The Ajax methods are mapped to the `directsdk` object:
+    * The Ajax methods are mapped to the `onlinepaymentssdk` object:
     *
-    *      directsdk.get();
-    *      directsdk.post();
-    *      directsdk.json();
+    *      onlinepaymentssdk.get();
+    *      onlinepaymentssdk.post();
+    *      onlinepaymentssdk.json();
     *
     */
-  directsdk.get = net.get;
-  directsdk.post = net.post;
-  directsdk.jsonp = net.jsonp;
+  onlinepaymentssdk.get = net.get;
+  onlinepaymentssdk.post = net.post;
+  onlinepaymentssdk.jsonp = net.jsonp;
 
   net.ajax = ajax;
-  directsdk.net = net;
+  onlinepaymentssdk.net = net;
   return net;
 });

@@ -1,4 +1,4 @@
-define('directsdk.promise', ['directsdk.core'], function(turing) {
+define('onlinepaymentssdk.promise', ['onlinepaymentssdk.core'], function(turing) {
 	function PromiseModule(global) {
 		/**
 		 * The Promise class.
@@ -61,7 +61,7 @@ define('directsdk.promise', ['directsdk.core'], function(turing) {
 
 		global.Promise = Promise;
 	}
-	PromiseModule(directsdk);
+	PromiseModule(onlinepaymentssdk);
 
-	return directsdk.Promise;
+	return onlinepaymentssdk.Promise;
 });

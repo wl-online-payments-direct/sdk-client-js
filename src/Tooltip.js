@@ -1,4 +1,4 @@
-define("directsdk.Tooltip", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.Tooltip", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var Tooltip = function (json) {
 		this.json = json;
@@ -6,6 +6,6 @@ define("directsdk.Tooltip", ["directsdk.core"], function(directsdk) {
 		this.label = json.label;
 	};
 
-	directsdk.Tooltip = Tooltip;
+	onlinepaymentssdk.Tooltip = Tooltip;
 	return Tooltip;
 });

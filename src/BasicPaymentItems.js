@@ -1,4 +1,4 @@
-define("directsdk.BasicPaymentItems", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.BasicPaymentItems", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 	"use strict";
 
 		var _parseJson = function (_products, _basicPaymentItems) {
@@ -24,6 +24,6 @@ define("directsdk.BasicPaymentItems", ["directsdk.core"], function(directsdk) {
 		this.accountOnFileById = {};
 		_parseJson(products, this);
 	};
-	directsdk.BasicPaymentItems = BasicPaymentItems;
+	onlinepaymentssdk.BasicPaymentItems = BasicPaymentItems;
 	return BasicPaymentItems;
 });

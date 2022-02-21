@@ -1,4 +1,4 @@
-define("directsdk.JOSEEncryptor", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.JOSEEncryptor", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var pki = forge.pki;
 	var asn1 = forge.asn1;
@@ -118,6 +118,6 @@ define("directsdk.JOSEEncryptor", ["directsdk.core"], function(directsdk) {
 		};
 	};
 
-	directsdk.JOSEEncryptor = JOSEEncryptor;
+	onlinepaymentssdk.JOSEEncryptor = JOSEEncryptor;
 	return JOSEEncryptor;
 });

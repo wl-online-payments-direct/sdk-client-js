@@ -1,4 +1,4 @@
-define("directsdk.ApplePay", ["directsdk.core", "directsdk.promise", "directsdk.Util"], function (directsdk, Promise) {
+define("onlinepaymentssdk.ApplePay", ["onlinepaymentssdk.core", "onlinepaymentssdk.promise", "onlinepaymentssdk.Util"], function (onlinepaymentssdk, Promise) {
   var _C2SCommunicator = null;
   var _context = null;
 
@@ -63,6 +63,6 @@ define("directsdk.ApplePay", ["directsdk.core", "directsdk.promise", "directsdk.
     };
   }
 
-  directsdk.ApplePay = ApplePay;
+  onlinepaymentssdk.ApplePay = ApplePay;
   return ApplePay;
 });

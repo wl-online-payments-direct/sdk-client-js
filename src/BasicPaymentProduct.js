@@ -1,4 +1,4 @@
-define("directsdk.BasicPaymentProduct", ["directsdk.core", "directsdk.AccountOnFile", "directsdk.PaymentProductDisplayHints", "directsdk.PaymentProduct302SpecificData"], function(directsdk, AccountOnFile, PaymentProductDisplayHints, PaymentProduct302SpecificData) {
+define("onlinepaymentssdk.BasicPaymentProduct", ["onlinepaymentssdk.core", "onlinepaymentssdk.AccountOnFile", "onlinepaymentssdk.PaymentProductDisplayHints", "onlinepaymentssdk.PaymentProduct302SpecificData"], function(onlinepaymentssdk, AccountOnFile, PaymentProductDisplayHints, PaymentProduct302SpecificData) {
 
 	var _parseJSON = function (_json, _paymentProduct, _accountsOnFile, _accountOnFileById) {
 		if (_json.accountsOnFile) {
@@ -11,6 +11,13 @@ define("directsdk.BasicPaymentProduct", ["directsdk.core", "directsdk.AccountOnF
 		if (_json.paymentProduct302SpecificData) {
 			_paymentProduct.paymentProduct302SpecificData = new PaymentProduct302SpecificData(_json.paymentProduct302SpecificData);
 		}
+
+		if(_json.displayHintsList){
+			for (var i = 0, il = _json.displayHintsList.length; i < il; i++) {
+				var displayHints = new PaymentProductDisplayHints(_json.displayHintsList[i]);
+				_paymentProduct.displayHintsList.push(displayHints);
+			}
+		}
 	};
 
 	var BasicPaymentProduct = function (json) {
@@ -21,6 +28,7 @@ define("directsdk.BasicPaymentProduct", ["directsdk.core", "directsdk.AccountOnF
 		this.allowsRecurring = json.allowsRecurring;
 		this.allowsTokenization = json.allowsTokenization;
 		this.displayHints = new PaymentProductDisplayHints(json.displayHints);
+		this.displayHintsList = [];
 		this.id = json.id;
 		this.maxAmount = json.maxAmount;
 		this.minAmount = json.minAmount;
@@ -31,6 +39,6 @@ define("directsdk.BasicPaymentProduct", ["directsdk.core", "directsdk.AccountOnF
 		_parseJSON(json, this, this.accountsOnFile, this.accountOnFileById);
 	};
 
-	directsdk.BasicPaymentProduct = BasicPaymentProduct;
+	onlinepaymentssdk.BasicPaymentProduct = BasicPaymentProduct;
 	return BasicPaymentProduct;
 });

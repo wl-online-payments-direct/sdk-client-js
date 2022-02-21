@@ -1,4 +1,4 @@
-define("directsdk.DataRestrictions", ["directsdk.core", "directsdk.ValidationRuleExpirationDate", "directsdk.ValidationRuleFixedList", "directsdk.ValidationRuleLength", "directsdk.ValidationRuleLuhn", "directsdk.ValidationRuleRange", "directsdk.ValidationRuleRegularExpression", "directsdk.ValidationRuleEmailAddress", "directsdk.ValidationRuleTermsAndConditions", "directsdk.ValidationRuleIban", "directsdk.ValidationRuleFactory"], function(directsdk, ValidationRuleExpirationDate, ValidationRuleFixedList, ValidationRuleLength, ValidationRuleLuhn, ValidationRuleRange, ValidationRuleRegularExpression, ValidationRuleEmailAddress, ValidationRuleTermsAndConditions, ValidationRuleIban, ValidationRuleFactory) {
+define("onlinepaymentssdk.DataRestrictions", ["onlinepaymentssdk.core", "onlinepaymentssdk.ValidationRuleExpirationDate", "onlinepaymentssdk.ValidationRuleFixedList", "onlinepaymentssdk.ValidationRuleLength", "onlinepaymentssdk.ValidationRuleLuhn", "onlinepaymentssdk.ValidationRuleRange", "onlinepaymentssdk.ValidationRuleRegularExpression", "onlinepaymentssdk.ValidationRuleEmailAddress", "onlinepaymentssdk.ValidationRuleTermsAndConditions", "onlinepaymentssdk.ValidationRuleIban", "onlinepaymentssdk.ValidationRuleFactory"], function(onlinepaymentssdk, ValidationRuleExpirationDate, ValidationRuleFixedList, ValidationRuleLength, ValidationRuleLuhn, ValidationRuleRange, ValidationRuleRegularExpression, ValidationRuleEmailAddress, ValidationRuleTermsAndConditions, ValidationRuleIban, ValidationRuleFactory) {
 
 	var DataRestrictions = function (json, mask) {
 
@@ -23,6 +23,6 @@ define("directsdk.DataRestrictions", ["directsdk.core", "directsdk.ValidationRul
 		_parseJSON(json, this.validationRules, this.validationRuleByType);
 	};
 
-	directsdk.DataRestrictions = DataRestrictions;
+	onlinepaymentssdk.DataRestrictions = DataRestrictions;
 	return DataRestrictions;
 });

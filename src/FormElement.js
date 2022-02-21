@@ -1,4 +1,4 @@
-define("directsdk.FormElement", ["directsdk.core", "directsdk.ValueMappingElement"], function(directsdk, ValueMappingElement) {
+define("onlinepaymentssdk.FormElement", ["onlinepaymentssdk.core", "onlinepaymentssdk.ValueMappingElement"], function(onlinepaymentssdk, ValueMappingElement) {
 
 	var FormElement = function (json) {
 
@@ -17,6 +17,6 @@ define("directsdk.FormElement", ["directsdk.core", "directsdk.ValueMappingElemen
 		_parseJSON(json, this.valueMapping);
 	};
 
-	directsdk.FormElement = FormElement;
+	onlinepaymentssdk.FormElement = FormElement;
 	return FormElement;
 });

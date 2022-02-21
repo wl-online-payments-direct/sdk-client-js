@@ -1,4 +1,4 @@
-define("directsdk.PaymentProductDisplayHints", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.PaymentProductDisplayHints", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var PaymentProductDisplayHints = function (json) {
 		this.json = json;
@@ -7,6 +7,6 @@ define("directsdk.PaymentProductDisplayHints", ["directsdk.core"], function(dire
 		this.logo = json.logo;
 	};
 
-	directsdk.PaymentProductDisplayHints = PaymentProductDisplayHints;
+	onlinepaymentssdk.PaymentProductDisplayHints = PaymentProductDisplayHints;
 	return PaymentProductDisplayHints;
 });

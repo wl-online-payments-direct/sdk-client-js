@@ -1,4 +1,4 @@
-define("directsdk.ValidationRuleRegularExpression", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.ValidationRuleRegularExpression", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var ValidationRuleRegularExpression = function(json) {
 		this.json = json;
@@ -12,6 +12,6 @@ define("directsdk.ValidationRuleRegularExpression", ["directsdk.core"], function
 		};
 	};
 
-	directsdk.ValidationRuleRegularExpression = ValidationRuleRegularExpression;
+	onlinepaymentssdk.ValidationRuleRegularExpression = ValidationRuleRegularExpression;
 	return ValidationRuleRegularExpression;
 });

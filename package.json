@@ -1,8 +1,8 @@
 {
-  "name": "direct-sdk-client-js",
-  "version": "1.0.0",
-  "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Ingenico platform",
-  "main": "dist/directsdk.noEncrypt.min.js",
+  "name": "onlinepayments-sdk-client-js",
+  "version": "2.0.0",
+  "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Online Payments platform",
+  "main": "dist/onlinepaymentssdk.noEncrypt.min.js",
   "devDependencies": {
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
@@ -19,14 +19,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com/Ingenico/direct-sdk-client-js.git"
+    "url": "git@github.com/wl-online-payments-direct/sdk-client-js.git"
   },
-  "author": "Ingenico",
+  "author": "Worldline",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Ingenico/direct-sdk-client-js/issues"
+    "url": "https://github.com/wl-online-payments-direct/sdk-client-js/issues"
   },
-  "homepage": "https://github.com/Ingenico/direct-sdk-client-js#readme",
+  "homepage": "https://github.com/wl-online-payments-direct/sdk-client-js#readme",
   "files": [
     "dist"
   ]

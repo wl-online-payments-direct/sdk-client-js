@@ -1,4 +1,4 @@
-define("directsdk.Session", ["directsdk.core", "directsdk.C2SCommunicator", "directsdk.C2SCommunicatorConfiguration", "directsdk.promise", "directsdk.C2SPaymentProductContext", "directsdk.BasicPaymentProducts", "directsdk.PaymentProduct", "directsdk.BasicPaymentItems", "directsdk.PaymentRequest", "directsdk.Encryptor"], function (directsdk, C2SCommunicator, C2SCommunicatorConfiguration, Promise, C2SPaymentProductContext, BasicPaymentProducts, PaymentProduct, BasicPaymentItems, PaymentRequest, Encryptor) {
+define("onlinepaymentssdk.Session", ["onlinepaymentssdk.core", "onlinepaymentssdk.C2SCommunicator", "onlinepaymentssdk.C2SCommunicatorConfiguration", "onlinepaymentssdk.promise", "onlinepaymentssdk.C2SPaymentProductContext", "onlinepaymentssdk.BasicPaymentProducts", "onlinepaymentssdk.PaymentProduct", "onlinepaymentssdk.BasicPaymentItems", "onlinepaymentssdk.PaymentRequest", "onlinepaymentssdk.Encryptor"], function (onlinepaymentssdk, C2SCommunicator, C2SCommunicatorConfiguration, Promise, C2SPaymentProductContext, BasicPaymentProducts, PaymentProduct, BasicPaymentItems, PaymentRequest, Encryptor) {
 	var APIVERSION = "client/v1";
 	var session = function (sessionDetails, paymentProduct) {
 
@@ -107,6 +107,6 @@ define("directsdk.Session", ["directsdk.core", "directsdk.C2SCommunicator", "dir
 			return new PaymentProduct(_c2sCommunicator.transformPaymentProductJSON(json))
 		};
 	};
-	directsdk.Session = session;
+	onlinepaymentssdk.Session = session;
 	return session;
 });

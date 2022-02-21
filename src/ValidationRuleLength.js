@@ -1,4 +1,4 @@
-define("directsdk.ValidationRuleLength", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.ValidationRuleLength", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var ValidationRuleLength = function (json) {
 		this.json = json;
@@ -12,6 +12,6 @@ define("directsdk.ValidationRuleLength", ["directsdk.core"], function(directsdk)
 		};
 	};
 
-	directsdk.ValidationRuleLength = ValidationRuleLength;
+	onlinepaymentssdk.ValidationRuleLength = ValidationRuleLength;
 	return ValidationRuleLength;
 });

@@ -1,8 +1,8 @@
 (function (global) {
-    var directsdk = {}, modules = {};
+    var onlinepaymentssdk = {}, modules = {};
 
     /* SDK internal function */
-    directsdk.define = function (module, dependencies, fn) {
+    onlinepaymentssdk.define = function (module, dependencies, fn) {
         if (dependencies && dependencies.length) {
             for (var i = 0; i < dependencies.length; i++) {
                 dependencies[i] = modules[dependencies[i]];
@@ -11,30 +11,30 @@
         modules[module] = fn.apply(this, dependencies || []);
     };
 
-    // Export `directsdk` based on environment.
-    global.directsdk = directsdk;
+    // Export `onlinepaymentssdk` based on environment.
+    global.onlinepaymentssdk = onlinepaymentssdk;
 
     if (typeof exports !== 'undefined') {
-        exports.directsdk = directsdk;
+        exports.onlinepaymentssdk = onlinepaymentssdk;
     }
 
-    directsdk.define('directsdk.core', [], function () {
-        return directsdk;
+    onlinepaymentssdk.define('onlinepaymentssdk.core', [], function () {
+        return onlinepaymentssdk;
     });
 
     // use require.js if available otherwise we use our own
     if (typeof define === 'undefined') {
-        global.define = directsdk.define;
+        global.define = onlinepaymentssdk.define;
     }
 } (typeof window === 'undefined' ? this : window));
 
 // (re)define core
-define("directsdk.core", [], function () {
+define("onlinepaymentssdk.core", [], function () {
     var global = typeof window === 'undefined' ? this : window;
-    var directsdk = {};
-    global.directsdk = directsdk;
+    var onlinepaymentssdk = {};
+    global.onlinepaymentssdk = onlinepaymentssdk;
     if (typeof exports !== 'undefined') {
-        exports.directsdk = directsdk;
+        exports.onlinepaymentssdk = onlinepaymentssdk;
     }
-    return directsdk;
+    return onlinepaymentssdk;
 });

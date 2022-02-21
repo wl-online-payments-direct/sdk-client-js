@@ -1,4 +1,4 @@
-define('directsdk.ValidationRuleIban', ['directsdk.core'], function (directsdk) {
+define('onlinepaymentssdk.ValidationRuleIban', ['onlinepaymentssdk.core'], function (onlinepaymentssdk) {
 
   /**
    * Sanitize value by remove all unwanted chars of a Iban format
@@ -81,6 +81,6 @@ define('directsdk.ValidationRuleIban', ['directsdk.core'], function (directsdk) 
     };
   };
 
-  directsdk.ValidationRuleIban = ValidationRuleIban;
+  onlinepaymentssdk.ValidationRuleIban = ValidationRuleIban;
   return ValidationRuleIban;
 });

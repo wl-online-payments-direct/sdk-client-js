@@ -1,4 +1,4 @@
-define("directsdk.ValidationRuleRange", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.ValidationRuleRange", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var ValidationRuleRange = function(json) {
 		this.json = json;
@@ -16,6 +16,6 @@ define("directsdk.ValidationRuleRange", ["directsdk.core"], function(directsdk) 
 		};
 	};
 
-	directsdk.ValidationRuleRange = ValidationRuleRange;
+	onlinepaymentssdk.ValidationRuleRange = ValidationRuleRange;
 	return ValidationRuleRange;
 });

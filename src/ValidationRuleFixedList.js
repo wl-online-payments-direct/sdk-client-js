@@ -1,4 +1,4 @@
-define("directsdk.ValidationRuleFixedList", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.ValidationRuleFixedList", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var ValidationRuleFixedList = function (json) {
 		this.json = json;
@@ -16,6 +16,6 @@ define("directsdk.ValidationRuleFixedList", ["directsdk.core"], function(directs
 		};
 	};
 
-	directsdk.ValidationRuleFixedList = ValidationRuleFixedList;
+	onlinepaymentssdk.ValidationRuleFixedList = ValidationRuleFixedList;
 	return ValidationRuleFixedList;
 });

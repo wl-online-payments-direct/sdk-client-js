@@ -1,4 +1,4 @@
-define("directsdk.PaymentProductFieldDisplayHints", ["directsdk.core", "directsdk.Tooltip", "directsdk.FormElement"], function(directsdk, Tooltip, FormElement) {
+define("onlinepaymentssdk.PaymentProductFieldDisplayHints", ["onlinepaymentssdk.core", "onlinepaymentssdk.Tooltip", "onlinepaymentssdk.FormElement"], function(onlinepaymentssdk, Tooltip, FormElement) {
 
 	var PaymentProductFieldDisplayHints = function (json) {
 		this.json = json;
@@ -16,6 +16,6 @@ define("directsdk.PaymentProductFieldDisplayHints", ["directsdk.core", "directsd
 		this.wildcardMask = json.mask ? json.mask.replace(/9/g, "*") : "";
 	};
 
-	directsdk.PaymentProductFieldDisplayHints = PaymentProductFieldDisplayHints;
+	onlinepaymentssdk.PaymentProductFieldDisplayHints = PaymentProductFieldDisplayHints;
 	return PaymentProductFieldDisplayHints;
 });

@@ -1,4 +1,4 @@
-define("directsdk.C2SCommunicator", ["directsdk.core", "directsdk.promise", "directsdk.net", "directsdk.Util", "directsdk.PublicKeyResponse", "directsdk.IinDetailsResponse", "directsdk.ApplePay"], function (directsdk, Promise, Net, Util, PublicKeyResponse, IinDetailsResponse, ApplePay) {
+define("onlinepaymentssdk.C2SCommunicator", ["onlinepaymentssdk.core", "onlinepaymentssdk.promise", "onlinepaymentssdk.net", "onlinepaymentssdk.Util", "onlinepaymentssdk.PublicKeyResponse", "onlinepaymentssdk.IinDetailsResponse", "onlinepaymentssdk.ApplePay"], function (onlinepaymentssdk, Promise, Net, Util, PublicKeyResponse, IinDetailsResponse, ApplePay) {
 	var C2SCommunicator = function (c2SCommunicatorConfiguration, paymentProduct) {
 		var _c2SCommunicatorConfiguration = c2SCommunicatorConfiguration;
 		var _util = Util.getInstance();
@@ -93,17 +93,15 @@ define("directsdk.C2SCommunicator", ["directsdk.core", "directsdk.promise", "dir
 			return json;
 		};
 
-		var _extendLogoUrl = function (json, url, postfix) {
-			for (var i = 0, il = json["paymentProduct" + postfix].length; i < il; i++) {
-				var product = json["paymentProduct" + postfix][i];
-				product.displayHints.logo = formatImageUrl(url, product.displayHints.logo);
-			}
-			json["paymentProduct" + postfix].sort(function (a, b) {
-				if (a.displayHints.displayOrder < b.displayHints.displayOrder) {
-					return -1;
+		var _sortProducts = function (json) {
+			json["paymentProducts"].sort(function (a, b) {
+				if (a.displayHintsList.length > 0 && b.displayHintsList.length > 0) {
+					return a.displayHintsList[0].displayOrder - b.displayHintsList[0].displayOrder;
 				}
-				return 1;
+
+				return 0;
 			});
+
 			return json;
 		};
 
@@ -148,7 +146,7 @@ define("directsdk.C2SCommunicator", ["directsdk.core", "directsdk.promise", "dir
 					.set('Authorization', 'GCS v1Client:' + _c2SCommunicatorConfiguration.clientSessionId)
 					.end(function (res) {
 						if (res.success) {
-							var json = _extendLogoUrl(res.responseJSON, _c2SCommunicatorConfiguration.assetUrl, "s");
+							var json = _sortProducts(res.responseJSON);
 							_util.filterOutProductsThatAreNotSupportedInThisBrowser(json);
 							if (json.paymentProducts.length === 0) {
 								promise.reject('No payment products available');
@@ -424,6 +422,6 @@ define("directsdk.C2SCommunicator", ["directsdk.core", "directsdk.promise", "dir
 		};
 	};
 
-	directsdk.C2SCommunicator = C2SCommunicator;
+	onlinepaymentssdk.C2SCommunicator = C2SCommunicator;
 	return C2SCommunicator;
 });

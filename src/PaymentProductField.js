@@ -1,4 +1,4 @@
-define("directsdk.PaymentProductField", ["directsdk.core", "directsdk.PaymentProductFieldDisplayHints", "directsdk.DataRestrictions", "directsdk.MaskingUtil"], function(directsdk, PaymentProductFieldDisplayHints, DataRestrictions, MaskingUtil) {
+define("onlinepaymentssdk.PaymentProductField", ["onlinepaymentssdk.core", "onlinepaymentssdk.PaymentProductFieldDisplayHints", "onlinepaymentssdk.DataRestrictions", "onlinepaymentssdk.MaskingUtil"], function(onlinepaymentssdk, PaymentProductFieldDisplayHints, DataRestrictions, MaskingUtil) {
 	var PaymentProductField = function (json) {
 		this.json = json;
 		this.displayHints = json.displayHints ? new PaymentProductFieldDisplayHints(json.displayHints) : '';
@@ -45,6 +45,6 @@ define("directsdk.PaymentProductField", ["directsdk.core", "directsdk.PaymentPro
 		};
 	};
 
-	directsdk.PaymentProductField = PaymentProductField;
+	onlinepaymentssdk.PaymentProductField = PaymentProductField;
 	return PaymentProductField;
 });

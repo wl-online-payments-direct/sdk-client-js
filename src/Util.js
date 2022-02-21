@@ -1,4 +1,4 @@
-define("directsdk.Util", ["directsdk.core"], function (directsdk) {
+define("onlinepaymentssdk.Util", ["onlinepaymentssdk.core"], function (onlinepaymentssdk) {
 
 	// Create a singleton from Util so the same util function can be used in different modules
 	var Util = (function () {
@@ -15,7 +15,7 @@ define("directsdk.Util", ["directsdk.core"], function (directsdk) {
 						screenSize: window.innerWidth + "x" + window.innerHeight,
 						platformIdentifier: window.navigator.userAgent,
 						sdkIdentifier: ((document.GC && document.GC.rppEnabledPage) ? 'rpp-' : '') + 'JavaScriptClientSDK/v${version}',
-						sdkCreator: 'Ingenico'
+						sdkCreator: 'OnlinePayments'
 					};
 				},
 				collectDeviceInformation: function () {
@@ -95,6 +95,6 @@ define("directsdk.Util", ["directsdk.core"], function (directsdk) {
 		};
 	})();
 
-	directsdk.Util = Util;
+	onlinepaymentssdk.Util = Util;
 	return Util;
 });

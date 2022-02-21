@@ -1,4 +1,4 @@
-define("directsdk.MaskingUtil", ["directsdk.core", "directsdk.MaskedString"], function(directsdk, MaskedString) {
+define("onlinepaymentssdk.MaskingUtil", ["onlinepaymentssdk.core", "onlinepaymentssdk.MaskedString"], function(onlinepaymentssdk, MaskedString) {
 
 	var _fillBuffer = function(index, offset, buffer, tempMask, valuec) {
 		if (index+offset < valuec.length && index < tempMask.length) {
@@ -114,6 +114,6 @@ define("directsdk.MaskingUtil", ["directsdk.core", "directsdk.MaskedString"], fu
 		};
 	};
 
-	directsdk.MaskingUtil = MaskingUtil;
+	onlinepaymentssdk.MaskingUtil = MaskingUtil;
 	return MaskingUtil;
 });

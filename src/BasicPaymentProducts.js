@@ -1,4 +1,4 @@
-define("directsdk.BasicPaymentProducts", ["directsdk.core", "directsdk.BasicPaymentProduct"], function(directsdk, BasicPaymentProduct) {
+define("onlinepaymentssdk.BasicPaymentProducts", ["onlinepaymentssdk.core", "onlinepaymentssdk.BasicPaymentProduct"], function(onlinepaymentssdk, BasicPaymentProduct) {
 
 	var _parseJson = function (_json, _paymentProducts, _accountsOnFile, _paymentProductById, _accountOnFileById, _paymentProductByAccountOnFileId) {
 		if (_json.paymentProducts) {
@@ -31,6 +31,6 @@ define("directsdk.BasicPaymentProducts", ["directsdk.core", "directsdk.BasicPaym
 		_parseJson(json, this.basicPaymentProducts, this.accountsOnFile, this.basicPaymentProductById, this.accountOnFileById, this.basicPaymentProductByAccountOnFileId);
 	};
 
-	directsdk.BasicPaymentProducts = BasicPaymentProducts;
+	onlinepaymentssdk.BasicPaymentProducts = BasicPaymentProducts;
 	return BasicPaymentProducts;
 });

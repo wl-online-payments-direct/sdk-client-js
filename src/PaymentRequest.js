@@ -1,4 +1,4 @@
-define("directsdk.PaymentRequest", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.PaymentRequest", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
   var PaymentRequest = function(clientSessionID) {
     var _clientSessionID = clientSessionID;
     var _fieldValues = {};
@@ -103,6 +103,6 @@ define("directsdk.PaymentRequest", ["directsdk.core"], function(directsdk) {
 		    return clientSessionID;
     };
   };
-  directsdk.PaymentRequest = PaymentRequest;
+  onlinepaymentssdk.PaymentRequest = PaymentRequest;
   return PaymentRequest;
 });

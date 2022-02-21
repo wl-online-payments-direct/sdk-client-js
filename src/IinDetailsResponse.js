@@ -1,4 +1,4 @@
-define("directsdk.IinDetailsResponse", ["directsdk.core", "directsdk.promise"], function(directsdk, Promise) {
+define("onlinepaymentssdk.IinDetailsResponse", ["onlinepaymentssdk.core", "onlinepaymentssdk.promise"], function(onlinepaymentssdk, Promise) {
 
 	var IinDetailsResponse = function () {
 		this.status = '';
@@ -7,6 +7,6 @@ define("directsdk.IinDetailsResponse", ["directsdk.core", "directsdk.promise"], 
 		this.isAllowedInContext = '';
 		this.coBrands = [];
 	};
-	directsdk.IinDetailsResponse = IinDetailsResponse;
+	onlinepaymentssdk.IinDetailsResponse = IinDetailsResponse;
 	return IinDetailsResponse;
 });

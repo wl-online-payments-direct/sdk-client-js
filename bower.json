@@ -1,15 +1,15 @@
 {
-  "name": "direct-sdk-client-js",
-  "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Ingenico platform",
+  "name": "onlinepayments-sdk-client-js",
+  "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Online Payments platform",
   "main": "gulpfile.js",
   "authors": [
-    "Ingenico"
+    "Worldline"
   ],
   "license": "SEE LICENSE IN LICENSE.txt",
   "moduleType": [
     "globals"
   ],
-  "homepage": "https://github.com/Ingenico/direct-sdk-client-js",
+  "homepage": "https://github.com/wl-online-payments-direct/sdk-client-js",
   "ignore": [
     "**/.*",
     "node_modules",

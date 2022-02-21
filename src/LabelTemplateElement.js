@@ -1,4 +1,4 @@
-define("directsdk.LabelTemplateElement", ["directsdk.core"], function(directsdk) {
+define("onlinepaymentssdk.LabelTemplateElement", ["onlinepaymentssdk.core"], function(onlinepaymentssdk) {
 
 	var LabelTemplateElement = function (json) {
 		this.json = json;
@@ -7,6 +7,6 @@ define("directsdk.LabelTemplateElement", ["directsdk.core"], function(directsdk)
 		this.wildcardMask = json.mask ? json.mask.replace(/9/g, "*") : "";
 	};
 
-	directsdk.LabelTemplateElement = LabelTemplateElement;
+	onlinepaymentssdk.LabelTemplateElement = LabelTemplateElement;
 	return LabelTemplateElement;
 });
