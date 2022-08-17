@@ -1,6 +1,6 @@
 {
   "name": "onlinepayments-sdk-client-js",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Online Payments platform",
   "main": "dist/onlinepaymentssdk.noEncrypt.min.js",
   "devDependencies": {

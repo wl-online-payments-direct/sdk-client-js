@@ -19,22 +19,6 @@ define("onlinepaymentssdk.C2SCommunicator", ["onlinepaymentssdk.core", "onlinepa
 			return (url && endsWith(url, '/')) ? url : url + '/';
 		};
 
-		var formatImageUrl = function (url, imageUrl) {
-			if (imageUrl) {
-				url = formatUrl(url);
-				// _cleanJSON can be called multiple times with the same data (which is cached between calls).
-				// Don't prepend the url after the first time.
-				if (startsWith(imageUrl, url)) {
-					return imageUrl;
-				}
-				return url + imageUrl;
-			}
-		};
-
-		var startsWith = function (string, prefix) {
-			return string.indexOf(prefix) === 0;
-		};
-
 		var endsWith = function (string, suffix) {
 			return string.indexOf(suffix, string.length - suffix.length) !== -1;
 		};
@@ -52,11 +36,6 @@ define("onlinepaymentssdk.C2SCommunicator", ["onlinepaymentssdk.core", "onlinepa
 					}
 					if (field.displayHints && field.displayHints.formElement && field.displayHints.formElement.type === 'list') {
 						field.displayHints.formElement.list = true;
-					}
-
-					// full image paths
-					if (field.displayHints && field.displayHints.tooltip && field.displayHints.tooltip.image) {
-						field.displayHints.tooltip.image = formatImageUrl(url, field.displayHints.tooltip.image);
 					}
 
 					// Fix mask and type on field displayHints id expirydate
@@ -88,8 +67,6 @@ define("onlinepaymentssdk.C2SCommunicator", ["onlinepaymentssdk.core", "onlinepa
 				});
 			}
 			
-			// set full image path
-			json.displayHints.logo = formatImageUrl(url, json.displayHints.logo);
 			return json;
 		};
 
