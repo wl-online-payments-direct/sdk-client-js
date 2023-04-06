@@ -4,12 +4,16 @@ node_modules
 .vscode
 .idea
 *.iml
+*.tsbuildinfo
+.DS_Store
+.cache
 
 # Distribution
-/dist
+/dist/
 
-# Test report generation
-tests/e2e/allure
-tests/e2e/screenshots
-tests/e2e/config.js
-tests/e2e/api-logs
+# Tests
+.test-results.xml
+
+
+# Environment variable files
+.env*
