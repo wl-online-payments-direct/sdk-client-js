@@ -9,8 +9,8 @@
   "amdName": "onlinepaymentssdk",
   "creator": "OnlinePayments",
   "exports": {
-    "default": "./dist/onlinepayments-sdk-client-js.js",
-    "types": "./dist/types/src/index.d.ts"
+    "types": "./dist/types/src/index.d.ts",
+    "default": "./dist/onlinepayments-sdk-client-js.js"
   },
   "types": "./dist/types/src/index.d.ts",
   "type": "module",
