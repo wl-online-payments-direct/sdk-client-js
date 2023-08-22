@@ -6,25 +6,20 @@ import { DataRestrictions } from './DataRestrictions';
 import { PaymentProductFieldDisplayHints } from './PaymentProductFieldDisplayHints';
 
 export class PaymentProductField {
-  readonly #_displayHints?: PaymentProductFieldDisplayHints;
   #_errorCodes: string[];
-
+  readonly displayHints?: PaymentProductFieldDisplayHints;
   readonly id: string;
   readonly type: string;
   readonly dataRestrictions: DataRestrictions;
 
   constructor(readonly json: PaymentProductFieldJSON) {
+    this.#_errorCodes = [];
     this.id = json.id;
     this.type = json.type;
     this.dataRestrictions = new DataRestrictions(json.dataRestrictions);
-    this.#_errorCodes = [];
-    this.#_displayHints = json.displayHints
+    this.displayHints = json.displayHints
       ? new PaymentProductFieldDisplayHints(json.displayHints)
       : undefined;
-  }
-
-  get displayHints() {
-    return this.#_displayHints || '';
   }
 
   getErrorCodes(value?: string): string[] {
@@ -54,13 +49,13 @@ export class PaymentProductField {
 
   applyMask(newValue: string, oldValue?: string): MaskedString {
     const maskingUtil = new MaskingUtil();
-    return maskingUtil.applyMask(this.#_displayHints?.mask, newValue, oldValue);
+    return maskingUtil.applyMask(this.displayHints?.mask, newValue, oldValue);
   }
 
   applyWildcardMask(newValue: string, oldValue?: string): MaskedString {
     const maskingUtil = new MaskingUtil();
     return maskingUtil.applyMask(
-      this.#_displayHints?.wildcardMask,
+      this.displayHints?.wildcardMask,
       newValue,
       oldValue,
     );
@@ -68,6 +63,6 @@ export class PaymentProductField {
 
   removeMask(value: string): string {
     const maskingUtil = new MaskingUtil();
-    return maskingUtil.removeMask(this.#_displayHints?.mask, value);
+    return maskingUtil.removeMask(this.displayHints?.mask, value);
   }
 }

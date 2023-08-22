@@ -14,7 +14,37 @@ The SDKs’ main functions is to establish a secure channel between your web app
 
 ## Table of Contents
 
-[[_TOC_]]
+- [Online Payments JavaScript SDK](#online-payments-javascript-sdk)
+  - [Table of Contents](#table-of-contents)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Distributed packages](#distributed-packages)
+    - [Usage Universal Module Definition (UMD)](#usage-universal-module-definition-umd)
+    - [Usage ES module (ESM)](#usage-es-module-esm)
+  - [Getting started](#getting-started)
+  - [Type definitions](#type-definitions)
+    - [Session](#session)
+    - [PaymentContext](#paymentcontext)
+    - [BasicPaymentItems](#basicpaymentitems)
+    - [BasicPaymentProduct](#basicpaymentproduct)
+    - [AccountOnFile](#accountonfile)
+    - [PaymentProduct](#paymentproduct)
+    - [PaymentProductField](#paymentproductfield)
+    - [PaymentRequest](#paymentrequest)
+      - [Tokenize payment request](#tokenize-payment-request)
+      - [Set field values to payment request](#set-field-values-to-payment-request)
+      - [Validate payment request](#validate-payment-request)
+      - [Encrypt payment request](#encrypt-payment-request)
+    - [IINDetails](#iindetails)
+    - [MaskingUtil](#maskingutil)
+  - [Payment steps](#payment-steps)
+    - [1. Initialize the JavaScript SDK for this payment](#1-initialize-the-javascript-sdk-for-this-payment)
+    - [2. Retrieve the payment items](#2-retrieve-the-payment-items)
+    - [3. Retrieve payment product details](#3-retrieve-payment-product-details)
+    - [4. Encrypt payment information](#4-encrypt-payment-information)
+    - [5. Response from the Server API call](#5-response-from-the-server-api-call)
+  - [Testing](#testing)
+    - [Unit tests](#unit-tests)
 
 ## Requirements
 
