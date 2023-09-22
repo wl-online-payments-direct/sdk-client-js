@@ -1,4 +1,7 @@
 import type {
+  AmountOfMoneyJSON,
+  PartialCard,
+  Token,
   PaymentContext,
   PaymentProductGroupJSON,
   PaymentProductJSON,
@@ -14,6 +17,7 @@ import { BasicPaymentProducts } from './BasicPaymentProducts';
 import { BasicPaymentItems } from './BasicPaymentItems';
 import { Encryptor } from './Encryptor';
 import { C2SCommunicator } from './C2SCommunicator';
+import type { SurchargeCalculationResponse } from './SurchargeCalculationResponse';
 
 const API_VERSION = 'client/v1';
 
@@ -158,6 +162,22 @@ export class Session {
     return new Encryptor(
       this.#_c2sCommunicator.getPublicKey(),
       this.#_c2SCommunicatorConfiguration.clientSessionId,
+    );
+  }
+
+  /**
+   * Returns the Surcharge Calculation for the provided amount of money and card
+   *
+   * @param amountOfMoney - Contains the amount and currency code for which the Surcharge should be calculated
+   * @param cardSource - A {@link Card} or a {@link Token} for which the Surcharge should be calculated
+   */
+  async getSurchargeCalculation(
+    amountOfMoney: AmountOfMoneyJSON,
+    cardOrToken: PartialCard | Token,
+  ): Promise<SurchargeCalculationResponse> {
+    return this.#_c2sCommunicator.getSurchargeCalculation(
+      amountOfMoney,
+      cardOrToken,
     );
   }
 }

@@ -1,5 +1,8 @@
 import type { C2SCommunicatorConfiguration } from './C2SCommunicatorConfiguration';
 import type {
+  AmountOfMoneyJSON,
+  PartialCard,
+  Token,
   GetIINDetailsRequestJSON,
   GetIINDetailsResponseJSON,
   PaymentContext,
@@ -8,6 +11,8 @@ import type {
   PaymentProductNetworksResponseJSON,
   PaymentProductsJSON,
   PublicKeyJSON,
+  SurchargeCalculationRequestJSON,
+  SurchargeCalculationResponseJSON,
 } from './types';
 
 import { ApplePay } from './ApplePay';
@@ -16,6 +21,7 @@ import { Net } from './Net';
 import { IinDetailsResponse } from './IinDetailsResponse';
 import { PublicKeyResponse } from './PublicKeyResponse';
 import { ResponseError } from './ResponseError';
+import type { SurchargeCalculationResponse } from './SurchargeCalculationResponse';
 
 export class C2SCommunicator<
   PaymentProduct extends PaymentProductJSON | PaymentProductGroupJSON =
@@ -414,5 +420,49 @@ export class C2SCommunicator<
     Json extends PaymentProductJSON | PaymentProductGroupJSON,
   >(json: Json): Json {
     return this.#_cleanJSON(json, this.#_c2SCommunicatorConfiguration.assetUrl);
+  }
+
+  async getSurchargeCalculation(
+    amountOfMoney: AmountOfMoneyJSON,
+    cardOrToken: PartialCard | Token,
+  ): Promise<SurchargeCalculationResponse> {
+    // Create cacheKey depending on what info is provided
+    const cacheKeySuffix = cardOrToken.hasOwnProperty('partialCreditCardNumber')
+      ? (cardOrToken as PartialCard).partialCreditCardNumber
+      : (cardOrToken as Token);
+    const cacheKey = `getSurchargeCalculation-${amountOfMoney.amount}-${amountOfMoney.currencyCode}-${cacheKeySuffix}`;
+
+    // return cached result if available
+    if (this.#_cache.has(cacheKey)) {
+      return this.#_cache.get(cacheKey) as SurchargeCalculationResponse;
+    }
+
+    const cardSource = cardOrToken.hasOwnProperty('partialCreditCardNumber')
+      ? {
+          card: {
+            cardNumber: (cardOrToken as PartialCard).partialCreditCardNumber,
+            paymentProductId: (cardOrToken as PartialCard).paymentProductId,
+          },
+        }
+      : { token: cardOrToken as Token };
+
+    const url = this.#_getBasePath('services/surchargeCalculation');
+    // Create Surcharge Calculation Request post body
+    const requestJson: SurchargeCalculationRequestJSON = {
+      cardSource,
+      amountOfMoney,
+    };
+
+    const { success, data } = await Net.post<SurchargeCalculationResponseJSON>(
+      url,
+      {
+        headers: this.#_getRequestHeaders(),
+        body: JSON.stringify(requestJson),
+      },
+    );
+    if (!success) throw data;
+
+    this.#_cache.set(cacheKey, data);
+    return data;
   }
 }
