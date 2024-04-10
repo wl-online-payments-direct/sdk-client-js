@@ -11,8 +11,10 @@ import type {
   PaymentProductNetworksResponseJSON,
   PaymentProductsJSON,
   PublicKeyJSON,
-  SurchargeCalculationRequestJSON,
-  SurchargeCalculationResponseJSON,
+  SurchargeRequestJSON,
+  SurchargeCalculationResponse,
+  CurrencyConversionRequest,
+  CurrencyConversionResponse,
 } from './types';
 
 import { ApplePay } from './ApplePay';
@@ -21,7 +23,9 @@ import { Net } from './Net';
 import { IinDetailsResponse } from './IinDetailsResponse';
 import { PublicKeyResponse } from './PublicKeyResponse';
 import { ResponseError } from './ResponseError';
-import type { SurchargeCalculationResponse } from './SurchargeCalculationResponse';
+import { ApiVersion } from './types/api-version.types';
+
+type ApiVersionString = (typeof ApiVersion)[keyof typeof ApiVersion];
 
 export class C2SCommunicator<
   PaymentProduct extends PaymentProductJSON | PaymentProductGroupJSON =
@@ -82,9 +86,7 @@ export class C2SCommunicator<
     const metadata = Util.getMetadata();
     return {
       'X-GCS-ClientMetaInfo': window.btoa(JSON.stringify(metadata)),
-      Authorization: `GCS v1Client:${
-        this.#_c2SCommunicatorConfiguration.clientSessionId
-      }`,
+      Authorization: `GCS v1Client:${this.#_c2SCommunicatorConfiguration.clientSessionId}`,
     };
   }
 
@@ -171,14 +173,20 @@ export class C2SCommunicator<
     Util.filterOutProductsThatAreNotSupportedInThisBrowser(json);
   }
 
-  #_getBasePath(path: string): string {
+  #_getBasePath(path: string, apiVersion: ApiVersionString): string {
     const { clientApiUrl, customerId } = this.#_c2SCommunicatorConfiguration;
-    return Util.url.segmentsToPath([clientApiUrl, customerId, path]);
+    return Util.url.segmentsToPath([
+      clientApiUrl,
+      apiVersion,
+      customerId,
+      path,
+    ]);
   }
 
   // @todo: in the future; this needs to be replaced with auto generated code from the API spec
   #_getUrlFromContext({
     path,
+    apiVersion,
     context: {
       countryCode,
       amountOfMoney: { amount, currencyCode },
@@ -190,12 +198,13 @@ export class C2SCommunicator<
     useCacheBuster = false,
   }: {
     path: string;
+    apiVersion: ApiVersionString;
     context: PaymentContext;
     includeLocale?: boolean;
     queryParams?: Record<string, string | number | undefined>;
     useCacheBuster?: boolean;
   }) {
-    return Util.url.urlWithQueryString(this.#_getBasePath(path), {
+    return Util.url.urlWithQueryString(this.#_getBasePath(path, apiVersion), {
       countryCode,
       isRecurring: isRecurring?.toString(),
       amount: amount.toString(),
@@ -221,6 +230,7 @@ export class C2SCommunicator<
 
     const url = this.#_getUrlFromContext({
       path: 'products',
+      apiVersion: ApiVersion.V1,
       context,
       useCacheBuster: true,
       queryParams: { hide: 'fields' },
@@ -287,13 +297,16 @@ export class C2SCommunicator<
 
     const url = this.#_getUrlFromContext({
       path: `products/${paymentProductId}`,
+      apiVersion: ApiVersion.V1,
       context,
       useCacheBuster: true,
     });
 
     const response = await Net.get<
       PaymentProductJSON & Partial<PaymentProductsJSON>
-    >(url, { headers: this.#_getRequestHeaders() });
+    >(url, {
+      headers: this.#_getRequestHeaders(),
+    });
 
     if (!response.success) {
       throw new ResponseError(response, 'failed to retrieve Payment Product');
@@ -321,7 +334,7 @@ export class C2SCommunicator<
       throw new IinDetailsResponse('NOT_ENOUGH_DIGITS');
     }
 
-    const url = this.#_getBasePath('services/getIINdetails');
+    const url = this.#_getBasePath('services/getIINdetails', ApiVersion.V1);
     const data = this.convertContextToIinDetailsContext(
       partialCreditCardNumber,
       context,
@@ -329,7 +342,10 @@ export class C2SCommunicator<
 
     const { success, data: json } = await Net.post<GetIINDetailsResponseJSON>(
       url,
-      { headers: this.#_getRequestHeaders(), body: JSON.stringify(data) },
+      {
+        headers: this.#_getRequestHeaders(),
+        body: JSON.stringify(data),
+      },
     );
     if (!success) throw new IinDetailsResponse('UNKNOWN', json);
 
@@ -377,7 +393,7 @@ export class C2SCommunicator<
       return this.#_cache.get(cacheKey) as PublicKeyResponse;
     }
 
-    const url = this.#_getBasePath('/crypto/publickey');
+    const url = this.#_getBasePath('/crypto/publickey', ApiVersion.V1);
     const { success, data } = await Net.get<PublicKeyJSON>(url, {
       headers: this.#_getRequestHeaders(),
     });
@@ -403,12 +419,15 @@ export class C2SCommunicator<
 
     const url = this.#_getUrlFromContext({
       path: `products/${paymentProductId}/networks`,
+      apiVersion: ApiVersion.V1,
       context,
     });
 
     const { success, data } = await Net.get<PaymentProductNetworksResponseJSON>(
       url,
-      { headers: this.#_getRequestHeaders() },
+      {
+        headers: this.#_getRequestHeaders(),
+      },
     );
 
     if (!success) throw data;
@@ -426,10 +445,7 @@ export class C2SCommunicator<
     amountOfMoney: AmountOfMoneyJSON,
     cardOrToken: PartialCard | Token,
   ): Promise<SurchargeCalculationResponse> {
-    // Create cacheKey depending on what info is provided
-    const cacheKeySuffix = cardOrToken.hasOwnProperty('partialCreditCardNumber')
-      ? (cardOrToken as PartialCard).partialCreditCardNumber
-      : (cardOrToken as Token);
+    const cacheKeySuffix = this.#_getCacheKeySuffix(cardOrToken);
     const cacheKey = `getSurchargeCalculation-${amountOfMoney.amount}-${amountOfMoney.currencyCode}-${cacheKeySuffix}`;
 
     // return cached result if available
@@ -437,23 +453,19 @@ export class C2SCommunicator<
       return this.#_cache.get(cacheKey) as SurchargeCalculationResponse;
     }
 
-    const cardSource = cardOrToken.hasOwnProperty('partialCreditCardNumber')
-      ? {
-          card: {
-            cardNumber: (cardOrToken as PartialCard).partialCreditCardNumber,
-            paymentProductId: (cardOrToken as PartialCard).paymentProductId,
-          },
-        }
-      : { token: cardOrToken as Token };
+    const cardSource = this.#_getCardSource(cardOrToken);
 
-    const url = this.#_getBasePath('services/surchargeCalculation');
+    const url = this.#_getBasePath(
+      'services/surchargeCalculation',
+      ApiVersion.V1,
+    );
     // Create Surcharge Calculation Request post body
-    const requestJson: SurchargeCalculationRequestJSON = {
+    const requestJson: SurchargeRequestJSON = {
       cardSource,
       amountOfMoney,
     };
 
-    const { success, data } = await Net.post<SurchargeCalculationResponseJSON>(
+    const { success, data } = await Net.post<SurchargeCalculationResponse>(
       url,
       {
         headers: this.#_getRequestHeaders(),
@@ -464,5 +476,63 @@ export class C2SCommunicator<
 
     this.#_cache.set(cacheKey, data);
     return data;
+  }
+
+  async getCurrencyConversionQuote(
+    amountOfMoney: AmountOfMoneyJSON,
+    cardOrToken: PartialCard | Token,
+  ): Promise<CurrencyConversionResponse> {
+    const cacheKeySuffix = this.#_getCacheKeySuffix(cardOrToken);
+    const cacheKey = `getCurrencyConversionQuote-${amountOfMoney.amount}-${amountOfMoney.currencyCode}-${cacheKeySuffix}`;
+
+    // return cached result if available
+    if (this.#_cache.has(cacheKey)) {
+      return this.#_cache.get(cacheKey) as CurrencyConversionResponse;
+    }
+
+    const cardSource = this.#_getCardSource(cardOrToken);
+
+    const url = this.#_getBasePath('services/dccrate', ApiVersion.V2);
+    const transaction = {
+      amount: amountOfMoney,
+    };
+    // Create Currency Conversion Request post body
+    const request: CurrencyConversionRequest = {
+      cardSource,
+      transaction,
+    };
+
+    const { success, data } = await Net.post<CurrencyConversionResponse>(url, {
+      headers: this.#_getRequestHeaders(),
+      body: JSON.stringify(request),
+    });
+    if (!success) throw data;
+
+    this.#_cache.set(cacheKey, data);
+    return data;
+  }
+
+  // Used for Surcharge Calculation & Currency Conversion
+  #_isPartialCard(
+    cardOrToken: PartialCard | Token,
+  ): cardOrToken is PartialCard {
+    return typeof cardOrToken === 'object';
+  }
+
+  #_getCacheKeySuffix(cardOrToken: PartialCard | Token) {
+    return this.#_isPartialCard(cardOrToken)
+      ? cardOrToken.partialCreditCardNumber
+      : cardOrToken;
+  }
+
+  #_getCardSource(cardOrToken: PartialCard | Token) {
+    return this.#_isPartialCard(cardOrToken)
+      ? {
+          card: {
+            cardNumber: cardOrToken.partialCreditCardNumber,
+            paymentProductId: cardOrToken.paymentProductId,
+          },
+        }
+      : { token: cardOrToken };
   }
 }

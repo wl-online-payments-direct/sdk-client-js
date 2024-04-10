@@ -1,3 +1,6 @@
 export class MaskedString {
-  constructor(readonly formattedValue: string, readonly cursorIndex: number) {}
+  constructor(
+    readonly formattedValue: string,
+    readonly cursorIndex: number,
+  ) {}
 }

@@ -255,13 +255,14 @@ export interface PaymentContext {
 // Errors
 
 export interface APIErrorJSON {
-  category: string;
-  code: string;
-  httpStatusCode: number;
-  id: string;
-  message: string;
-  propertyName: string;
-  requestId: string;
+  errorCode: string;
+  category?: string;
+  code?: string;
+  httpStatusCode?: number;
+  id?: string;
+  message?: string;
+  propertyName?: string;
+  retriable?: boolean;
 }
 
 export interface ErrorResponseJSON {

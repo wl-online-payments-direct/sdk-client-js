@@ -27,7 +27,7 @@ const validationRules = {
 };
 
 type ValidationRuleKey = keyof typeof validationRules;
-type ValidationRuleValue = typeof validationRules[ValidationRuleKey];
+type ValidationRuleValue = (typeof validationRules)[ValidationRuleKey];
 
 function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);

@@ -8,7 +8,7 @@ export class C2SCommunicatorConfiguration {
   readonly clientApiUrl: string;
   readonly assetUrl: string;
 
-  constructor(sessionDetails: SessionDetails, apiVersion: string) {
+  constructor(sessionDetails: SessionDetails) {
     // clientSessionID, assetBaseUrl and apiBaseUrl are deprecated but still may be used.
     // Here we check for presence of new variables, use the old variables if they don't exist.
     if (!sessionDetails.clientSessionId) {
@@ -52,35 +52,31 @@ export class C2SCommunicatorConfiguration {
       );
     }
 
-    // now that the clientApiUrl is set check when if the api version is set in the URL, it is the correct version break if not.
-    if (this.clientApiUrl.indexOf('//') === -1) {
+    try {
+      this.clientApiUrl = this.#_sanitizeClientApiUrl(this.clientApiUrl);
+    } catch (err) {
       throw new Error(
         `A valid URL is required for the clientApiUrl, you provided '${this.clientApiUrl}'`,
       );
     }
+  }
 
-    const tester = this.clientApiUrl.split('/'); // [0] = (http(s): || "") , [1] = "", [2] = "host:port", [3+] = path
-    if (tester[0] !== '' && tester[0].indexOf('http') !== 0) {
+  #_sanitizeClientApiUrl(inputUrl: string) {
+    // url could be an absolute url or starts with `//`
+    const url = new URL(inputUrl);
+    const segments = url.pathname.split('/').filter(Boolean);
+
+    // When no path segments are found, add 'client'
+    if (!segments.length) segments.push('client');
+
+    // Only allow a single path segment `client` or no segments at all
+    if (segments.length > 1 || segments[0] !== 'client') {
       throw new Error(
-        `A valid URL is required for the clientApiUrl, you provided '${this.clientApiUrl}'`,
+        `The path is unexpected, you supplied: '${url.pathname}'. It should be empty or /client'.`,
       );
     }
 
-    // if you cannot provide a URL that starts with (http(s)::)// and want an error: please provide a PR :)
-    const path = tester.splice(3).join('/'); // the path (if no path; path = "").
-    if (!path) {
-      //If path == ""
-      this.clientApiUrl += `/${apiVersion}`;
-    } else if (path === 'client') {
-      //If path == client
-      this.clientApiUrl += `/${apiVersion.split('/')[1]}`;
-    } else if (
-      path.indexOf(apiVersion) !== 0 ||
-      path.length !== apiVersion.length
-    ) {
-      throw new Error(
-        `This version of the ${libName} is only compatible with '${apiVersion}', you supplied: '${path}'`,
-      );
-    }
+    url.pathname = segments.join('/');
+    return url.href;
   }
 }

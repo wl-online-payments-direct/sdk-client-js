@@ -1,3 +1,5 @@
 # Browsers that we support
 
-defaults and supports es6-module
+defaults
+supports es6-module
+not dead

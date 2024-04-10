@@ -7,6 +7,8 @@ import type {
   PaymentProductJSON,
   PaymentProductNetworksResponseJSON,
   SessionDetails,
+  SurchargeCalculationResponse,
+  CurrencyConversionResponse,
 } from './types';
 import type { IinDetailsResponse } from './IinDetailsResponse';
 import type { PublicKeyResponse } from './PublicKeyResponse';
@@ -17,9 +19,6 @@ import { BasicPaymentProducts } from './BasicPaymentProducts';
 import { BasicPaymentItems } from './BasicPaymentItems';
 import { Encryptor } from './Encryptor';
 import { C2SCommunicator } from './C2SCommunicator';
-import type { SurchargeCalculationResponse } from './SurchargeCalculationResponse';
-
-const API_VERSION = 'client/v1';
 
 export class Session {
   readonly #_c2SCommunicatorConfiguration: C2SCommunicatorConfiguration;
@@ -36,7 +35,6 @@ export class Session {
   ) {
     this.#_c2SCommunicatorConfiguration = new C2SCommunicatorConfiguration(
       sessionDetails,
-      API_VERSION,
     );
     this.#_c2sCommunicator = new C2SCommunicator(
       this.#_c2SCommunicatorConfiguration,
@@ -49,9 +47,8 @@ export class Session {
   async getBasicPaymentProducts(
     paymentContext: PaymentContext,
   ): Promise<BasicPaymentProducts> {
-    const json = await this.#_c2sCommunicator.getBasicPaymentProducts(
-      paymentContext,
-    );
+    const json =
+      await this.#_c2sCommunicator.getBasicPaymentProducts(paymentContext);
     this.#_paymentContext = paymentContext;
     return new BasicPaymentProducts(json);
   }
@@ -169,13 +166,29 @@ export class Session {
    * Returns the Surcharge Calculation for the provided amount of money and card
    *
    * @param amountOfMoney - Contains the amount and currency code for which the Surcharge should be calculated
-   * @param cardSource - A {@link Card} or a {@link Token} for which the Surcharge should be calculated
+   * @param cardOrToken - A {@link Card} or a {@link Token} for which the Surcharge should be calculated
    */
   async getSurchargeCalculation(
     amountOfMoney: AmountOfMoneyJSON,
     cardOrToken: PartialCard | Token,
   ): Promise<SurchargeCalculationResponse> {
     return this.#_c2sCommunicator.getSurchargeCalculation(
+      amountOfMoney,
+      cardOrToken,
+    );
+  }
+
+  /**
+   * Returns the Currency Conversion for the provided amount of money and card
+   *
+   * @param amountOfMoney - Contains the amount and currency code for which the Currency Conversion should be calculated
+   * @param cardOrToken - A {@link Card} or a {@link Token} for which the Currency Conversion should be calculated
+   */
+  async getCurrencyConversionQuote(
+    amountOfMoney: AmountOfMoneyJSON,
+    cardOrToken: PartialCard | Token,
+  ): Promise<CurrencyConversionResponse> {
+    return this.#_c2sCommunicator.getCurrencyConversionQuote(
       amountOfMoney,
       cardOrToken,
     );
