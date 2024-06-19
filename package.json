@@ -1,6 +1,6 @@
 {
   "name": "onlinepayments-sdk-client-js",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Online Payments platform",
   "source": "./src/index.ts",
   "main": "./dist/onlinepayments-sdk-client-js.js",
@@ -37,8 +37,10 @@
   "files": [
     "dist"
   ],
+  "dependencies": {
+    "@types/applepayjs": "^3.0.4"
+  },
   "devDependencies": {
-    "@types/applepayjs": "^3.0.4",
     "@types/node-forge": "^1.3.1",
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "@typescript-eslint/parser": "^7.0.1",

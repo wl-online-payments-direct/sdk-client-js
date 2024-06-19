@@ -36,6 +36,10 @@ export class AccountOnFile {
     _parseJSON(json, this.attributes, this.attributeByKey);
   }
 
+  getLabel(): MaskedString | undefined {
+    return this.getMaskedValueByAttributeKey('alias');
+  }
+
   getMaskedValueByAttributeKey(attributeKey: string): MaskedString | undefined {
     const value = this.attributeByKey[attributeKey]?.value;
     const wildcardMask =

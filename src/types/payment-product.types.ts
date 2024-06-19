@@ -257,6 +257,9 @@ export interface PaymentContext {
 export interface APIErrorJSON {
   errorCode: string;
   category?: string;
+  /**
+   * @deprecated In a future release, this property will be removed. Use {@link errorCode} instead.
+   */
   code?: string;
   httpStatusCode?: number;
   id?: string;

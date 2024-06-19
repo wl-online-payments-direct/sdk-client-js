@@ -297,7 +297,7 @@ const aof = basicPaymentItems.basicPaymentItemById[1].accountsOnFile;
 
 // This shows a mask based nicely formatted value for that obfuscated cardNumber.
 // The mask that is used is defined in the displayHints of this account on file.
-// If the mask was {{9999}} {{9999}} {{9999}} {{9999}} {{999}} then the result would be
+// If the mask was {{9999}} {{9999}} {{9999}} {{9999}} then the result would be
 // **** **** **** 7412
 const maskedValue = aof.getMaskedValueByAttributeKey('cardNumber');
 ```
@@ -459,6 +459,17 @@ showing the appropriate payment product logo.
 
 > **Note:** `paymentContext` is only optional when you have already called `session.getBasicPaymentItems` or `session.getPaymentProductNetworks`; then the `paymentContext` will be taken from the session.
 
+### Masking
+
+To help in formatting field values based on masks, the SDK offers a base set of masking functions in `PaymentRequest`, `PaymentProductField` and `AccountOnFile`.
+Besides these base masking functions, the Javascript SDK offers the following additional method in `PaymentProductField`:
+
+```typescript
+applyWildcardMask(newValue: string, oldValue?: string): MaskedString {}
+```
+
+This set of masking functions all make use of the `StringFormatter` class to apply the actual logic, which is also publicly available in the SDK.
+
 ### MaskingUtil
 
 To help in formatting field values based on masks the SDk offers the `MaskingUtil` class. It allows you to apply and unapply masks on string.
@@ -468,7 +479,7 @@ import { MaskingUtil } from 'onlinepayments-sdk-client-js';
 
 const maskingUtil = new MaskingUtil();
 
-const mask = '{{9999}} {{9999}} {{9999}} {{9999}} {{999}}';
+const mask = '{{9999}} {{9999}} {{9999}} {{9999}}';
 const value = '1234567890123456';
 
 // apply masked value
