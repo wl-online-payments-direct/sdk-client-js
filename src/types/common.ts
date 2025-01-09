@@ -29,12 +29,9 @@ export type MapById<T> = Record<number, T | undefined>;
  * const foo:Foo = { b: '' }; // This is allowed
  * ```
  */
-export type Exclusive<
-  T extends Record<PropertyKey, unknown>,
-  U extends Record<PropertyKey, unknown>,
-> =
-  | (T & { [k in Exclude<keyof U, keyof T>]?: never })
-  | (U & { [k in Exclude<keyof T, keyof U>]?: never });
+export type Exclusive<T extends Record<PropertyKey, unknown>, U extends Record<PropertyKey, unknown>> =
+    | (T & { [k in Exclude<keyof U, keyof T>]?: never })
+    | (U & { [k in Exclude<keyof T, keyof U>]?: never });
 
 /**
  * Make a readonly type readable by removing the readonly modifier

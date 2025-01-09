@@ -1,12 +1,18 @@
-import type { Exclusive } from './common';
-
 export interface PaymentProductSessionContext {
-  displayName: string;
-  domainName: string;
-  validationURL: string;
+    displayName: string;
+    domainName: string;
+    validationURL: string;
 }
 
-export type SessionDetails = Record<'customerId', string> &
-  Exclusive<{ assetsBaseUrl: string }, { assetUrl: string }> &
-  Exclusive<{ clientSessionId: string }, { clientSessionID: string }> &
-  Exclusive<{ apiBaseUrl: string }, { clientApiUrl: string }>;
+export type SessionDetails = {
+    customerId: string;
+    /** @deprecated Use assetUrl instead. */
+    assetsBaseUrl: string;
+    assetUrl: string;
+    /** @deprecated Use clientSessionId instead. */
+    clientSessionID: string;
+    clientSessionId: string;
+    /** @deprecated Use clientApiUrl instead. */
+    apiBaseUrl: string;
+    clientApiUrl: string;
+};

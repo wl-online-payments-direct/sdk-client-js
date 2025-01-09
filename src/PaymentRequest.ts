@@ -1,131 +1,240 @@
-import type { AccountOnFile } from './AccountOnFile';
-import type { PaymentProduct } from './PaymentProduct';
-import type { PaymentProductField } from './PaymentProductField';
+// noinspection JSUnusedGlobalSymbols
+
+import type { AccountOnFile } from './models/AccountOnFile';
+import type { PaymentProduct } from './models/PaymentProduct';
+import type { PaymentProductField } from './models/PaymentProductField';
 
 export class PaymentRequest {
-  #_fieldValues: Map<string, string | undefined>;
-  #_paymentProduct?: PaymentProduct;
-  #_accountOnFile?: AccountOnFile;
-  #_tokenize: boolean;
+    #fieldValues: Map<string, string | undefined>;
+    #paymentProduct?: PaymentProduct;
+    #accountOnFile?: AccountOnFile;
+    #tokenize: boolean;
 
-  constructor() {
-    this.#_fieldValues = new Map();
-    this.#_tokenize = false;
-  }
+    constructor() {
+        this.#fieldValues = new Map();
+        this.#tokenize = false;
+    }
 
-  setValue(paymentProductFieldId: string, value: string): void {
-    this.#_fieldValues.set(paymentProductFieldId, value);
-  }
+    /**
+     * Sets the value for a given payment product field.
+     *
+     * @param {string} paymentProductFieldId - The ID of the payment product field.
+     * @param {string?} value - The value to set.
+     */
+    setValue(paymentProductFieldId: string, value?: string): void {
+        this.#fieldValues.set(paymentProductFieldId, value);
+    }
 
-  setTokenize(tokenize: boolean): void {
-    this.#_tokenize = tokenize;
-  }
+    /**
+     * Sets the values of the given payment product fields with the provided key-value pairs.
+     *
+     * @param {Record<string, string>} values - An object containing key-value pairs where the key is an ID of the
+     *     payment product field and the value is a string representing field value.
+     * @return {void} This method does not return a value.
+     */
+    setValues(values: Record<string, string | undefined>): void {
+        for (const [key, value] of Object.entries(values)) {
+            this.setValue(key, value);
+        }
+    }
 
-  getTokenize(): boolean {
-    return this.#_tokenize;
-  }
+    /**
+     * Enables or disables tokenization for the payment request.
+     *
+     * @param {boolean} tokenize - A boolean indicating if tokenization is enabled.
+     */
+    setTokenize(tokenize: boolean): void {
+        this.#tokenize = tokenize;
+    }
 
-  getErrorMessageIds(): string[] {
-    return Array.from(this.#_fieldValues.entries())
-      .flatMap(([id, value]) => {
-        const paymentProductField =
-          this.#_paymentProduct?.paymentProductFieldById[id];
-        return paymentProductField?.getErrorCodes(value);
-      })
-      .filter(Boolean) as string[];
-  }
+    /**
+     * Checks if tokenization is enabled for the payment request.
+     *
+     * @returns {boolean} A boolean indicating if tokenization is enabled.
+     */
+    getTokenize(): boolean {
+        return this.#tokenize;
+    }
 
-  getValue(paymentProductFieldId: string): string | undefined {
-    return this.#_fieldValues.get(paymentProductFieldId);
-  }
+    /**
+     * Retrieves the error message IDs for all fields in the payment request.
+     *
+     * @returns {string[]} An array of error message IDs.
+     */
+    getErrorMessageIds(): string[] {
+        return Array.from(this.#fieldValues.entries())
+            .flatMap(([id, value]) => {
+                const paymentProductField = this.#paymentProduct?.paymentProductFieldById[id];
+                return paymentProductField?.getErrorCodes(value);
+            })
+            .filter(Boolean) as string[];
+    }
 
-  getValues(): Record<string, string | undefined> {
-    return Object.fromEntries(this.#_fieldValues.entries());
-  }
+    /**
+     * Retrieves the value for a specific payment product field.
+     *
+     * @param {string} paymentProductFieldId - The ID of the payment product field.
+     * @returns {string | undefined} The value of the field, or undefined if not set.
+     */
+    getValue(paymentProductFieldId: string): string | undefined {
+        return this.#fieldValues.get(paymentProductFieldId);
+    }
 
-  getMaskedValue(paymentProductFieldId: string): string | undefined {
-    const field =
-      this.#_paymentProduct?.paymentProductFieldById[paymentProductFieldId];
-    if (!field) return undefined;
+    /**
+     * Retrieves all field values in the payment request as a record.
+     *
+     * @returns {Record<string, string | undefined>} A record of field IDs to their respective values.
+     */
+    getValues(): Record<string, string | undefined> {
+        return Object.fromEntries(this.#fieldValues.entries());
+    }
 
-    const value = this.getValue(paymentProductFieldId);
-    if (value === undefined) return undefined;
+    /**
+     * Retrieves the masked value for a specific payment product field.
+     *
+     * @param {string} paymentProductFieldId - The ID of the payment product field.
+     * @returns {string | undefined} The masked value of the field, or undefined if not set.
+     */
+    getMaskedValue(paymentProductFieldId: string): string | undefined {
+        const field = this.#paymentProduct?.paymentProductFieldById[paymentProductFieldId];
+        if (!field) {
+            return undefined;
+        }
 
-    return field.applyMask(value).formattedValue;
-  }
+        const value = this.getValue(paymentProductFieldId);
+        if (value === undefined) {
+            return undefined;
+        }
 
-  getMaskedValues(): Record<string, string | undefined> {
-    return Object.fromEntries(
-      Array.from(this.#_fieldValues).map(([id]) => [
-        id,
-        this.getMaskedValue(id),
-      ]),
-    );
-  }
+        return field.applyMask(value).formattedValue;
+    }
 
-  getUnmaskedValue(paymentProductFieldId: string): string | undefined {
-    const field =
-      this.#_paymentProduct?.paymentProductFieldById[paymentProductFieldId];
-    if (!field) return undefined;
+    /**
+     * Retrieves the masked values for all fields in the payment request.
+     *
+     * @returns {Record<string, string | undefined>} A record of field IDs to their masked values.
+     */
+    getMaskedValues(): Record<string, string | undefined> {
+        return Object.fromEntries(Array.from(this.#fieldValues).map(([id]) => [id, this.getMaskedValue(id)]));
+    }
 
-    const value = this.getValue(paymentProductFieldId);
-    if (value === undefined) return undefined;
+    /**
+     * Retrieves the unmasked value for a specific payment product field.
+     *
+     * @param {string} paymentProductFieldId - The ID of the payment product field.
+     * @returns {string | undefined} The unmasked value of the field, or undefined if not set.
+     */
+    getUnmaskedValue(paymentProductFieldId: string): string | undefined {
+        const field = this.#paymentProduct?.paymentProductFieldById[paymentProductFieldId];
+        if (!field) {
+            return undefined;
+        }
 
-    return field.removeMask(field.applyMask(value)?.formattedValue);
-  }
+        const value = this.getValue(paymentProductFieldId);
+        if (value === undefined) {
+            return undefined;
+        }
 
-  getUnmaskedValues(): Record<string, string | undefined> {
-    return Object.fromEntries(
-      Array.from(this.#_fieldValues).map(([id]) => [
-        id,
-        this.getUnmaskedValue(id),
-      ]),
-    );
-  }
+        return field.removeMask(field.applyMask(value)?.formattedValue);
+    }
 
-  setPaymentProduct(paymentProduct: PaymentProduct & { type?: string }) {
-    if (paymentProduct.type === 'group') return;
-    this.#_paymentProduct = paymentProduct;
-  }
+    /**
+     * Retrieves the unmasked values for all fields in the payment request.
+     *
+     * @returns {Record<string, string | undefined>} A record of field IDs to their unmasked values.
+     */
+    getUnmaskedValues(): Record<string, string | undefined> {
+        return Object.fromEntries(Array.from(this.#fieldValues).map(([id]) => [id, this.getUnmaskedValue(id)]));
+    }
 
-  getPaymentProduct(): PaymentProduct | undefined {
-    return this.#_paymentProduct;
-  }
+    /**
+     * Sets the payment product for the payment request.
+     *
+     * @param {PaymentProduct & { type?: string }} paymentProduct - The payment product to set.
+     */
+    setPaymentProduct(paymentProduct: PaymentProduct & { type?: string }) {
+        if (paymentProduct.type === 'group') {
+            return;
+        }
 
-  setAccountOnFile(accountOnFile?: AccountOnFile | null) {
-    if (!accountOnFile) return;
-    const attributes = accountOnFile.attributes;
-    attributes.forEach(({ key }) => this.#_fieldValues.delete(key));
-    this.#_accountOnFile = accountOnFile;
-  }
+        this.#paymentProduct = paymentProduct;
+    }
 
-  getAccountOnFile(): AccountOnFile | undefined {
-    return this.#_accountOnFile;
-  }
+    /**
+     * Retrieves the currently set payment product for the payment request.
+     *
+     * @returns {PaymentProduct?} The payment product, or undefined if not set.
+     */
+    getPaymentProduct(): PaymentProduct | undefined {
+        return this.#paymentProduct;
+    }
 
-  isValid(): boolean {
-    const paymentProduct = this.getPaymentProduct();
-    if (!paymentProduct) return false;
+    /**
+     * Sets the account on file for the payment request. Clears any field values
+     * associated with the account on file attributes.
+     *
+     * @param {AccountOnFile | null} accountOnFile - The account on file to set, or null/undefined to clear it.
+     */
+    setAccountOnFile(accountOnFile: AccountOnFile | null) {
+        if (!accountOnFile) {
+            return;
+        }
 
-    if (this.getErrorMessageIds().length) return false;
+        const attributes = accountOnFile.attributes;
+        attributes.forEach(({ key }) => this.#fieldValues.delete(key));
+        this.#accountOnFile = accountOnFile;
+    }
 
-    if (!paymentProduct.paymentProductFields.length) return true;
+    /**
+     * Retrieves the currently set account on file for the payment request.
+     *
+     * @returns {AccountOnFile?} The account on file, or undefined if not set.
+     */
+    getAccountOnFile(): AccountOnFile | undefined {
+        return this.#accountOnFile;
+    }
 
-    // besides checking the fields for errors check if
-    // all mandatory fields are present as well
-    const aof = this.getAccountOnFile();
-    const hasValueInAof = (fieldId: PaymentProductField['id']): boolean => {
-      if (aof?.paymentProductId !== paymentProduct.id) return false;
-      const attribute = aof?.attributeByKey[fieldId];
-      return !!attribute && attribute.status !== 'MUST_WRITE';
-    };
+    /**
+     * Checks if the payment request is valid. Ensures that there are no error
+     * messages and all mandatory fields are provided.
+     *
+     * @returns {boolean} A boolean indicating if the request is valid.
+     */
+    isValid(): boolean {
+        const paymentProduct = this.getPaymentProduct();
+        if (!paymentProduct) {
+            return false;
+        }
 
-    return paymentProduct.paymentProductFields.some((field) => {
-      if (!field.dataRestrictions.isRequired) return true;
+        if (this.getErrorMessageIds().length) {
+            return false;
+        }
 
-      // is this field present in the request?
-      // if the account on file has the field we can ignore it
-      return this.getValue(field.id) || hasValueInAof(field.id);
-    });
-  }
+        if (!paymentProduct.paymentProductFields.length) {
+            return true;
+        }
+
+        // besides checking the fields for errors check if
+        // all mandatory fields are present as well
+        const aof = this.getAccountOnFile();
+        const hasValueInAof = (fieldId: PaymentProductField['id']): boolean => {
+            if (aof?.paymentProductId !== paymentProduct.id) {
+                return false;
+            }
+
+            const attribute = aof?.attributeByKey[fieldId];
+
+            return !!attribute && attribute.status !== 'MUST_WRITE';
+        };
+
+        return paymentProduct.paymentProductFields.some((field) => {
+            if (!field.dataRestrictions.isRequired) {
+                return true;
+            }
+
+            // is this field present in the request?
+            // if the account on file has the field we can ignore it
+            return this.getValue(field.id) || hasValueInAof(field.id);
+        });
+    }
 }
