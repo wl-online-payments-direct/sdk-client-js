@@ -1,7 +1,5 @@
 import type { SessionDetails } from '../types';
 
-import { amdName as libName } from '../../package.json';
-
 export class SessionConfiguration {
     readonly clientSessionId: string;
     readonly customerId: string;
@@ -19,28 +17,22 @@ export class SessionConfiguration {
         ];
 
         props.forEach(([deprecated, used]) => {
-            if (!details[used]) {
+            if (!details[used] && details[deprecated]) {
                 details[used] = details[deprecated];
             } else if (details[deprecated]) {
                 throw new Error(
                     `You cannot use both the ${used} and the ${deprecated} properties. Please use the ${used} only.`,
                 );
+            } else if (!details[used]) {
+                throw new Error(`The SessionDetails parameter '${used}' is mandatory.`);
             }
         });
 
         this.clientSessionId = details.clientSessionId;
         this.customerId = details.customerId;
 
-        // ignore the region here
-        this.clientApiUrl = details.clientApiUrl as string;
-        this.assetUrl = details.assetUrl as string;
-        if (!this.clientApiUrl) {
-            throw new Error(`This version of the ${libName} requires an 'clientApiUrl', which you did not provide.`);
-        }
-
-        if (!this.assetUrl) {
-            throw new Error(`This version of the ${libName} requires an 'assetUrl', which you did not provide.`);
-        }
+        this.clientApiUrl = details.clientApiUrl;
+        this.assetUrl = details.assetUrl;
 
         try {
             this.clientApiUrl = this.#sanitizeClientApiUrl(this.clientApiUrl);
