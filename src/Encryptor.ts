@@ -10,7 +10,7 @@ interface EncryptedCustomerInput {
     clientSessionId: string;
     nonce: string;
     paymentProductId: number;
-    accountOnFileId?: number;
+    accountOnFileId?: string;
     tokenize?: boolean;
     paymentValues: Array<{ key: string; value: string }>;
     collectedDeviceInformation: DeviceInformation;

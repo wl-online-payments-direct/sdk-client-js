@@ -23,7 +23,7 @@ export class AccountOnFile {
     readonly attributes: Attribute[];
     readonly attributeByKey: { [key: string]: Attribute | undefined };
     readonly displayHints: AccountOnFileDisplayHints;
-    readonly id: number;
+    readonly id: string;
     readonly paymentProductId: number;
 
     constructor(readonly json: AccountOnFileJSON) {
@@ -36,6 +36,7 @@ export class AccountOnFile {
         _parseJSON(json, this.attributes, this.attributeByKey);
     }
 
+    // noinspection JSUnusedGlobalSymbols
     getLabel(): MaskedString | undefined {
         return this.getMaskedValueByAttributeKey('alias');
     }

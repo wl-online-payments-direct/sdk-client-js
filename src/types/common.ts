@@ -1,7 +1,7 @@
 /**
- * Returns a Map where key is a number and value is generic `T` or `undefined`
+ * Returns a Map where key is a number or string and value is generic `T` or `undefined`
  */
-export type MapById<T> = Record<number, T | undefined>;
+export type MapById<T> = Record<number | string, T | undefined>;
 
 /**
  * Returns either `U` or `T`

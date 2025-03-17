@@ -4,7 +4,7 @@ export { PaymentProduct } from '../models/PaymentProduct';
 export interface AccountOnFileJSON {
     attributes: AccountOnFileAttributeJSON[];
     displayHints: AccountOnFileDisplayHintsJSON;
-    id: number;
+    id: string;
     paymentProductId: number;
 }
 

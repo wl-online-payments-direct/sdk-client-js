@@ -1,7 +1,7 @@
 import type { EmptyValidatorJSON, ValidatableRequest, ValidationRule, ValidationRuleDefinition } from '../types';
 
 /**
- * Sanitize value by remove all unwanted chars of a Iban format
+ * Sanitize value by remove all unwanted chars of an Iban format
  */
 function _sanitizeValue(value: string): string {
     return value.replace(/[^\d\w]+/g, '').toUpperCase();

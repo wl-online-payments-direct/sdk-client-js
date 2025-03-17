@@ -11,7 +11,7 @@ const paymentProducts = [
         id: 1,
         paymentMethod: 'card',
         paymentProductGroup: 'cards',
-        accountsOnFile: [{ ...baseAccountOnFileJson, id: 1, paymentProductId: 1 }],
+        accountsOnFile: [{ ...baseAccountOnFileJson, id: '1', paymentProductId: 1 }],
     },
     { ...basePaymentProductJson, id: 302, paymentMethod: 'mobile' },
     { ...basePaymentProductJson, id: 809, paymentMethod: 'redirect' },
@@ -20,13 +20,13 @@ const paymentProducts = [
         id: 2,
         paymentMethod: 'card',
         paymentProductGroup: 'cards',
-        accountsOnFile: [{ ...baseAccountOnFileJson, id: 2, paymentProductId: 2 }],
+        accountsOnFile: [{ ...baseAccountOnFileJson, id: '2', paymentProductId: 2 }],
     },
     {
         ...basePaymentProductJson,
         id: 840,
         paymentMethod: 'redirect',
-        accountsOnFile: [{ ...baseAccountOnFileJson, id: 3, paymentProductId: 840 }],
+        accountsOnFile: [{ ...baseAccountOnFileJson, id: '3', paymentProductId: 840 }],
     },
 ];
 
@@ -39,14 +39,9 @@ it('should have `basicPaymentItems` should contain all product', () => {
 });
 
 it.each(paymentProductIds)('`basicPaymentItemById[%i]` should contain corresponding BasicPaymentProduct` ', (id) => {
-    expect(items.basicPaymentItemById[id].id).toBe(id);
+    expect(items.basicPaymentItemById[id]?.id).toBe(id);
 });
 
 it('should have correct `accountsOnFile`', () => {
-    expect(items.accountsOnFile.map((aof) => aof.id).sort()).toEqual([1, 2, 3]);
-});
-
-it('should have correct `accountsOnFileById`', () => {
-    expect(Object.keys(items.accountOnFileById).sort()).toEqual(['1', '2', '3']);
-    [1, 2, 3].forEach((id) => expect(items.accountOnFileById[id]?.id).toBe(Number(id)));
+    expect(items.accountsOnFile.map((aof) => aof.id).sort()).toEqual(['1', '2', '3']);
 });

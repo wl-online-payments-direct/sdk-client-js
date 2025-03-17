@@ -1,5 +1,5 @@
 import type { MapById } from '../types';
-import type { BasicPaymentItem, BasicPaymentItemByIdMap } from './BasicPaymentItem';
+import type { BasicPaymentItem } from './BasicPaymentItem';
 import type { AccountOnFile } from './AccountOnFile';
 import type { BasicPaymentProducts } from './BasicPaymentProducts';
 
@@ -21,7 +21,7 @@ function _parseJson(
 
 export class BasicPaymentItems {
     readonly basicPaymentItems: BasicPaymentItem[];
-    readonly basicPaymentItemById: BasicPaymentItemByIdMap;
+    readonly basicPaymentItemById: MapById<BasicPaymentItem>;
     readonly accountsOnFile: AccountOnFile[];
     readonly accountOnFileById: MapById<AccountOnFile>;
 
