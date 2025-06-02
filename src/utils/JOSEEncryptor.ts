@@ -31,15 +31,15 @@ function createProtectedHeader(kid: string): string {
     return JSON.stringify(JOSEHeader);
 }
 
-function decodePemPublicKey(publickeyB64Encoded: string): forgePki.rsa.PublicKey {
+function decodePemPublicKey(publicKeyB64Encoded: string): forgePki.rsa.PublicKey {
     // step 1: base64decode
-    const publickeyB64Decoded = forgeUtil.decode64(publickeyB64Encoded);
+    const publicKeyB64Decoded = forgeUtil.decode64(publicKeyB64Encoded);
     // create a bytebuffer with these bytes
-    const buffer2 = forgeUtil.createBuffer(publickeyB64Decoded, 'raw');
+    const buffer2 = forgeUtil.createBuffer(publicKeyB64Decoded, 'raw');
     // convert DER to ASN1 object
-    const publickeyObject2 = forgeAsn1.fromDer(buffer2);
+    const publicKeyObject2 = forgeAsn1.fromDer(buffer2);
     // convert to publicKey object
-    const publicKey2 = forgePki.publicKeyFromAsn1(publickeyObject2);
+    const publicKey2 = forgePki.publicKeyFromAsn1(publicKeyObject2);
 
     return publicKey2 as forgePki.rsa.PublicKey;
 }
@@ -60,8 +60,8 @@ function encryptPayload(payload: string, encKey: string, initializationVector: s
     return cipher.output.bytes();
 }
 
-function calculateAdditionalAuthenticatedDataLength(encodededProtectedHeader: string): string {
-    const buffer = forgeUtil.createBuffer(encodededProtectedHeader);
+function calculateAdditionalAuthenticatedDataLength(encodedProtectedHeader: string): string {
+    const buffer = forgeUtil.createBuffer(encodedProtectedHeader);
     const lengthInBits = buffer.length() * 8;
 
     const buffer2 = forgeUtil.createBuffer();
@@ -96,7 +96,7 @@ function calculateHMAC(
 
 export class JOSEEncryptor {
     encrypt<PlainTextValues>(plainTextValues: PlainTextValues, publicKeyResponse: PublicKeyResponse): string {
-        // Create protected header and encode it with Base64 encoding
+        // Create a protected header and encode it with Base64 encoding
         const payload = JSON.stringify(plainTextValues);
         const protectedHeader = createProtectedHeader(publicKeyResponse.keyId);
         const encodedProtectedHeader = base64UrlEncode(protectedHeader);
@@ -105,7 +105,7 @@ export class JOSEEncryptor {
         const CEK = forgeRandom.getBytesSync(CEKKEYLENGTH / 8);
         const publicKey = decodePemPublicKey(publicKeyResponse.publicKey);
 
-        // Encrypt the contentEncryptionKey with the GC gateway publickey and encode it with Base64 encoding
+        // Encrypt the contentEncryptionKey with the GC gateway publicKey and encode it with Base64 encoding
         const encryptedContentEncryptionKey = encryptContentEncryptionKey(CEK, publicKey);
         const encodedEncryptedContentEncryptionKey = base64UrlEncode(encryptedContentEncryptionKey);
 
@@ -121,7 +121,7 @@ export class JOSEEncryptor {
         const cipherText = encryptPayload(payload, encKey, initializationVector);
         const encodedCipherText = base64UrlEncode(cipherText);
 
-        // Create Additional Authenticated Data  and Additional Authenticated Data Length
+        // Create Additional Authenticated Data and Additional Authenticated Data Length
         const al = calculateAdditionalAuthenticatedDataLength(encodedProtectedHeader);
 
         // Calculates HMAC

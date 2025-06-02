@@ -134,7 +134,7 @@ export class C2SCommunicator<
             includeLocale: true,
         });
 
-        // check if payment product is provided by the constructor
+        // check if a payment product is provided by the constructor
         if (this.providedPaymentProduct?.id === paymentProductId) {
             if (!this.#cache.has(cacheKey)) {
                 this.#cache.set(cacheKey, this.providedPaymentProduct);
@@ -143,7 +143,7 @@ export class C2SCommunicator<
             return this.providedPaymentProduct as PaymentProductJSON;
         }
 
-        // check if product is in-memory cache
+        // check if the product is in-memory cache
         if (this.#cache.has(cacheKey)) {
             return this.#cache.get(cacheKey) as PaymentProductJSON;
         }
@@ -185,12 +185,12 @@ export class C2SCommunicator<
     ): Promise<IinDetailsResponse> {
         const cacheKey = `getPaymentProductIdByCreditCardNumber-${partialCreditCardNumber}`;
 
-        // return cached result if available
+        // return a cached result if available
         if (this.#cache.has(cacheKey)) {
             return this.#cache.get(cacheKey) as IinDetailsResponse;
         }
 
-        // validate if credit card number has enough digits
+        // validate if a credit card number has enough digits
         if (partialCreditCardNumber.length < 6) {
             throw new IinDetailsResponse('NOT_ENOUGH_DIGITS');
         }
@@ -219,7 +219,7 @@ export class C2SCommunicator<
             return iinDetailsResponse;
         }
 
-        // if `isAllowedInContext` is not available get the payment product
+        // if `isAllowedInContext` is not available, get the payment product
         // again to determine status and resolve
         try {
             const paymentProduct = await this.getPaymentProduct(json.paymentProductId, context);
@@ -346,7 +346,7 @@ export class C2SCommunicator<
         const cacheKeySuffix = this.#getCacheKeySuffix(cardOrToken);
         const cacheKey = `getSurchargeCalculation-${amountOfMoney.amount}-${amountOfMoney.currencyCode}-${cacheKeySuffix}`;
 
-        // return cached result if available
+        // return a cached result if available
         if (this.#cache.has(cacheKey)) {
             return this.#cache.get(cacheKey) as SurchargeCalculationResponse;
         }
@@ -354,7 +354,7 @@ export class C2SCommunicator<
         const cardSource = this.#getCardSource(cardOrToken);
 
         const url = this.#getBasePath('services/surchargeCalculation', ApiVersion.V1);
-        // Create Surcharge Calculation Request post body
+        // Create Surcharge Calculation Request POST body
         const requestJson: SurchargeRequestJSON = {
             cardSource,
             amountOfMoney,
@@ -390,7 +390,7 @@ export class C2SCommunicator<
         const cacheKeySuffix = this.#getCacheKeySuffix(cardOrToken);
         const cacheKey = `getCurrencyConversionQuote-${amountOfMoney.amount}-${amountOfMoney.currencyCode}-${cacheKeySuffix}`;
 
-        // return cached result if available
+        // return a cached result if available
         if (this.#cache.has(cacheKey)) {
             return this.#cache.get(cacheKey) as CurrencyConversionResponse;
         }
@@ -401,7 +401,7 @@ export class C2SCommunicator<
         const transaction = {
             amount: amountOfMoney,
         };
-        // Create Currency Conversion Request post body
+        // Create Currency Conversion Request POST body
         const request: CurrencyConversionRequest = {
             cardSource,
             transaction,
@@ -521,7 +521,7 @@ export class C2SCommunicator<
             }
         }
 
-        // The server orders in a different way, so we apply the sort order
+        // The server orders differently, so we apply the sort order
         json.fields.sort((a, b) => {
             const _a = a.displayHints?.displayOrder;
             const _b = b.displayHints?.displayOrder;

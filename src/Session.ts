@@ -68,7 +68,7 @@ export class Session {
         /**
          * Constructs a new `Session` instance that facilitates communication with a server
          * for payment-related operations. This involves initializing the session
-         * configuration and communicator, while also setting the client API and asset URLs.
+         * configuration and communicator while also setting the client API and asset URLs.
          *
          * @param {SessionDetails} sessionDetails - An object containing information required to configure the session.
          * This includes the session ID, customer ID, and URLs for API and assets.
@@ -151,8 +151,7 @@ export class Session {
     }
 
     /**
-     * Returns a lists of all the networks that can be used in
-     * the current payment context for given payment product
+     * Returns lists of all the networks that can be used in the current payment context for a given payment product.
      *
      * @param {number} paymentProductId - The payment product id
      * @param {PaymentContext} paymentContext - The payment context
@@ -172,7 +171,7 @@ export class Session {
     }
 
     /**
-     * Returns the encryptor instance to encrypt data with public key and session id.
+     * Returns the encryptor instance to encrypt data with a public key and session id.
      *
      * @return {Encryptor}
      */

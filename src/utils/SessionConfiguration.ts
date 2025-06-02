@@ -9,7 +9,7 @@ export class SessionConfiguration {
     constructor(sessionDetails: SessionDetails) {
         const details = { ...sessionDetails };
         // clientSessionID, assetBaseUrl and apiBaseUrl are deprecated but still may be used.
-        // Here we check for presence of new variables, use the old variables only if the new ones don't exist.
+        // Here we check for the presence of new variables, use the old variables only if the new ones don't exist.
         const props: [keyof SessionDetails, keyof SessionDetails][] = [
             ['clientSessionID', 'clientSessionId'],
             ['assetsBaseUrl', 'assetUrl'],

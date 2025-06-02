@@ -1,4 +1,9 @@
-import type { ApplePayC2SCommunicator, ApplePayInitResult, ApplePayPaymentContext } from '../types';
+import type {
+    ApplePayC2SCommunicator,
+    ApplePayInitResult,
+    ApplePayPaymentContext,
+    ApplePayPaymentRequest,
+} from '../types';
 
 export class ApplePay {
     isApplePayAvailable(): boolean {
@@ -12,7 +17,7 @@ export class ApplePay {
         return new Promise((resolve, reject) => {
             const countryCode = context.acquirerCountry ? context.acquirerCountry : context.countryCode;
 
-            const payment: ApplePayJS.ApplePayPaymentRequest = {
+            const payment: ApplePayPaymentRequest = {
                 currencyCode: context.amountOfMoney.currencyCode,
                 countryCode,
                 total: {

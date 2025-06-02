@@ -1,5 +1,9 @@
+/// <reference types="applepayjs" />
 import type { PaymentProductSessionContext } from './communicator.types';
 import type { CreatePaymentProductSessionResponseJSON, PaymentContext } from './payment-product.types';
+
+export type ApplePayPaymentToken = ApplePayJS.ApplePayPaymentToken;
+export type ApplePayPaymentRequest = ApplePayJS.ApplePayPaymentRequest;
 
 export interface ApplePayPaymentContext extends PaymentContext {
     displayName: string;
@@ -9,7 +13,7 @@ export interface ApplePayPaymentContext extends PaymentContext {
 
 export interface ApplePayInitResult {
     message: string;
-    data: ApplePayJS.ApplePayPaymentToken;
+    data: ApplePayPaymentToken;
 }
 
 export interface ApplePayC2SCommunicator {
