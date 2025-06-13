@@ -214,7 +214,7 @@ export class PaymentRequest {
             return true;
         }
 
-        // besides checking the fields for errors check if
+        // besides checking the fields for errors, check if
         // all mandatory fields are present as well
         const aof = this.getAccountOnFile();
         const hasValueInAof = (fieldId: PaymentProductField['id']): boolean => {
@@ -233,7 +233,7 @@ export class PaymentRequest {
             }
 
             // is this field present in the request?
-            // if the account on file has the field we can ignore it
+            // if the account on file has the field, we can ignore it
             return this.getValue(field.id) || hasValueInAof(field.id);
         });
     }

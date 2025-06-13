@@ -29,17 +29,6 @@ export class Session {
     #paymentContext?: PaymentContext;
 
     /**
-     * @deprecated This property should not be used. Its value is given via session details. Therefore, it should
-     *     already be available outside the Session instance. It will be removed in the next release.
-     */
-    readonly clientApiUrl: SessionConfiguration['clientApiUrl'];
-    /**
-     * @deprecated This property should not be used. Its value is given via session details. Therefore, it should
-     *     already be available outside the Session instance. It will be removed in the next release.
-     */
-    readonly assetUrl: SessionConfiguration['assetUrl'];
-
-    /**
      * Constructs a new instance using session details and optional payment product information.
      *
      * @param {SessionDetails} sessionDetails - The session details required to initialize the session configuration.
@@ -49,8 +38,6 @@ export class Session {
     constructor(sessionDetails: SessionDetails, paymentProduct?: PaymentProductJSON | PaymentProductGroupJSON) {
         this.#sessionConfiguration = new SessionConfiguration(sessionDetails);
         this.#c2sCommunicator = new C2SCommunicator(this.#sessionConfiguration, paymentProduct);
-        this.clientApiUrl = this.#sessionConfiguration.clientApiUrl;
-        this.assetUrl = this.#sessionConfiguration.assetUrl;
     }
 
     /**

@@ -13,7 +13,7 @@ node_modules
 
 # Tests
 .test-results.xml
-
+/test-apps
 
 # Environment variable files
 .env

@@ -1,9 +1,3 @@
-export interface PaymentProductSessionContext {
-    displayName: string;
-    domainName: string;
-    validationURL: string;
-}
-
 export type SessionDetails = {
     customerId: string;
     /** @deprecated Use `assetUrl` instead. */

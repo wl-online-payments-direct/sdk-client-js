@@ -60,10 +60,6 @@ export interface BasicPaymentProductGroupJSON {
     type?: 'group';
 }
 
-export interface CreatePaymentProductSessionResponseJSON {
-    paymentProductSession302SpecificOutput?: MobilePaymentProductSession302SpecificOutputJSON;
-}
-
 export interface KeyValuePairJSON {
     key: string;
     value: string;
@@ -72,10 +68,6 @@ export interface KeyValuePairJSON {
 export interface LabelTemplateElementJSON {
     attributeKey: string;
     mask: string;
-}
-
-export interface MobilePaymentProductSession302SpecificOutputJSON {
-    sessionObject: string;
 }
 
 export interface PaymentProductJSON extends BasicPaymentProductJSON {
