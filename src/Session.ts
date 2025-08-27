@@ -5,6 +5,7 @@ import type {
     CurrencyConversionResponse,
     PartialCard,
     PaymentContext,
+    PaymentContextWithAmount,
     PaymentProductGroupJSON,
     PaymentProductJSON,
     PaymentProductNetworksResponseJSON,
@@ -52,16 +53,6 @@ export class Session {
      */
     public async getBasicPaymentProducts(paymentContext: PaymentContext): Promise<BasicPaymentProducts> {
         const json = await this.#c2sCommunicator.getBasicPaymentProducts(paymentContext);
-        /**
-         * Constructs a new `Session` instance that facilitates communication with a server
-         * for payment-related operations. This involves initializing the session
-         * configuration and communicator while also setting the client API and asset URLs.
-         *
-         * @param {SessionDetails} sessionDetails - An object containing information required to configure the session.
-         * This includes the session ID, customer ID, and URLs for API and assets.
-         * @param {PaymentProductJSON | PaymentProductGroupJSON | undefined} paymentProduct - An optional JSON object
-         * representing a specific payment product or a group of payment products to preconfigure the session.
-         */
 
         this.#paymentContext = paymentContext;
 
@@ -111,11 +102,11 @@ export class Session {
      * best card type would be, based on your configuration
      *
      * @param {string} partialCreditCardNumber - The partial credit card number
-     * @param {PaymentContext | null} paymentContext - The payment context
+     * @param {PaymentContextWithAmount | null} paymentContext - The payment context
      */
     public async getIinDetails(
         partialCreditCardNumber: string,
-        paymentContext?: PaymentContext | null,
+        paymentContext?: PaymentContextWithAmount | null,
     ): Promise<IinDetailsResponse> {
         const context = this.#paymentContext || paymentContext;
         if (!context) {

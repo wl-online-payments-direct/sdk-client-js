@@ -1,6 +1,9 @@
 // PaymentProduct and PaymentProductGroup related
 export { PaymentProduct } from '../models/PaymentProduct';
 
+export { AccountOnFile } from '../models/AccountOnFile';
+export { BasicPaymentItems } from '../models/BasicPaymentItems';
+
 export interface AccountOnFileJSON {
     attributes: AccountOnFileAttributeJSON[];
     displayHints: AccountOnFileDisplayHintsJSON;
@@ -239,10 +242,17 @@ export interface IinDetailJSON {
 }
 
 export interface PaymentContext {
-    amountOfMoney: AmountOfMoneyJSON;
+    amountOfMoney: Omit<AmountOfMoneyJSON, 'amount'> & { amount?: number };
     countryCode: string;
     isRecurring?: boolean;
+    /**
+     * @deprecated In a future release, this property will be removed.
+     */
     locale?: string;
+}
+
+export interface PaymentContextWithAmount extends PaymentContext {
+    amountOfMoney: AmountOfMoneyJSON;
 }
 
 // Errors

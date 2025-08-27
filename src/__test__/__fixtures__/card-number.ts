@@ -1,1 +1,1 @@
-export const cardNumber = '4567 3500 0042 7977';
+export const cardNumber = '4000 0000 0000 0002';

@@ -44,10 +44,6 @@ export class Encryptor {
      * @throws {Error} Will throw an error if the payment request does not have a payment product set or is not valid.
      */
     async encrypt(paymentRequest: PaymentRequest): Promise<string> {
-        if (!paymentRequest.getPaymentProduct()) {
-            throw 'No `paymentProduct` set';
-        }
-
         if (!paymentRequest.isValid()) {
             throw paymentRequest.getErrorMessageIds();
         }
@@ -75,7 +71,7 @@ export class Encryptor {
         const blob: EncryptedCustomerInput = {
             clientSessionId,
             nonce: forgeUtil.bytesToHex(forgeRandom.getBytesSync(16)),
-            paymentProductId: paymentRequest.getPaymentProduct()?.id as number,
+            paymentProductId: paymentRequest.getPaymentProductId() as number,
             tokenize: paymentRequest.getTokenize(),
             collectedDeviceInformation: Util.collectDeviceInformation(),
             paymentValues: Object.keys(values).map((key) => ({

@@ -21,8 +21,22 @@ describe('encrypt', () => {
         request = new PaymentRequest();
     });
 
-    it('should reject with correct response when no product is provided', async () => {
-        await expect(encryptor.encrypt(request)).rejects.toThrow('No `paymentProduct` set');
+    it('should resolve with correct response when no product is provided and `noValidate` mode is active', async () => {
+        const request = new PaymentRequest(true);
+
+        const encryptedString = await encryptor.encrypt(request);
+
+        const parts = encryptedString.split('.');
+
+        expect(parts.length).toBe(5);
+
+        // the header can be checked at this point, the rest is binary data
+        const header = JSON.parse(Buffer.from(parts[0], 'base64').toString());
+        expect(header).toStrictEqual({
+            alg: 'RSA-OAEP',
+            enc: 'A256CBC-HS512',
+            kid: publicKeyResponse.keyId,
+        });
     });
 
     it('should reject with correct response when invalid request is provided', async () => {

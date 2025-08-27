@@ -9,10 +9,18 @@ export class PaymentRequest {
     #paymentProduct?: PaymentProduct;
     #accountOnFile?: AccountOnFile;
     #tokenize: boolean;
+    #paymentProductId?: number;
+    readonly #noValidate: boolean;
 
-    constructor() {
+    /**
+     * Creates and instance of the PaymentRequest.
+     *
+     * @param {boolean} noValidate Indicates whether to detach the payment request from validating product fields.
+     */
+    constructor(noValidate?: boolean) {
         this.#fieldValues = new Map();
         this.#tokenize = false;
+        this.#noValidate = noValidate ?? false;
     }
 
     /**
@@ -153,6 +161,10 @@ export class PaymentRequest {
      * @param {PaymentProduct & { type?: string }} paymentProduct - The payment product to set.
      */
     setPaymentProduct(paymentProduct: PaymentProduct & { type?: string }) {
+        if (this.#noValidate) {
+            throw new Error("Cannot set PaymentProduct when 'detached' mode is enabled.");
+        }
+
         if (paymentProduct.type === 'group') {
             return;
         }
@@ -195,12 +207,34 @@ export class PaymentRequest {
     }
 
     /**
+     * Sets the payment product id.
+     *
+     * @param {number} paymentProductId
+     */
+    setPaymentProductId(paymentProductId: number) {
+        this.#paymentProductId = paymentProductId;
+    }
+
+    /**
+     * Gets the payment product id.
+     *
+     * @returns {number}
+     */
+    getPaymentProductId(): number | undefined {
+        return this.#paymentProductId ?? this.#paymentProduct?.id;
+    }
+
+    /**
      * Checks if the payment request is valid. Ensures that there are no error
      * messages and all mandatory fields are provided.
      *
      * @returns {boolean} A boolean indicating if the request is valid.
      */
     isValid(): boolean {
+        if (this.#noValidate) {
+            return true;
+        }
+
         const paymentProduct = this.getPaymentProduct();
         if (!paymentProduct) {
             return false;

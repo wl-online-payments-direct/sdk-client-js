@@ -60,7 +60,7 @@ export class C2SCommunicator<
     /**
      * Retrieves the list of basic payment products available for the provided payment context.
      *
-     * @param {PaymentContext} context - The payment context containing details such as currency, amount, and locale.
+     * @param {PaymentContext} context - The payment context containing details such as currency and amount.
      * @return {Promise<PaymentProductsJSON>} A promise that resolves to a JSON object containing the list of payment
      *     products.
      * @throws {ResponseError} If the retrieval of basic payment products fails or no payment products are available.
@@ -69,7 +69,6 @@ export class C2SCommunicator<
         const cacheKey = this.#createCacheKeyFromContext({
             context,
             prefix: 'getPaymentProducts',
-            includeLocale: true,
         });
 
         if (this.#cache.has(cacheKey)) {
@@ -108,7 +107,7 @@ export class C2SCommunicator<
      * Retrieves a payment product based on the given payment product ID and payment context.
      *
      * @param {number} paymentProductId - The unique identifier of the payment product to retrieve.
-     * @param {PaymentContext} context - The context of the payment, including information such as locale and currency.
+     * @param {PaymentContext} context - The context of the payment, including information such as currency.
      * @return {Promise<PaymentProductJSON>} A promise that resolves to the payment product data in JSON format.
      * @throws {Object} Throws an error when the specified payment product is not supported in the browser,
      *      including an error object with details such as code, propertyName, message, and HTTP status code.
@@ -131,7 +130,6 @@ export class C2SCommunicator<
         const cacheKey = this.#createCacheKeyFromContext({
             context,
             prefix: `getPaymentProduct-${paymentProductId}`,
-            includeLocale: true,
         });
 
         // check if a payment product is provided by the constructor
@@ -282,7 +280,7 @@ export class C2SCommunicator<
      *
      * @param {number} paymentProductId - The ID of the payment product for which the networks are to be retrieved.
      * @param {PaymentContext} context - The context containing additional information required for the request, such
-     *     as locale and country.
+     *     as country.
      * @return {Promise<PaymentProductNetworksResponseJSON>} A promise that resolves to the payment product networks
      *     response.
      * @throws Error Will throw an error if the request fails.
@@ -428,31 +426,24 @@ export class C2SCommunicator<
      * @param {string} params.prefix - The prefix to prepend to the cache key.
      * @param {string} [params.suffix] - Optional suffix to append to the cache key.
      * @param {PaymentContext} params.context - The payment context providing data for the cache key generation.
-     * @param {boolean} [params.includeLocale] - Indicates whether to include the locale in the cache key.
      * @return {string} The generated cache key.
      */
     #createCacheKeyFromContext({
         prefix,
         suffix,
         context,
-        includeLocale,
     }: {
         context: PaymentContext;
         prefix: string;
         suffix?: string;
-        includeLocale?: boolean;
     }): string {
         const {
-            locale,
             countryCode,
             isRecurring,
             amountOfMoney: { amount, currencyCode },
         } = context;
 
-        const cacheKeyLocale = includeLocale ? locale : '';
-        return `${prefix}-${[amount, countryCode, cacheKeyLocale, isRecurring, currencyCode, suffix]
-            .filter(Boolean)
-            .join('_')}`;
+        return `${prefix}-${[amount, countryCode, isRecurring, currencyCode, suffix].filter(Boolean).join('_')}`;
     }
 
     /**
@@ -593,7 +584,6 @@ export class C2SCommunicator<
      * @param {string} params.path - The base path for the URL.
      * @param {ApiVersionString} params.apiVersion - The API version to use in the URL.
      * @param {PaymentContext} params.context - The payment context containing details for the query parameters.
-     * @param {boolean} [params.includeLocale=true] - Whether to include the locale in the query parameters.
      * @param {Record<string, string | number | undefined>} [params.queryParams={}] - Additional query parameters to
      *     include in the URL.
      * @param {boolean} [params.useCacheBuster=false] - Whether to include a cache-busting query parameter.
@@ -603,23 +593,20 @@ export class C2SCommunicator<
         path,
         apiVersion,
         context,
-        includeLocale = true,
         queryParams = {},
         useCacheBuster = false,
     }: {
         path: string;
         apiVersion: ApiVersionString;
         context: PaymentContext;
-        includeLocale?: boolean;
         queryParams?: Record<string, string | number | undefined>;
         useCacheBuster?: boolean;
     }): string {
         return Util.url.urlWithQueryString(this.#getBasePath(path, apiVersion), {
             countryCode: context.countryCode,
             isRecurring: context.isRecurring?.toString(),
-            amount: context.amountOfMoney.amount.toString(),
+            ...(context.amountOfMoney.amount ? { amount: context.amountOfMoney.amount.toString() } : {}),
             currencyCode: context.amountOfMoney.currencyCode,
-            locale: includeLocale ? context.locale : undefined,
             cacheBust: useCacheBuster ? new Date().getTime().toString() : undefined,
             ...queryParams,
         });

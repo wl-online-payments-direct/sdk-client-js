@@ -18,8 +18,13 @@ describe('isValid', () => {
         request = new PaymentRequest();
     });
 
-    it('should return `false` when `paymentProduct` is not set', () => {
+    it('should return `false` when `paymentProduct` is not set and `noValidate` mode inactive', () => {
         expect(request.isValid()).toBe(false);
+    });
+
+    it('should return `true` when `noValidate` mode active', () => {
+        const request = new PaymentRequest(true);
+        expect(request.isValid()).toBe(true);
     });
 
     it('should return `true` when `paymentProduct` does not have any fields to validate', () => {
@@ -105,6 +110,34 @@ describe('isValid', () => {
             request.setValue('cardNumber', '4567350000427977');
             expect(request.isValid()).toBe(true);
         });
+    });
+});
+
+describe('setPaymentProduct', () => {
+    it('should throw an error when trying to set payment product in `noValidate` mode ', () => {
+        const request = new PaymentRequest(true);
+        const _paymentProductJson = {
+            ...cardPaymentProductJson,
+            fields: [fieldRequiredLuhn],
+        };
+
+        expect(() => {
+            request.setPaymentProduct(new PaymentProduct(_paymentProductJson));
+        }).toThrowError("Cannot set PaymentProduct when 'detached' mode is enabled.");
+    });
+
+    it('should not throw an error when trying to set payment product in `standard` mode ', () => {
+        const request = new PaymentRequest();
+        const _paymentProductJson = {
+            ...cardPaymentProductJson,
+            fields: [fieldRequiredLuhn],
+        };
+
+        expect(() => {
+            request.setPaymentProduct(new PaymentProduct(_paymentProductJson));
+        }).not.toThrow();
+
+        expect(request.getPaymentProduct()).not.toBeUndefined();
     });
 });
 

@@ -3,6 +3,7 @@ import type { BasicPaymentProductJSON, MapById } from '../types';
 import { AccountOnFile } from './AccountOnFile';
 import { PaymentProductDisplayHints } from './PaymentProductDisplayHints';
 import { PaymentProduct302SpecificData } from './PaymentProduct302SpecificData';
+import { PaymentProduct320SpecificData } from './PaymentProduct320SpecificData';
 
 function _parseJSON(
     _json: BasicPaymentProductJSON,
@@ -34,6 +35,7 @@ export class BasicPaymentProduct {
     readonly mobileIntegrationLevel: string;
     readonly usesRedirectionTo3rdParty: boolean;
     readonly paymentProduct302SpecificData?: PaymentProduct302SpecificData;
+    readonly paymentProduct320SpecificData?: PaymentProduct320SpecificData;
 
     constructor(readonly json: BasicPaymentProductJSON) {
         this.json.type = 'product';
@@ -52,6 +54,10 @@ export class BasicPaymentProduct {
 
         if (json.paymentProduct302SpecificData) {
             this.paymentProduct302SpecificData = new PaymentProduct302SpecificData(json.paymentProduct302SpecificData);
+        }
+
+        if (json.paymentProduct320SpecificData) {
+            this.paymentProduct320SpecificData = new PaymentProduct320SpecificData(json.paymentProduct320SpecificData);
         }
 
         if (json.displayHintsList) {
