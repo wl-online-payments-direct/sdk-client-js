@@ -93,6 +93,8 @@ export class C2SCommunicator<
 
         const json = this.#sortProducts(response.data);
         Util.filterOutProductsThatAreNotSupportedInThisBrowser(json);
+        Util.filterOutProductsThatAreNotSupportedBySdk(json);
+
         if (json.paymentProducts.length === 0) {
             throw new ResponseError(response, 'No payment products available');
         }
@@ -113,7 +115,10 @@ export class C2SCommunicator<
      *      including an error object with details such as code, propertyName, message, and HTTP status code.
      */
     public async getPaymentProduct(paymentProductId: number, context: PaymentContext): Promise<PaymentProductJSON> {
-        if (!Util.isSupportedPaymentProductInBrowser(paymentProductId)) {
+        if (
+            !Util.isSupportedPaymentProductInBrowser(paymentProductId) ||
+            !Util.isSupportedPaymentProductBySdk(paymentProductId)
+        ) {
             throw {
                 errorId: '48b78d2d-1b35-4f8b-92cb-57cc2638e901',
                 errors: [
@@ -132,7 +137,7 @@ export class C2SCommunicator<
             prefix: `getPaymentProduct-${paymentProductId}`,
         });
 
-        // check if a payment product is provided by the constructor
+        // check if a payment product is provided when the instance is created
         if (this.providedPaymentProduct?.id === paymentProductId) {
             if (!this.#cache.has(cacheKey)) {
                 this.#cache.set(cacheKey, this.providedPaymentProduct);
@@ -578,7 +583,6 @@ export class C2SCommunicator<
 
     /**
      * Constructs a URL with query parameters derived from the provided context.
-     * @TODO: in the future; this needs to be replaced with auto generated code from the API spec
      *
      * @param {Object} params - The parameters for constructing the URL.
      * @param {string} params.path - The base path for the URL.

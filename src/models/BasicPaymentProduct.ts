@@ -32,7 +32,7 @@ export class BasicPaymentProduct {
     readonly maxAmount?: number;
     readonly minAmount?: number;
     readonly paymentMethod: string;
-    readonly mobileIntegrationLevel: string;
+    readonly mobileIntegrationLevel?: string;
     readonly usesRedirectionTo3rdParty: boolean;
     readonly paymentProduct302SpecificData?: PaymentProduct302SpecificData;
     readonly paymentProduct320SpecificData?: PaymentProduct320SpecificData;

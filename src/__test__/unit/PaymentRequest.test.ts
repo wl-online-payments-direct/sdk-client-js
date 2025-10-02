@@ -33,7 +33,7 @@ describe('isValid', () => {
         expect(request.isValid()).toBe(true);
     });
 
-    it('should return `false` when `paymentProduct` contains a field who is required, but value is not set', () => {
+    it('should return `false` when `paymentProduct` contains a field which is required, but value is not set', () => {
         const _paymentProductJson = {
             ...cardPaymentProductJson,
             fields: [fieldRequiredLuhn],
@@ -42,7 +42,7 @@ describe('isValid', () => {
         expect(request.isValid()).toBe(false);
     });
 
-    it('should return `true` when `paymentProduct` contains a field who is required, and value is set correctly', () => {
+    it('should return `true` when `paymentProduct` contains a field which is required, and value is set correctly', () => {
         const _paymentProductJson = {
             ...cardPaymentProductJson,
             fields: [fieldRequiredLuhn],
@@ -52,7 +52,7 @@ describe('isValid', () => {
         expect(request.isValid()).toBe(true);
     });
 
-    it('should return `false` when `paymentProduct` contains a field who is required, and value is set incorrectly', () => {
+    it('should return `false` when `paymentProduct` contains a field which is required, and value is set incorrectly', () => {
         const _paymentProductJson = {
             ...cardPaymentProductJson,
             fields: [fieldRequiredLuhn],
@@ -60,6 +60,50 @@ describe('isValid', () => {
         request.setPaymentProduct(new PaymentProduct(_paymentProductJson));
         request.setValue(cardNumberFieldJson.id, '456735000042797');
         expect(request.isValid()).toBe(false);
+    });
+
+    it('should return `false` when `paymentProduct` contains a field which is required, and value is not set', () => {
+        const _paymentProductJson = {
+            ...cardPaymentProductJson,
+            fields: cardPaymentProductJson.fields.map((field) => ({
+                ...field,
+                dataRestrictions: { isRequired: true, validators: {} },
+            })),
+        };
+        request.setPaymentProduct(new PaymentProduct(_paymentProductJson));
+        expect(request.isValid()).toBe(false);
+        request.setValue(cardNumberFieldJson.id, '');
+        request.setValue('expiryDate', '');
+        request.setValue('cvv', '');
+        request.setValue('cardholderName', '');
+        expect(request.isValid()).toBe(false);
+        request.setValue(cardNumberFieldJson.id, 'value');
+        expect(request.isValid()).toBe(false);
+        request.setValue('expiryDate', 'value');
+        expect(request.isValid()).toBe(false);
+        request.setValue('cvv', 'value');
+        expect(request.isValid()).toBe(false);
+        request.setValue('cardholderName', 'value');
+        expect(request.isValid()).toBe(true);
+    });
+
+    it('should return `false` when `paymentProduct` contains a field which has invalid value', () => {
+        const _paymentProductJson = { ...cardPaymentProductJson };
+        request.setPaymentProduct(new PaymentProduct(_paymentProductJson));
+        expect(request.isValid()).toBe(false);
+        request.setValue(cardNumberFieldJson.id, '4567350000427900');
+        request.setValue('expiryDate', '3214');
+        request.setValue('cvv', '123456');
+        request.setValue('cardholderName', '');
+        expect(request.isValid()).toBe(false);
+        request.setValue(cardNumberFieldJson.id, '4567350000427977');
+        expect(request.isValid()).toBe(false);
+        request.setValue('expiryDate', '12/2030');
+        expect(request.isValid()).toBe(false);
+        request.setValue('cvv', '123');
+        expect(request.isValid()).toBe(false);
+        request.setValue('cardholderName', 'John Doe');
+        expect(request.isValid()).toBe(true);
     });
 
     describe('field provided by account on file', () => {

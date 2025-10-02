@@ -30,25 +30,26 @@ export interface BasicPaymentProductJSON {
     accountsOnFile?: AccountOnFileJSON[];
     displayHintsList?: PaymentProductDisplayHintsJSON[];
     acquirerCountry?: string;
-    allowsInstallments: boolean;
+    allowsInstallments?: boolean;
     allowsRecurring: boolean;
     allowsTokenization: boolean;
     authenticationIndicator?: AuthenticationIndicatorJSON;
-    autoTokenized: boolean;
+    autoTokenized?: boolean;
     canBeIframed?: boolean;
-    deviceFingerprintEnabled: boolean;
+    deviceFingerprintEnabled?: boolean;
     displayHints: PaymentProductDisplayHintsJSON;
     id: number;
     isJavaScriptRequired?: boolean;
     maxAmount?: number;
     minAmount?: number;
-    mobileIntegrationLevel: string;
+    mobileIntegrationLevel?: string;
     paymentMethod: string;
     paymentProduct302SpecificData?: PaymentProduct302SpecificDataJSON;
     paymentProduct320SpecificData?: PaymentProduct320SpecificDataJSON;
     paymentProduct863SpecificData?: PaymentProduct863SpecificDataJSON;
     paymentProductGroup?: string;
     usesRedirectionTo3rdParty: boolean;
+    allowsAuthentication?: boolean;
     // added by the SDK
     type?: 'product';
 }
@@ -140,7 +141,8 @@ export interface PaymentProductFieldFormElementJSON {
 }
 
 export interface PaymentProductFieldTooltipJSON {
-    image: string;
+    /** @deprecated This field is deprecated and not returned from the API. */
+    image?: string;
     label?: string;
 }
 

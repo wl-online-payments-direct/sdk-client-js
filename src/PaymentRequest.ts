@@ -240,12 +240,12 @@ export class PaymentRequest {
             return false;
         }
 
-        if (this.getErrorMessageIds().length) {
-            return false;
-        }
-
         if (!paymentProduct.paymentProductFields.length) {
             return true;
+        }
+
+        if (this.getErrorMessageIds().length) {
+            return false;
         }
 
         // besides checking the fields for errors, check if
@@ -261,14 +261,14 @@ export class PaymentRequest {
             return !!attribute && attribute.status !== 'MUST_WRITE';
         };
 
-        return paymentProduct.paymentProductFields.some((field) => {
+        return paymentProduct.paymentProductFields.reduce((valid, field) => {
             if (!field.dataRestrictions.isRequired) {
-                return true;
+                return valid && true;
             }
 
             // is this field present in the request?
             // if the account on file has the field, we can ignore it
-            return this.getValue(field.id) || hasValueInAof(field.id);
-        });
+            return valid && !!(this.getValue(field.id) || hasValueInAof(field.id));
+        }, true);
     }
 }

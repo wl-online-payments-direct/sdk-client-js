@@ -2,12 +2,28 @@ import type { BasicPaymentProductJSON, DeviceInformation, Metadata, PaymentProdu
 
 import { creator as sdkCreator, version } from '../../package.json';
 
+const applePayPaymentProductId = 302;
+const maestroPaymentProductId = 117;
+const intersolvePaymentProductId = 5700;
+const sodexoSportAndCulturePaymentProductId = 5772;
+const vvvGiftCardPaymentProductId = 5784;
+
 export const Util = {
-    applePayPaymentProductId: 302,
+    applePayPaymentProductId: applePayPaymentProductId,
     paymentProductsThatAreNotSupportedInThisBrowser: [] as number[],
+    paymentProductsThatAreNotSupportedBySDK: [
+        maestroPaymentProductId,
+        intersolvePaymentProductId,
+        sodexoSportAndCulturePaymentProductId,
+        vvvGiftCardPaymentProductId,
+    ],
 
     isSupportedPaymentProductInBrowser(id: BasicPaymentProductJSON['id']): boolean {
         return !this.paymentProductsThatAreNotSupportedInThisBrowser.includes(id);
+    },
+
+    isSupportedPaymentProductBySdk(id: BasicPaymentProductJSON['id']): boolean {
+        return !this.paymentProductsThatAreNotSupportedBySDK.includes(id);
     },
 
     getMetadata(): Metadata {
@@ -47,6 +63,14 @@ export const Util = {
         }
 
         json.paymentProducts = json.paymentProducts.filter(({ id }) => this.isSupportedPaymentProductInBrowser(id));
+    },
+
+    filterOutProductsThatAreNotSupportedBySdk<Json extends Partial<PaymentProductsJSON>>(json: Json) {
+        if (!json.paymentProducts) {
+            return;
+        }
+
+        json.paymentProducts = json.paymentProducts.filter(({ id }) => this.isSupportedPaymentProductBySdk(id));
     },
 
     url: {
