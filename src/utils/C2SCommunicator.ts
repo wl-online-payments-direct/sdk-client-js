@@ -23,7 +23,7 @@ import { Util } from './Util';
 import { Net } from './Net';
 import { IinDetailsResponse } from '../models/IinDetailsResponse';
 import { PublicKeyResponse } from '../models/PublicKeyResponse';
-import { ResponseError } from '../models/ResponseError';
+import { ResponseError } from '../models/errors/ResponseError';
 import { ApiVersion } from '../types/api-version.types';
 
 type ApiVersionString = (typeof ApiVersion)[keyof typeof ApiVersion];
@@ -111,7 +111,7 @@ export class C2SCommunicator<
      * @param {number} paymentProductId - The unique identifier of the payment product to retrieve.
      * @param {PaymentContext} context - The context of the payment, including information such as currency.
      * @return {Promise<PaymentProductJSON>} A promise that resolves to the payment product data in JSON format.
-     * @throws {Object} Throws an error when the specified payment product is not supported in the browser,
+     * @throws {ResponseError} Throws an error when the specified payment product is not supported in the browser,
      *      including an error object with details such as code, propertyName, message, and HTTP status code.
      */
     public async getPaymentProduct(paymentProductId: number, context: PaymentContext): Promise<PaymentProductJSON> {
@@ -119,17 +119,24 @@ export class C2SCommunicator<
             !Util.isSupportedPaymentProductInBrowser(paymentProductId) ||
             !Util.isSupportedPaymentProductBySdk(paymentProductId)
         ) {
-            throw {
-                errorId: '48b78d2d-1b35-4f8b-92cb-57cc2638e901',
-                errors: [
-                    {
-                        code: '1007',
-                        propertyName: 'productId',
-                        message: 'UNKNOWN_PRODUCT_ID',
-                        httpStatusCode: 404,
+            throw new ResponseError(
+                {
+                    status: 404,
+                    success: false,
+                    data: {
+                        errorId: '48b78d2d-1b35-4f8b-92cb-57cc2638e901',
+                        errors: [
+                            {
+                                code: '1007',
+                                propertyName: 'productId',
+                                message: 'UNKNOWN_PRODUCT_ID',
+                                httpStatusCode: 404,
+                            },
+                        ],
                     },
-                ],
-            };
+                },
+                'Product not found or not available.',
+            );
         }
 
         const cacheKey = this.#createCacheKeyFromContext({
@@ -181,6 +188,7 @@ export class C2SCommunicator<
      * @param {PaymentContext} context - The context containing payment information and configuration details.
      * @return {Promise<IinDetailsResponse>} A promise resolving to an IinDetailsResponse object indicating the
      *     determination status and payment product details.
+     * @throws {ResponseError} Throws an error when the specified payment product is not available or the request failed.
      */
     public async getPaymentProductIdByCreditCardNumber(
         partialCreditCardNumber: string,
@@ -195,20 +203,29 @@ export class C2SCommunicator<
 
         // validate if a credit card number has enough digits
         if (partialCreditCardNumber.length < 6) {
-            throw new IinDetailsResponse('NOT_ENOUGH_DIGITS');
+            throw new ResponseError(
+                {
+                    status: 400,
+                    success: false,
+                    data: new IinDetailsResponse('NOT_ENOUGH_DIGITS'),
+                },
+                'Not enough digits in the credit card number. Minimum 6 digits required.',
+            );
         }
 
         const url = this.#getBasePath('services/getIINdetails', ApiVersion.V1);
         const data = this.convertContextToIinDetailsContext(partialCreditCardNumber, context);
 
-        const { success, data: json } = await Net.post<GetIINDetailsResponseJSON>(url, {
+        const response = await Net.post<GetIINDetailsResponseJSON>(url, {
             headers: this.#getRequestHeaders(),
             body: JSON.stringify(data),
         });
 
-        if (!success) {
-            throw new IinDetailsResponse('UNKNOWN', json);
+        if (!response.success) {
+            throw new ResponseError(response);
         }
+
+        const json = response.data;
 
         // check if this card is supported
         // if isAllowedInContext is available in the response set status and resolve
@@ -232,7 +249,11 @@ export class C2SCommunicator<
             return iinDetailsResponse;
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
-            throw new IinDetailsResponse('UNKNOWN', json);
+            throw new ResponseError({
+                status: 400,
+                success: false,
+                data: new IinDetailsResponse('UNKNOWN', response.data),
+            });
         }
     }
 
@@ -257,7 +278,7 @@ export class C2SCommunicator<
      *
      * @return {Promise<PublicKeyResponse>} A promise that resolves to a PublicKeyResponse object containing the public
      *     key data.
-     * @throws {Error} Throws an error if the API request fails.
+     * @throws {ResponseError} Throws an error if the API request fails.
      */
     public async getPublicKey(): Promise<PublicKeyResponse> {
         const cacheKey = 'publicKey';
@@ -266,15 +287,15 @@ export class C2SCommunicator<
         }
 
         const url = this.#getBasePath('/crypto/publickey', ApiVersion.V1);
-        const { success, data } = await Net.get<PublicKeyJSON>(url, {
+        const response = await Net.get<PublicKeyJSON>(url, {
             headers: this.#getRequestHeaders(),
         });
 
-        if (!success) {
-            throw data;
+        if (!response.success) {
+            throw new ResponseError(response);
         }
 
-        const publicKeyResponse = new PublicKeyResponse(data);
+        const publicKeyResponse = new PublicKeyResponse(response.data);
         this.#cache.set(cacheKey, publicKeyResponse);
 
         return publicKeyResponse;
@@ -288,7 +309,7 @@ export class C2SCommunicator<
      *     as country.
      * @return {Promise<PaymentProductNetworksResponseJSON>} A promise that resolves to the payment product networks
      *     response.
-     * @throws Error Will throw an error if the request fails.
+     * @throws {ResponseError} Will throw an error if the request fails.
      */
     public async getPaymentProductNetworks(
         paymentProductId: number,
@@ -309,17 +330,17 @@ export class C2SCommunicator<
             context,
         });
 
-        const { success, data } = await Net.get<PaymentProductNetworksResponseJSON>(url, {
+        const response = await Net.get<PaymentProductNetworksResponseJSON>(url, {
             headers: this.#getRequestHeaders(),
         });
 
-        if (!success) {
-            throw data;
+        if (!response.success) {
+            throw new ResponseError(response);
         }
 
-        this.#cache.set(cacheKey, data);
+        this.#cache.set(cacheKey, response.data);
 
-        return data;
+        return response.data;
     }
 
     /**
@@ -341,6 +362,7 @@ export class C2SCommunicator<
      *     surcharge for.
      * @param {PartialCard | Token} cardOrToken - The card details or token for the payment source.
      * @return {Promise<SurchargeCalculationResponse>} A promise resolving to the surcharge calculation response.
+     * @throws {ResponseError} Throws a ResponseError when the request failed.
      */
     public async getSurchargeCalculation(
         amountOfMoney: AmountOfMoneyJSON,
@@ -363,17 +385,18 @@ export class C2SCommunicator<
             amountOfMoney,
         };
 
-        const { success, data } = await Net.post<SurchargeCalculationResponse>(url, {
+        const response = await Net.post<SurchargeCalculationResponse>(url, {
             headers: this.#getRequestHeaders(),
             body: JSON.stringify(requestJson),
         });
-        if (!success) {
-            throw data;
+
+        if (!response.success) {
+            throw new ResponseError(response);
         }
 
-        this.#cache.set(cacheKey, data);
+        this.#cache.set(cacheKey, response.data);
 
-        return data;
+        return response.data;
     }
 
     /**
@@ -385,6 +408,7 @@ export class C2SCommunicator<
      *     currency conversion.
      * @return {Promise<CurrencyConversionResponse>} A promise that resolves to the currency conversion response,
      *     containing the converted amount and relevant details.
+     * @throws {ResponseError} Throws a ResponseError when the request failed.
      */
     public async getCurrencyConversionQuote(
         amountOfMoney: AmountOfMoneyJSON,
@@ -410,18 +434,18 @@ export class C2SCommunicator<
             transaction,
         };
 
-        const { success, data } = await Net.post<CurrencyConversionResponse>(url, {
+        const response = await Net.post<CurrencyConversionResponse>(url, {
             headers: this.#getRequestHeaders(),
             body: JSON.stringify(request),
         });
 
-        if (!success) {
-            throw data;
+        if (!response.success) {
+            throw new ResponseError(response);
         }
 
-        this.#cache.set(cacheKey, data);
+        this.#cache.set(cacheKey, response.data);
 
-        return data;
+        return response.data;
     }
 
     /**

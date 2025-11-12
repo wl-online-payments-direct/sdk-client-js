@@ -1,3 +1,29 @@
+# 3.6.0
+
+## Added
+
+A new class `CreditCardTokenRequest` has been added. It is used to create a request for a credit
+card tokenization. It works similarly to the `PaymentRequest` class, but it does not validate
+values, nor unmasks them. Encryptor class is extended with a new method `encryptTokenRequest`.
+You can use it to get the encrypted data for the tokenization request.
+
+## Changed
+
+- `Encryptor.encrypt` now throws an instance of `EncryptionError` if the payment request is not
+  valid.
+- The following methods will now throw a `ResponseError` when the request failed:
+    - `Session.getPublicKey`
+    - `Session.getIinDetails`
+    - `Session.getPaymentProductNetworks`
+    - `Session.getSurchargeCalculation`
+    - `Session.getCurrencyConversionQuote`
+- Removed support for detached mode from `PaymentRequest`. Previously, the class supported a
+  detached mode in which validation behavior differed.
+    - The fields `noValidate` and `paymentProductId` have been removed from both the class and its
+      constructor.
+    - Updated `getPaymentProductId()` to return the ID of the associated PaymentProduct object
+      instead of a standalone value.
+
 # 3.5.0
 
 ## Changed

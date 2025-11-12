@@ -9,18 +9,14 @@ export class PaymentRequest {
     #paymentProduct?: PaymentProduct;
     #accountOnFile?: AccountOnFile;
     #tokenize: boolean;
-    #paymentProductId?: number;
-    readonly #noValidate: boolean;
 
     /**
      * Creates and instance of the PaymentRequest.
      *
-     * @param {boolean} noValidate Indicates whether to detach the payment request from validating product fields.
      */
-    constructor(noValidate?: boolean) {
+    constructor() {
         this.#fieldValues = new Map();
         this.#tokenize = false;
-        this.#noValidate = noValidate ?? false;
     }
 
     /**
@@ -104,13 +100,13 @@ export class PaymentRequest {
      * @returns {string | undefined} The masked value of the field, or undefined if not set.
      */
     getMaskedValue(paymentProductFieldId: string): string | undefined {
-        const field = this.#paymentProduct?.paymentProductFieldById[paymentProductFieldId];
-        if (!field) {
-            return undefined;
-        }
-
         const value = this.getValue(paymentProductFieldId);
         if (value === undefined) {
+            return value;
+        }
+
+        const field = this.#paymentProduct?.paymentProductFieldById[paymentProductFieldId];
+        if (!field) {
             return undefined;
         }
 
@@ -133,13 +129,13 @@ export class PaymentRequest {
      * @returns {string | undefined} The unmasked value of the field, or undefined if not set.
      */
     getUnmaskedValue(paymentProductFieldId: string): string | undefined {
-        const field = this.#paymentProduct?.paymentProductFieldById[paymentProductFieldId];
-        if (!field) {
-            return undefined;
-        }
-
         const value = this.getValue(paymentProductFieldId);
         if (value === undefined) {
+            return value;
+        }
+
+        const field = this.#paymentProduct?.paymentProductFieldById[paymentProductFieldId];
+        if (!field) {
             return undefined;
         }
 
@@ -161,10 +157,6 @@ export class PaymentRequest {
      * @param {PaymentProduct & { type?: string }} paymentProduct - The payment product to set.
      */
     setPaymentProduct(paymentProduct: PaymentProduct & { type?: string }) {
-        if (this.#noValidate) {
-            throw new Error("Cannot set PaymentProduct when 'detached' mode is enabled.");
-        }
-
         if (paymentProduct.type === 'group') {
             return;
         }
@@ -207,21 +199,12 @@ export class PaymentRequest {
     }
 
     /**
-     * Sets the payment product id.
-     *
-     * @param {number} paymentProductId
-     */
-    setPaymentProductId(paymentProductId: number) {
-        this.#paymentProductId = paymentProductId;
-    }
-
-    /**
      * Gets the payment product id.
      *
      * @returns {number}
      */
     getPaymentProductId(): number | undefined {
-        return this.#paymentProductId ?? this.#paymentProduct?.id;
+        return this.#paymentProduct?.id;
     }
 
     /**
@@ -231,10 +214,6 @@ export class PaymentRequest {
      * @returns {boolean} A boolean indicating if the request is valid.
      */
     isValid(): boolean {
-        if (this.#noValidate) {
-            return true;
-        }
-
         const paymentProduct = this.getPaymentProduct();
         if (!paymentProduct) {
             return false;

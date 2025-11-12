@@ -1,6 +1,6 @@
 {
     "name": "onlinepayments-sdk-client-js",
-    "version": "3.5.0",
+    "version": "3.6.0",
     "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Online Payments platform.",
     "source": "./src/index.ts",
     "types": "./dist/types/src/index.d.ts",
@@ -14,12 +14,14 @@
         "default": "./dist/onlinepayments-sdk-client-js.js"
     },
     "type": "module",
+    "packageManager": "yarn@1.22.22",
     "scripts": {
         "watch": "microbundle watch",
         "build": "microbundle build -f umd,modern,esm --target web",
         "format": "prettier --write \"**/*.ts\"",
         "lint": "eslint ./src --ext .ts",
         "lint:fix": "eslint ./src --ext .ts --fix",
+        "audit": "audit-ci --config .audit-ci.json",
         "test": "vitest --run --config ./src/__test__/unit/vitest.config.ts",
         "test:integration": "vitest --run --config ./src/__test__/integration/vitest.config.ts",
         "tsc": "tsc --noEmit -p .",
@@ -36,30 +38,34 @@
     },
     "homepage": "https://github.com/wl-online-payments-direct/sdk-client-js#readme",
     "files": [
-        "dist"
+        "dist",
+        "CHANGELOG.md"
     ],
     "devDependencies": {
         "@types/node-forge": "^1.3.11",
         "@typescript-eslint/eslint-plugin": "^8.18.2",
         "@typescript-eslint/parser": "^8.18.2",
+        "audit-ci": "^7.1.0",
+        "browserslist": "^4.28.0",
         "dotenv": "^16.4.7",
         "edge-paths": "^3.0.5",
-        "eslint": "^9.17.0",
+        "eslint": "^9.39.1",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-prettier": "^5.2.1",
-        "happy-dom": "16.5.3",
+        "happy-dom": "^20.0.10",
         "husky": "^9.1.7",
         "microbundle": "^0.15.1",
         "node-forge": "^1.3.1",
         "onlinepayments-sdk-nodejs": "^6.0.2",
         "prettier": "^3.4.2",
         "pretty-quick": "^4.0.0",
-        "puppeteer-core": "^24.10.0",
+        "puppeteer-core": "^24.29.1",
         "typescript": "^5.7.2",
-        "vitest": "3.1.4"
+        "vitest": "^4.0.8"
     },
     "volta": {
         "node": "20.11.1",
-        "npm": "10.4.0"
-    }
+        "yarn": "1.22.22"
+    },
+    "dependencies": {}
 }

@@ -72,12 +72,14 @@ export class Session {
     }
 
     /**
-     * Retrieve details of the payment products that are
-     * configured for your account.
+     * Retrieve details of the payment products that are configured for your account.
      *
-     * @param {number} paymentProductId - The payment product id
-     * @param {PaymentContext?} paymentContext - The payment context
-     * @return {Promise<PaymentProduct>}
+     * @param {number} paymentProductId The payment product id
+     * @param {PaymentContext?} paymentContext The payment context
+     * @return {Promise<PaymentProduct>} The requested payment product instance.
+     * @throws {ResponseError} Throws a ResponseError when the specified payment product is not available.
+     * @throws {Error} Throws an Error when the payment context is not provided here or in previous calls to other
+     *      session methods.
      */
     public async getPaymentProduct(paymentProductId: number, paymentContext?: PaymentContext): Promise<PaymentProduct> {
         const context = this.#paymentContext || paymentContext;
@@ -101,8 +103,12 @@ export class Session {
      * (by looking up the first 6 or more digits) and what the
      * best card type would be, based on your configuration
      *
-     * @param {string} partialCreditCardNumber - The partial credit card number
-     * @param {PaymentContextWithAmount | null} paymentContext - The payment context
+     * @param {string} partialCreditCardNumber The partial credit card number
+     * @param {PaymentContextWithAmount | null} paymentContext The payment context
+     * @return {Promise<IinDetailsResponse>} A promise resolving to an IinDetailsResponse object indicating the
+     *      determination status and payment product details.
+     * @throws {ResponseError} Throws a ResponseError when the specified payment product is not available or the request
+     *      failed.
      */
     public async getIinDetails(
         partialCreditCardNumber: string,
@@ -123,6 +129,7 @@ export class Session {
      * Retrieves the public key from the server.
      *
      * @return {Promise<PublicKeyResponse>}
+     * @throws {ResponseError} Throws a ResponseError when the request failed.
      */
     public async getPublicKey(): Promise<PublicKeyResponse> {
         return this.#c2sCommunicator.getPublicKey();
@@ -133,6 +140,9 @@ export class Session {
      *
      * @param {number} paymentProductId - The payment product id
      * @param {PaymentContext} paymentContext - The payment context
+     * @return {Promise<PaymentProductNetworksResponseJSON>} A promise that resolves to a JSON object containing the list
+     *     of networks that can be used in the current payment context for the specified payment product.
+     * @throws {ResponseError} Throws a ResponseError when the request failed.
      */
     public async getPaymentProductNetworks(
         paymentProductId: number,
@@ -165,6 +175,7 @@ export class Session {
      * @param {PartialCard | Token} cardOrToken - A {@link PartialCard} or a {@link Token} for which the Surcharge
      *     should be calculated
      * @return {Promise<SurchargeCalculationResponse>}
+     * @throws {ResponseError} Throws a ResponseError when the request failed.
      */
     public async getSurchargeCalculation(
         amountOfMoney: AmountOfMoneyJSON,
@@ -181,6 +192,7 @@ export class Session {
      * @param {PartialCard | Token} cardOrToken - A {@link PartialCard} or a {@link Token} for which the Currency
      *     Conversion should be calculated
      * @return {Promise<CurrencyConversionResponse>}
+     * @throws {ResponseError} Throws a ResponseError when the request failed.
      */
     public async getCurrencyConversionQuote(
         amountOfMoney: AmountOfMoneyJSON,

@@ -3,7 +3,7 @@
     <node-interpreter value="project" />
     <vitest-package value="$PROJECT_DIR$/node_modules/vitest" />
     <working-dir value="$PROJECT_DIR$" />
-    <vitest-options value="--run --config src/__test__/integration/vitest.config.ts" />
+    <vitest-options value="--run --config ./src/__test__/integration/vitest.config.ts" />
     <envs />
     <scope-kind value="ALL" />
     <method v="2" />

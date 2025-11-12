@@ -31,8 +31,8 @@ export interface BasicPaymentProductJSON {
     displayHintsList?: PaymentProductDisplayHintsJSON[];
     acquirerCountry?: string;
     allowsInstallments?: boolean;
-    allowsRecurring: boolean;
-    allowsTokenization: boolean;
+    allowsRecurring?: boolean;
+    allowsTokenization?: boolean;
     authenticationIndicator?: AuthenticationIndicatorJSON;
     autoTokenized?: boolean;
     canBeIframed?: boolean;
@@ -48,7 +48,7 @@ export interface BasicPaymentProductJSON {
     paymentProduct320SpecificData?: PaymentProduct320SpecificDataJSON;
     paymentProduct863SpecificData?: PaymentProduct863SpecificDataJSON;
     paymentProductGroup?: string;
-    usesRedirectionTo3rdParty: boolean;
+    usesRedirectionTo3rdParty?: boolean;
     allowsAuthentication?: boolean;
     // added by the SDK
     type?: 'product';

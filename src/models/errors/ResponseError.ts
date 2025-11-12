@@ -1,4 +1,4 @@
-import type { SdkResponse } from '../types';
+import type { SdkResponse } from '../../types';
 
 export class ResponseError extends Error {
     readonly status: SdkResponse['status'];

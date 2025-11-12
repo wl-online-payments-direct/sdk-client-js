@@ -24,8 +24,8 @@ function _parseJSON(
 export class BasicPaymentProduct {
     readonly accountsOnFile: AccountOnFile[];
     readonly accountOnFileById: MapById<AccountOnFile>;
-    readonly allowsRecurring: boolean;
-    readonly allowsTokenization: boolean;
+    readonly allowsRecurring?: boolean;
+    readonly allowsTokenization?: boolean;
     readonly displayHints: PaymentProductDisplayHints;
     readonly displayHintsList: PaymentProductDisplayHints[];
     readonly id: number;
@@ -33,7 +33,7 @@ export class BasicPaymentProduct {
     readonly minAmount?: number;
     readonly paymentMethod: string;
     readonly mobileIntegrationLevel?: string;
-    readonly usesRedirectionTo3rdParty: boolean;
+    readonly usesRedirectionTo3rdParty?: boolean;
     readonly paymentProduct302SpecificData?: PaymentProduct302SpecificData;
     readonly paymentProduct320SpecificData?: PaymentProduct320SpecificData;
 
