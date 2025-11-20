@@ -20,7 +20,7 @@ describe('getValues', () => {
             cardNumber: '4567350000427977',
             cardholderName: 'John Doe',
             expiryDate: '12/2030',
-            securityCode: '123',
+            cvv: '123',
         });
     });
 

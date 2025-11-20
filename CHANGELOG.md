@@ -1,3 +1,10 @@
+# 3.6.1
+
+## Changed
+
+- Fixed a bug in serializing the token request.
+- Fixed a bug in encoding UTF-8 characters.
+
 # 3.6.0
 
 ## Added

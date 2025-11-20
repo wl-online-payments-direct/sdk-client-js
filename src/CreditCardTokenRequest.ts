@@ -105,7 +105,7 @@ export class CreditCardTokenRequest {
             cardNumber: this.#cardNumber,
             cardholderName: this.#cardholderName,
             expiryDate: this.#expiryDate,
-            securityCode: this.#securityCode,
+            cvv: this.#securityCode,
             paymentProductId: this.#paymentProductId,
         };
     }
