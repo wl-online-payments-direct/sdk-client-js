@@ -54,7 +54,7 @@ function encryptPayload(payload: string, encKey: string, initializationVector: s
     cipher.start({
         iv: initializationVector,
     });
-    cipher.update(forgeUtil.createBuffer(payload));
+    cipher.update(forgeUtil.createBuffer(payload, 'utf8'));
     cipher.finish();
 
     return cipher.output.bytes();

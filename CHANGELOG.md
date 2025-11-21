@@ -1,3 +1,9 @@
+# 3.6.2
+
+## Changed
+
+- Fixed a bug in the JOSEEncryptor.
+
 # 3.6.1
 
 ## Changed
