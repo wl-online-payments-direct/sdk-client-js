@@ -1,6 +1,6 @@
 # Online Payments JavaScript SDK
 
-The Online Payments JavaScript SDK helps you with accepting payments on your website, through the
+The Online Payments JavaScript SDK helps you with accepting payments on your website through the
 Online Payments platform.
 
 The SDKs’ main function is to establish a secure channel between your web app and our server. This
@@ -26,9 +26,8 @@ during the payment process.
         - [Usage ES module (ESM)](#usage-es-module-esm)
     - [Getting started](#getting-started)
     - [Type definitions](#type-definitions)
-        - [Session](#session)
+        - [OnlinePaymentsSdk](#onlinepaymentssdk)
         - [PaymentContext](#paymentcontext)
-        - [BasicPaymentItems](#basicpaymentitems)
         - [BasicPaymentProduct](#basicpaymentproduct)
         - [AccountOnFile](#accountonfile)
         - [PaymentProduct](#paymentproduct)
@@ -37,12 +36,12 @@ during the payment process.
             - [Tokenize payment request](#tokenize-payment-request)
             - [Set field values to the payment request](#set-field-values-to-the-payment-request)
             - [Validate payment request](#validate-payment-request)
+            - [AccountOnFile with read-only fields](#accountonfile-with-READ_ONLY-fields)
             - [Encrypt payment request](#encrypt-payment-request)
         - [IINDetails](#iindetails)
-        - [MaskingUtil](#maskingutil)
     - [Payment steps](#payment-steps)
         - [1. Initialize the JavaScript SDK for this payment](#1-initialize-the-javascript-sdk-for-this-payment)
-        - [2. Retrieve the payment items](#2-retrieve-the-payment-items)
+        - [2. Retrieve the payment products](#2-retrieve-the-payment-products)
         - [3. Retrieve payment product details](#3-retrieve-payment-product-details)
         - [4. Encrypt payment information](#4-encrypt-payment-information)
         - [5. Response from the Server API call](#5-response-from-the-server-api-call)
@@ -90,7 +89,7 @@ way:
     <body>
         <script src="./node_modules/onlinepayments-sdk-client-js/dist/onlinepayments-sdk-client-js.umd.js"></script>
         <script>
-            const session = new window.onlinepaymentssdk.Session({
+            const sdk = window.onlinepaymentssdk.init({
                 ...
             })
         </script>
@@ -104,7 +103,7 @@ Most bundlers (webpack, rollup, parcel, etc.) support ES Modules. The SDK can be
 following way:
 
 ```js
-import { Session } from 'onlinepayments-sdk-client-js';
+import * as OnlinePaymentsSdk from 'onlinepayments-sdk-client-js';
 ```
 
 ## Getting started
@@ -113,43 +112,42 @@ To accept your first payment using the SDK, complete the steps below. Also, see 
 Steps" for more details on these steps.
 
 1. Request your server to create a Client Session, using the Server API Create Client Session call.
-   Return the session details to your web app.
-2. Initialize the SDK with the session details
+   Return the session data to your web app.
+2. Initialize the SDK with the session data:
 
     ```typescript
-    import { Session } from 'onlinepayments-sdk-client-js';
+    import * as OnlinePaymentsSdk from 'onlinepayments-sdk-client-js';
 
-    const session = new Session({
-        clientSessionId: '47e9dc332ca24273818be2a46072e006',
-        customerId: '9991-0d93d6a0e18443bd871c89ec6d38a873',
-        clientApiUrl: 'https://clientapi.com',
-        assetUrl: 'https://asset.com',
-    });
+    const sdk = OnlinePaymentsSdk.init(
+        {
+            clientSessionId: '47e9dc332ca24273818be2a46072e006',
+            customerId: '9991-0d93d6a0e18443bd871c89ec6d38a873',
+            clientApiUrl: 'https://clientapi.com',
+            assetUrl: 'https://asset.com',
+        },
+        {
+            appIdentifier: 'MyShopIntegration', // this identifies your application
+        },
+    );
     ```
 
-3. Use the session to retrieve the available Payment Products for a provided context. Display the
-   `BasicPaymentProduct` and `accountsOnFile` lists and request your customer to select one.
+3. Use the `sdk` object to retrieve the available Payment Products for a provided context. Display
+   the `BasicPaymentProduct` and `AccountOnFile` lists and request your customer to select one.
+   Note that you can skip this step if you want to use a specific payment product.
 
     ```typescript
-    session
-        .getBasicPaymentItems({
-            countryCode: 'BE',
-            amountOfMoney: { amount: 1000, currencyCode: 'EUR' },
-            isRecurring: false,
-        })
-        .then((basicPaymentItems) => {
-            const {
-                basicPaymentItems, // array of `BasicPaymentProduct`
-                accountsOnFile, // array of `AccountOnFile`
-                json, // raw JSON (returned from server)
-                paymentProductById, // method to get basicPaymentItem when id is known
-                basicPaymentProductByAccountOnFileId, // method to get the corresponding product, based on the provided Account on File ID
-            } = basicPaymentItems;
+    const paymentContext: PaymentContextWithAmount = {
+        countryCode: 'BE',
+        amountOfMoney: { amount: 1000, currencyCode: 'EUR' },
+        isRecurring: false,
+    };
 
-            // Display the contents of basicPaymentItems & accountsOnFile to your user
+    sdk.getBasicPaymentProducts(paymentContext)
+        .then(({ paymentProducts, accountsOnFile }) => {
+            // Display the payment products and/or accounts on file.
         })
-        .catch((err) => {
-            // when promise rejects, inform user what happened
+        .catch((error) => {
+            // handle error state
         });
     ```
 
@@ -157,16 +155,16 @@ Steps" for more details on these steps.
    customer. Display the returned field information to your user to request their details.
 
     ```typescript
-    session
-        .getPaymentProduct(1, paymentContext)
+    sdk.getPaymentProduct(1, paymentContext)
         .then((paymentProduct) => {
             const {
-                paymentProductFields, // array of all the fields the user needs to fill out.
-                paymentProductFieldById, // method return `PaymentProductField` by given id
-                json, // raw server response from internal call
+                getFields, // array of all the fields the user needs to fill out.
+                getRequiredFields, // array of all the required fields the user needs to fill out.
+                getField, // returns a single PaymentProductField by id
             } = paymentProduct;
 
-            // Display the fields in paymentProductFields to your user.
+            // Display the form with fields to your user.
+            // Use the field helper functions to format and validate data.
         })
         .catch((error) => {
             // handle error state
@@ -179,8 +177,15 @@ Steps" for more details on these steps.
     ```typescript
     import { PaymentRequest } from 'onlinepayments-sdk-client-js';
 
-    const paymentRequest = new PaymentRequest();
-    paymentRequest.setPaymentProduct(paymentProduct);
+    // paymentProduct is retrieved in the previous step.
+    const paymentRequest = new PaymentRequest(paymentProduct);
+
+    // set values directly on the corresponding PaymentProductField instances.
+    paymentRequest.getField('cardNumber').setValue('1245 1254 4575 45');
+    paymentRequest.getField('cvv').setValue('123');
+    paymentRequest.getField('expiryDate').setValue('12/2027');
+
+    // OR with a helper method
     paymentRequest.setValue('cardNumber', '1245 1254 4575 45');
     paymentRequest.setValue('cvv', '123');
     paymentRequest.setValue('expiryDate', '12/2027');
@@ -194,51 +199,55 @@ Steps" for more details on these steps.
 6. Validate and encrypt the payment request and send the encrypted customer data to your server.
 
     ```typescript
-    const encryptor = session.getEncryptor();
-    encryptor
-        .encrypt(paymentRequest)
-        .then((payload) => {
-            // payload is the encrypted payment request which can safely be send to your server
+    sdk.encryptPaymentRequest(paymentRequest)
+        .then((encryptedRequest) => {
+            /*
+             * enrcyptedRequest is the encrypted payment request which can safely be send to your
+             * server. It consists of two parts: encryptedFields and encodedClientMetaInfo.
+             */
         })
         .catch((err) => {
             // payment request can not be encrypted, handle error state
         });
     ```
 
-7. From your server, make a Create payment request, providing the encrypted data in the
+7. From your server, make a Create Payment request, providing the encrypted data in the
    `encryptedCustomerInput` field.
 
 ## Type definitions
 
-### Session
+### OnlinePaymentsSdk
 
-For all interaction with the SDK an instance of Session is required. The following code fragment
-shows how `Session` is initialized. The session details are obtained by performing a Create Client
-Session call via the Server API.
+For all interaction with the SDK an instance of OnlinePaymentSdk is required. The following code
+fragment shows how `OnlinePaymentsSdk` is initialized. The session data is obtained by performing a
+Create Client Session call via the Server API, along with optional `SdkConfiguration` that includes
+`appIdentifier`, an identifier of your app.
 
 ```typescript
-import { Session } from 'onlinepayments-sdk-client-js';
+import * as OnlinePaymentsSdk from 'onlinepayments-sdk-client-js';
 
-const session = new Session({
-    clientSessionId: '47e9dc332ca24273818be2a46072e006',
-    customerId: '9991-0d93d6a0e18443bd871c89ec6d38a873',
-    clientApiUrl: 'https://clientapi.com',
-    assetUrl: 'https://asset.com',
-});
+const sdk = OnlinePaymentsSdk.init(
+    {
+        clientSessionId: '47e9dc332ca24273818be2a46072e006',
+        customerId: '9991-0d93d6a0e18443bd871c89ec6d38a873',
+        clientApiUrl: 'https://clientapi.com',
+        assetUrl: 'https://asset.com',
+    },
+    {
+        appIdentifier: 'MyShopIntegration', // this identifies your application
+    },
+);
 ```
 
-Almost all methods that are offered by `Session` are simple wrappers around the Client API. They
-make the request and convert the response to JavaScript objects that may contain convenience
-functions.
-
-If you just want the raw JSON without all the extra SDK details, then you can always get that
-via the JSON field of those objects.
+Almost all methods that are offered by `OnlinePaymentsSdk` are simple wrappers around the Client
+API. They make the request and convert the response to JavaScript objects that may contain
+convenience functions.
 
 ### PaymentContext
 
 The `PaymentContext` is an object that contains the context/settings of the upcoming payment. It is
-required as an argument to some methods of the `Session` instance. This object can contain the
-following details:
+required as an argument to some methods of the `OnlinePaymentsSdk` instance. This object can contain
+the following details:
 
 ```typescript
 export interface PaymentContext {
@@ -261,103 +270,41 @@ const paymentContext: PaymentContext = {
 };
 ```
 
-### BasicPaymentItems
-
-This object contains the available Payment Items for the current payment. Use the
-`getBasicPaymentItems` function on the `Session` instance to request the data.
-
-The object you will receive is of `BasicPaymentItems` type, which contains two lists for all
-available `BasicPaymentProduct`s and `AccountOnFile`s. These items should be displayed to the user,
-so that they can select their preferred payment method.
-
-The code fragment below shows how to get the `BasicPaymentItems` instance.
-
-```typescript
-session
-    .getBasicPaymentItems(paymentContext)
-    .then((basicPaymentItems) => {
-        const {
-            basicPaymentItems, // array of `BasicPaymentProduct`
-            accountsOnFile, // array of `AccountOnFile`
-            json, // raw JSON (returned from server)
-            paymentProductById, // method to get basicPaymentItem when id is known
-            basicPaymentProductByAccountOnFileId, // method to get basicPaymentItem when account
-        } = basicPaymentItems;
-    })
-    .catch((err) => {
-        // when promise rejects, inform user what happened
-    });
-```
-
 ### BasicPaymentProduct
 
 The SDK offers two types to represent information about payment products: `BasicPaymentProduct` and
 `PaymentProduct`.
 Practically speaking, instances of `BasicPaymentProduct` contain only the information that is
-required to display a
-simple list of payment products from which the user can select one.
-
-The type `PaymentProduct` contains additional information such as the individual form fields that
-the user needs to fill out. This type is typically used when creating a form that asks the user for
-their details. See the [PaymentProduct](#PaymentProduct) section for more info.
+required to display a simple list of payment products from which the user can select one.
 
 Below is an example of how to get display names and assets for the Visa product.
 
 ```typescript
-const basicPaymentProduct = basicPaymentItems.basicPaymentItemById[1];
+const basicPaymentProduct = basicPaymentProducts.paymentProducts.find((p) => p.id === 1);
 
 basicPaymentProduct.id; // 1
-basicPaymentProduct.displayHints.label; // VISA
-basicPaymentProduct.displayHints.logo; // https://www.domain.com/path/to/visa/logo.gif
+basicPaymentProduct.label; // VISA
+basicPaymentProduct.logo; // https://www.domain.com/path/to/visa/logo.gif
 // this is valid only if there is saved account on file
-basicPaymentProduct.accountOnFileById[1].getMaskedValueByAttributeKey['alias'].value; // **** **** **** 1234
-```
-
-### AccountOnFile
-
-An instance of `AccountOnFile` represents information about a stored card product for the current
-user. Available Account on File IDs for the current payment must be provided in the body of the
-server Create Client Session call.
-
-The code fragment below shows how display data for an account on file can be retrieved. This label
-can be shown to the customer, along with the logo of the corresponding payment product.
-
-```typescript
-// This contains all available accounts on file for the payment product.
-basicPaymentProduct.accountsOnFile;
-
-// This contains all accounts on file for payment product VISA
-const aof = basicPaymentItems.basicPaymentItemById[1].accountsOnFile;
-
-// This shows a mask based nicely formatted value for that obfuscated cardNumber.
-// The mask that is used is defined in the displayHints of this account on file.
-// If the mask was {{9999}} {{9999}} {{9999}} {{9999}} then the result would be
-// **** **** **** 7412
-const maskedValue = aof.getMaskedValueByAttributeKey('cardNumber');
+basicPaymentProduct.accountsOnFile[0].label; // e.g. 4242 **** **** 4242
 ```
 
 ### PaymentProduct
 
-The type `BasicPaymentProduct` only contains the information required by a customer to distinguish
-one payment product from another. However, once a payment item or an account on file has been
+However, once a payment item or an account on file has been
 selected, the customer must provide additional information, such as a bank account number, a credit
 card number, or an expiry date, before a payment can be processed. Each payment item can have
-several fields that need to be completed to process a payment. Instances of the
-`BasicPaymentProduct` class do not contain any information about these fields.
-
-Information about the fields of payment products is represented by instances of
-`PaymentProductField`, which are contained in instances of `PaymentProduct`. The class
-`PaymentProductField` is described below. The session component can be used to retrieve instances of
-PaymentProduct, as shown in the following code fragment.
+several fields that need to be completed to process a payment. The instance of the `PaymentProduct`
+class contains a list of fields that a user must fill in to complete the payment. For this, there
+are several helper methods that retrieve the `PaymentProductField`.
 
 ```typescript
-session
-    .getPaymentProduct(1, paymentContext)
+sdk.getPaymentProduct(1, paymentContext)
     .then((paymentProduct) => {
         const {
-            paymentProductFields, // array of all the fields the user still needs to fill out
-            paymentProductFieldById, // method return `PaymentProductField` by given id
-            json, // raw server response from internal call
+            getField, // array of all the fields available in the payment product.
+            getRequiredFields, // array of all the required fields the user needs to fill out.
+            getFields, // returns a single PaymentProductField by id
         } = paymentProduct;
     })
     .catch((error) => {
@@ -368,20 +315,41 @@ session
 ### PaymentProductField
 
 The fields of payment products are represented by instances of `PaymentProductField`. Each field has
-an identifier, a type, a definition of restrictions that apply to the value of the field, and
-information about how the field should be presented graphically to the customer. Additionally, an
-instance of a field can be used to determine whether a given value is valid for the field.
+an identifier, a type, a definition of restrictions that apply to the value of the field, and a set
+of helper methods for formatting and validating an input value.
 
-In the code fragment below, the field with identifier `“cvv”` is retrieved from a payment product.
-The data restrictions of the field are inspected to see whether this field is a required field or an
-optional field. Additionally, the display hints of the field are inspected to see whether the
-values a customer provides should be obfuscated in a user interface.
+In the code fragment below, the field with identifier `expiryDate` is retrieved from a payment
+product. Methods are available to determine whether the field is required or optional, and
+whether its values should be obfuscated in the user interface.
 
 ```typescript
-const cvvField = paymentProduct.paymentProductFieldById['cvv'];
+const field = paymentProduct.getField('expiryDate');
 
-cvvField.dataRestrictions.isRequired; // state if value is required
-cvvField.displayHints.obfuscate; // state if needs to be obfuscated
+field.isRequired(); // true if value is required.
+field.shouldObfuscate(); // true if needs to be obfuscated.
+field.applyMask('0628'); // returns 06/28
+field.removeMask('06/28'); // returns 0628
+field.validate('06/28'); // returns a list of validation errors (empty list if the value is valid)
+```
+
+### AccountOnFile
+
+An instance of `AccountOnFile` (AOF) represents information about a stored card product for the
+current user. Available AOF for the current session are available if the Create Client Session call
+on the server side had the saved tokens provided. You can find more information in the
+[API reference](https://docs.direct.worldline-solutions.com/en/api-reference#tag/Sessions/operation/CreateSessionApi).
+
+The code fragment below shows how display data for an account on file can be retrieved. This label
+can be shown to the customer, along with the logo of the corresponding payment product.
+
+```typescript
+// This contains all unique saved payment accounts from across all available payment products
+const aof = paymentProduct.accountsOnFile[0];
+
+// get display value of a field
+accountOnFile.getValue('cardNumber'); // returns masked card number
+accountOnFile.getValue('cardholderName'); // returns the cardholder name, if set
+accountOnFile.getValue('expiryDate'); // returns the expiry date, if set
 ```
 
 ### PaymentRequest
@@ -390,159 +358,210 @@ Once a payment product has been selected and an instance of `PaymentProduct` has
 payment request can be constructed. This class must be used as a container for all the values the
 customer provided.
 
-A payment request can be instantiated using the `PaymentRequest`
-
 ```typescript
 import { PaymentRequest } from 'onlinepayments-sdk-client-js';
 
-const paymentRequest = new PaymentRequest();
-// paymentProduct is an instance of the `PaymentProduct` class (not `BasicPaymentProduct`)
-paymentRequest.setPaymentProduct(paymentProduct);
+// paymentProduct is an instance of the PaymentProduct class (not BasicPaymentProduct).
+const paymentRequest = new PaymentRequest(paymentProduct);
 ```
 
-When the payment product is set, methods such as masking and unmasking values, validation, and
-encryption will work. However, the `PaymentRequest` can be instantiated in the "detached" mode. This
-means it can be used for data encryption without the internal validation against the specific
-payment product. To do this, instantiate the class with the parameter in constructor:
+When the payment product is instantiated, methods such as masking and unmasking values, validation,
+and encryption will work.
 
-```typescript
-const paymentRequest = new PaymentRequest(true);
-```
-
-This tells it to work in the detached mode. Things to have in mind:
-
-- You still need to set the payment product ID to the request so that the data can be encrypted and
-  validated once it is used in creating payment on the server side. Use
-  `paymentRequest.setPaymentProductId(number)` method for this.
-- Masking/unmasking values is not possible if you don't set the payment product. Methods will return
-  `undefined` if called without the payment product set. You can still use the masking utility from
-  the SDK for value formatting.
-- Method `paymentRequest.isValid()` will return true in the detached mode.
+Setting values is done through the instances of the [PaymentRequestField](#paymentrequestfield)
+class.
 
 #### Tokenize payment request
 
-A `PaymentProduct` has a property `tokenize`, which is used to indicate whether a payment request
+A `PaymentRequest` has a property `tokenize`, which is used to indicate whether a payment request
 should be stored as an account on file. The code fragment below shows how a payment request should
 be constructed when the request should not be stored as an account on file.
 
 ```typescript
 import { PaymentRequest } from 'onlinepayments-sdk-client-js';
 
-// create payment requet
-const paymentRequest = new PaymentRequest();
-paymentRequest.setPaymentProduct(paymentProduct);
-paymentRequest.setTokenize(false);
+// create payment requust, if tokenize not provided its default value  is false.
+const paymentRequest = new PaymentRequest(paymentProduct);
 ```
 
-If the customer selected an account on file, both the account on file and the corresponding payment
-product must be supplied while constructing the payment request, as shown below. Instances of
+If the customer selected an account on file, this instance needs to be set on the payment request
+either when instantiating an object or with a dedicated setter. Instances of
 `AccountOnFile` can be retrieved from instances of `BasicPaymentProduct` and `PaymentProduct`.
 
 ```typescript
 import { PaymentRequest } from 'onlinepayments-sdk-client-js';
+// providing paymentProduct and accountOnFile via constructor.
+const paymentRequest = new PaymentRequest(paymentProduct, accountOnFile);
 
-const paymentRequest = new PaymentRequest();
-
-paymentRequest.setPaymentProduct(paymentProduct);
-
-// accountOnFile is an instance of the `AccountOnFile` class
+// or using setAccountOnFile method:
 paymentRequest.setAccountOnFile(accountOnFile);
-paymentRequest.setTokenize(false);
 ```
+
+### PaymentRequestField
+
+Payment request fields are represented by instances of `PaymentRequestField`. Each field
+provides methods to set and retrieve values, get the field label, obtain masked values for display,
+and validate user input against the field's restrictions.
 
 #### Set field values to the payment request
 
-Once a payment request has been configured, the values for the payment product's fields can be
-supplied as follows. The identifiers of the fields, such as “cardNumber” and “cvv” in the example
-below, are used to set the values of the fields using the payment request.
+Once a payment request has been created, the values for the payment request fields can be
+supplied as follows.
 
 ```typescript
-paymentRequest.setValue('cardNumber', '1245 1254 4575 45');
-paymentRequest.setValue('cvv', '123');
+paymentRequest.getField('cardNumber').setValue('1245 1254 4575 45');
+paymentRequest.getField('cvv').setValue('123');
+```
+
+#### Validate field values
+
+Once a value is set, it can be validated. The system will validate the value using predefined
+data restrictions set on each field. This ensures only valid values could be encrypted for the
+payment request.
+
+```typescript
+const field = paymentRequest.getField('cardNumber');
+field.setValue('1245 1254 4575 45');
+if (field.validate().isValid) {
+    // the value is in the correct format.
+}
+
+// or use chained methods
+paymentRequest.getField('cvv').setValue('123').validate();
 ```
 
 #### Validate payment request
 
-Once all values have been supplied, the payment request can be validated. Behind the scenes the
-validation uses the `DataRestrictions` class for each of the fields that were added to the
-`PaymentRequest`. After the validation, a list of errors is available, which indicates the problems
-that occurred during validation. If there are no errors, the payment request can be encrypted
+Once all values have been supplied, the payment request can be validated. The `PaymentRequest` calls
+validation on each of its `PaymentRequestField` instances, which use their internal
+`DataRestrictions` and validation logic to verify that field values meet all requirements. After the
+validation, a list of errors is returned, with errors specifying which requirements were
+not met for each field. If there are no errors, the payment request can be encrypted
 and sent to our platform via your e-commerce server. If there are validation errors, the customer
-should be provided with feedback about these errors as explained above.
+should be provided with feedback about these errors as explained above. Each
+`ValidationErrorMessage` contains the error message and error type for each field to help display
+appropriate feedback.
 
 ```typescript
-const { isValid, getErrorMessageIds } = paymentRequest;
+const validationErrorMessages = paymentRequest.validate();
 
-if (!isValid()) {
-    console.log('the following fields are invalid', getErrorMessageIds());
+if (validationErrorMessages.length) {
+    console.log('the following fields are invalid', validationErrorMessages);
 }
 ```
 
-The validations are the `PaymentProductFieldValidators` linked to the `PaymentProductFields` and are
-returned as value, for example:
+Validations are defined in the `PaymentProductField` (contained within each `PaymentRequestField`)
+and return `ValidationErrorMessage` such as:
 
 ```typescript
 paymentRequest.setValue('cardNumber', '456735000042797');
-paymentRequest.getErrorMessageIds(); // ['luhn'];
+paymentRequest.validate();
+/*
+ * {
+ *      errorMessage: "Card number is in invalid format.",
+ *      paymentProductFieldId: "cardNumber",
+ *      type: "luhn"
+ *  }
+ */
 ```
+
+#### AccountOnFile with READ_ONLY fields
+
+When no `AccountOnFile` is selected for the specific `PaymentRequest`, all payment request fields(
+such as cardNumber) are writable and can be set normally.
+Once an `AccountOnFile` is set on the `PaymentRequest`, the SDK enforces the following behavior:
+
+- All previously set unwritable field values are cleared from the `PaymentRequest`.
+- Read-only fields cannot be set manually anymore. Calling setter will throw `InvalidArgumentError`.
+- Calling `paymentRequest.getField(readOnlyFieldId).getValue()` will return `undefined`.
+
+This ensures only values that can be changed are submitted.
 
 #### Encrypt payment request
 
 When the `PaymentRequest` has been initialized with the selected payment product, the payment
 product field values, potentially the selected account on file info and tokenization info, you can
-encrypt it by accessing the`Encryptor` class using `session.getEncryptor`:
-
-```typescript
-const encryptor = session.getEncryptor();
-encryptor
-    .encrypt(paymentRequest)
-    .then((payload) => {
-        // payload is the encrypted payment request which can safely be send to the server
-    })
-    .catch((err) => {
-        // payment request can not be encrypted, handle error state
-    });
-```
+encrypt it by calling `sdk.encryptPaymentRequest(request)`:
 
 > Although it's possible to use your own encryption algorithms to encrypt a payment request, we
 > advise you to use the encryption functionality offered by the SDK.
 
-When the encryptor runs, the `PaymentRequest` is first validated for potential issues with the data.
-This makes sure we're not spending time encrypting invalid data that our platform will not be able
-to process in the Server API.
+When the `sdk.encryptPaymentRequest` runs, the `PaymentRequest` is first validated for potential
+issues with the data. This makes sure we're not spending time encrypting invalid data that our
+platform will not be able to process in the Server API.
+
+### CreditCardTokenRequest
+
+This class is used to create a Card Tokenization request. It contains the essential credit card
+fields: card number, cardholder name, expiry date, cvv, and payment product id.
+
+```typescript
+const tokenRequest = new CreditCardTokenRequest();
+
+tokenRequest.setCardholderName('test');
+tokenRequest.setExpiryDate('122026');
+tokenRequest.setCardNumber('12451254457545');
+tokenRequest.setSecurityCode('123');
+tokenRequest.setProductPaymentId(1);
+```
+
+Note that there are no validation rules applied for values set in the token request since it is
+detached from the instance of the payment product. This class is meant to be used as a helper for
+encrypting data required for creating a token using Server SDK. However, if the invalid data is
+provided, the Create Token request will fail.
+
+#### Encrypt token request
+
+```typescript
+sdk.encryptTokenRequest(tokenRequest)
+    .then((encryptedRequest) => {
+        /*
+         * enrcyptedRequest is the encrypted token request which can safely be send to your
+         * server.
+         * It consists of two parts: encryptedFields and encodedClientMetaInfo.
+         */
+    })
+    .catch((err) => {
+        // token request can not be encrypted, handle error state
+    });
+```
 
 ### IINDetails
 
 The first six digits of a payment card number are known as the **Issuer Identification Number
-(IIN)**. The `session.iinDetails` call can be used to retrieve the payment product and network that
+(IIN)**. The `sdk.getIinDetails()` call can be used to retrieve the payment product and network that
 are associated with the provided IIN.
 
-An instance of `Session` can be used to check which payment product is associated with an IIN. The
-result of this check is an instance of `IINDetailsResponse`. This class has a property status that
-indicates the result of the check and a property `paymentProductId` that indicates which payment
-product is associated with the IIN.
+An instance of `OnlinePaymentsSdk` can be used to check which payment product is associated with an
+IIN. The result of this check is an instance of `IinDetailsResponse`. This class has a property
+`status` that indicates the result of the check and a property `paymentProductId` that indicates
+which payment product is associated with the IIN, if recognized.
 
 The property status can have several values:
 
 - `"SUPPORTED"` indicates that the IIN is associated with a payment product supported by our
   platform.
-- `"UNKNOWN` indicates that the IIN is not recognized.
-- `"NOT_ENOUGH_DIGITS"` indicates that fewer than six digits have been provided and that the IIN
+- `"UNKNOWN"` indicates that the IIN is not recognized.
+- `"NOT_ENOUGH_DIGITS"` indicates that fewer than six digits have been provided, and that the IIN
   check cannot be performed.
 - `"EXISTING_BUT_NOT_ALLOWED"` indicates that the provided IIN is recognized, but that the
-  corresponding product is not allowed for the current payment.
+  corresponding product is not allowed for the current payment or merchant.
 
 ```typescript
 const partialCreditCardNumber = '456735';
 const paymentContext: PaymentContextWithAmount = {
-    // ...
+    countryCode: 'BE',
+    amountOfMoney: { amount: 1000, currencyCode: 'EUR' },
+    isRecurring: false,
 };
 
-session
-    .getIinDetails(partialCreditCardNumber, paymentContext)
+sdk.getIinDetails(partialCreditCardNumber, paymentContext)
     .then((response) => {
         // response is an instance of `IinDetailsResponse`
-        const isSupported = response.status === 'SUPPORTED';
+        const isSupported = response.status === IinDetailsStatus.SUPPORTED;
+
+        // the list of co-brands, if available:
+        const coBrands = response.coBrands;
     })
     .catch((error) => {
         // handle error state
@@ -552,46 +571,26 @@ session
 Some cards are co-branded and could be processed as either a local card _(with a local brand)_ or an
 international card _(with an international brand)_. In case you are not set up to process these
 local cards, this API call will not return that card type in its response. As soon as the first
-six digits of the card number have been captured you can use the method `session.getIinDetails` API
+six digits of the card number have been captured, you can use the method `sdk.getIinDetails()`
 to verify the card type and check if you can accept this card. The returned `paymentProductId` can
-be used to provide visual feedback to the user by showing the appropriate payment product logo.
-
-> **Note:** `paymentContext` is only optional when you have already called
-> `session.getBasicPaymentItems` or `session.getPaymentProductNetworks`; then the `paymentContext`
-> will be taken from the session.
+be used to retrieve the payment product and provide visual feedback to the user by showing the
+appropriate payment product logo.
 
 ### Masking
 
 To help in formatting field values based on masks, the SDK offers a base set of masking functions in
-`PaymentRequest`, `PaymentProductField` and `AccountOnFile`. Besides these base masking functions,
-the JavaScript SDK offers the following additional method in `PaymentProductField`:
+`PaymentProductField`.
 
 ```typescript
-applyWildcardMask: (newValue: string, oldValue?: string) => MaskedString;
-```
+const field = paymentProduct.getField('cardNumber');
+// applying mask on a field.
+field.applyMask('1234123412341234');
 
-This set of masking functions all make use of the `StringFormatter` class to apply the actual logic,
-which is also publicly available in the SDK.
+// removing mask from a field.
+field.removeMask('1234 1234 1234 1234');
 
-### MaskingUtil
-
-To help in formatting field values based on masks, the SDk offers the `MaskingUtil` class. It allows
-you to apply and unapply masks on string.
-
-```typescript
-import { MaskingUtil } from 'onlinepayments-sdk-client-js';
-
-const maskingUtil = new MaskingUtil();
-
-const mask = '{{9999}} {{9999}} {{9999}} {{9999}}';
-const value = '1234567890123456';
-
-// apply masked value
-const maskedString = maskingUtil.applyMask(mask, value);
-const maskedValue = maskedString.getFormattedValue(); // "1234 5678 9012 3456"
-
-// remove masked value
-maskingUtil.removeMask(mask, maskedValue); // "1234567890123456"
+// getting masked value from `PaymentRequestField`
+const maskedValue = paymentRequest.getField('cardNumber').getMaskedValue();
 ```
 
 ## Payment steps
@@ -604,11 +603,10 @@ This is done using information such as _session and customer identifiers_, conne
 payment information like currency and total amount.
 
 ```typescript
-import type { PaymentContext } from 'onlinepayments-sdk-client-js';
-import { Session } from 'onlinepayments-sdk-client-js';
+import { init, PaymentContext } from 'onlinepayments-sdk-client-js';
 
-// create session
-const session = new Session({
+// create sdk
+const sdk = init({
     clientSessionId: '47e9dc332ca24273818be2a46072e006',
     customerId: '9991-0d93d6a0e18443bd871c89ec6d38a873',
     clientApiUrl: 'https://clientapi.com',
@@ -625,8 +623,7 @@ const paymentContext: PaymentContext = {
 };
 ```
 
-> A successful response from Create Session can be used directly as input for the Session
-> constructor.
+> A successful response from Create Session can be used directly as input for the SDK init method.
 
 - `clientSessionId` / `customerId` properties are used for authentication. These can be
   obtained by your e-commerce server using one of the Server SDKs or directly using the Create
@@ -635,7 +632,7 @@ const paymentContext: PaymentContext = {
   types of servers to perform its tasks. One type of server offers the Client API discussed above,
   and the other type of server stores the static resources used by the SDK, such as the logos of
   payment products.
-- _Payment information_ (`paymentContext`): This information is not needed to construct a session,
+- _Payment information_ (`paymentContext`): This information is not needed to construct an SDK,
   but you will need to provide it when requesting any payment product information. The payment
   products that the customer can choose from depend on payment information, so the Client SDK needs
   this information to be able to do its job.
@@ -645,25 +642,23 @@ const paymentContext: PaymentContext = {
     - the country of the person that is performing the payment, defined as property `countryCode`
     - whether the payment is a single payment or a recurring payment.
 
-### 2. Retrieve the payment items
+### 2. Retrieve the payment products
 
-Retrieve the payment items and accounts on file that can be used for this payment from the Client
+Retrieve the payment products and accounts on file that can be used for this payment from the Client
 API. Your application can use this data to create the payment product selection screen.
 
 ```typescript
-session
-    .getBasicPaymentItems(paymentContext)
-    .then(({ basicPaymentItems }) => {
-        console.log(basicPaymentItems);
+sdk.getBasicPaymentProducts(paymentContext)
+    .then(({ paymentProducts, accountsOnFile }) => {
         // list of `BasicPaymentProduct`
-        // see `import('onlinepaymentssdk').BasicPaymentProduct`
+        console.log(paymentProducts);
     })
     .catch(console.error);
 ```
 
 After initialization, the JavaScript SDK offers easy access to all the payment items that can be
-used for this payment. Payment items are instances of BasicPaymentProduct. Your app can use these
-items to create a screen that lists them all.
+used for this payment. Payment products are instances of BasicPaymentProduct. Your app can use these
+products to create a screen that lists them all.
 
 For some payment products, customers can indicate that they want our platform to store part of the
 data they enter while using such a payment product. For example, it is possible to store the
@@ -682,32 +677,21 @@ needs to provide based on the selected payment product or account on file. Your 
 use this information to create the payment product details screen.
 
 ```typescript
-import type { PaymentProduct, PaymentProductField } from 'onlinepayments-sdk-client-js';
-import { PaymentRequest } from 'onlinepayments-sdk-client-js';
-
-const paymentItemId = 1; // could be extracted from url path
-
-// create an instance of PaymentRequest to build the request
-const paymentRequest = new PaymentRequest();
-
-function renderField(field: PaymentProductField) {
-    // each field value needs to be set to the `paymentRequest` with `setValue`
-    // example: `paymentRequest.setValue('cardholderName', 'John Do')`
-    // .. render field to screen
+// you can use ID from the selected payment product retrieved in the previous step
+const paymentProductId = 1;
+try {
+    let paymentProduct = await sdk.getPaymentProduct(id, paymentContext);
+    renderFields(paymentProduct.getFields());
+} catch (e) {
+    // handle error
+    console.error(e);
 }
 
-session
-    .getPaymentProduct(id, paymentContext)
-    .then((paymentProduct: PaymentProduct) => {
-        // attach the paymentProduct to the request
-        paymentRequest.setPaymentProduct(paymentProduct);
-
-        const { paymentProductFields } = paymentProduct;
-
-        // we can render the fields!!
-        paymentProductFields.forEach(renderField);
-    })
-    .catch(console.error);
+function renderFields(fields: PaymentProductField[]) {
+    // each field value needs to be set to the `paymentRequest` with `setValue`
+    // example: `paymentRequest.getField('cardholderName').setValue(form.cardholderName)`
+    // .. render fields to screen
+}
 ```
 
 Once the customer has selected a payment item or a stored account on file, the SDK can request which
@@ -723,28 +707,29 @@ additional information that needs to be entered, this screen can be skipped.
 
 ### 4. Encrypt payment information
 
-Encrypt all the provided payment information with `session.getEncryptor`. Your application sends the
-encrypted result to your e-commerce server, which sends it to the Server API.
+Encrypt all the provided payment information with `sdk.encryptPaymentRequest`. Your application
+sends the encrypted result to your e-commerce server, which sends it to the Server API.
 
 ```typescript
 import { PaymentRequest } from 'onlinepayments-sdk-client-js';
 
-const paymentRequest = new PaymentRequest();
-paymentRequest.setPaymentProduct(paymentProduct);
-paymentRequest.setValue('cardholderName', 'John Do');
-// set other fields
+const paymentRequest = new PaymentRequest(paymentProduct);
+// get field value from your input component
+paymentRequest.getField('cardholderName').setValue('John Do');
+// set other fields...
 
-if (!paymentRequest.isValid()) {
-    throw new Error(`Errors found in ${paymentRequest.getErrorMessageIds()}`);
+const validationErrorMessages = paymentRequest.validate();
+
+if (validationMessages.lenght) {
+    // display errors to the user.
+} else {
+    sdk.encryptPaymentRequest(paymentRequest)
+        .then((encryptedRequest: EncryptedRequest) => {
+            // encryptedRequest.encryptedCustomerInput can be used to send the encrypted input data
+            // to the Server SDK to create a payment
+        })
+        .catch(console.error);
 }
-
-session
-    .getEncryptor()
-    .encrypt(paymentRequest)
-    .then((encryptedPayload: string) => {
-        // `encryptedPayload` can be use to send to the Server SDK to create a payment
-    })
-    .catch(console.error);
 ```
 
 All the heavy lifting, such as requesting a public key from the Client API, performing the
@@ -770,9 +755,9 @@ smartly, [see documentation](https://vitest.dev/guide/features.html#watch-mode).
 
 ### Unit tests
 
-Testing input and output of small isolated functions (units) can be found in `./src/__test__/unit`.
+Testing input and output of small isolated functions (units) can be found in `./tests/unit`.
 You don't need to expose any environment variables to execute unit tests, you can run them by using:
 
 ```bash
-npm run test
+yarn run test
 ```

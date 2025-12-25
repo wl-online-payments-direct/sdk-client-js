@@ -1,3 +1,67 @@
+# 4.0.0
+
+The SDK was internally refactored to be unified with Client SDKs in other technologies.
+This log states only externally visible changes. For usage example, check the [README.md](README.md)
+file.
+
+## Changed
+
+- The main entry `Session` class changed to `OnlinePaymentSdk`. It is instantiated with
+  `init(sessionData, configuration?)` provided in the main SDK export.
+- Fluent API added for domain models:
+    - `PaymentProductField`:
+        - `validate(value)` returns array of `ValidationErrorMessage` (previously `isValid()`).
+        - Added methods: `getLabel()`, `getPlaceholder()`, `getDisplayOrder()`, `isRequired()`,
+          `shouldObfuscate()`, `applyMask(value)`, `removeMask(value)`
+    - `PaymentRequest`:
+        - Constructor now requires `PaymentProduct` (previously optional).
+        - `validate()` returns `ValidationResult` containing validation errors.
+        - Field values managed through `PaymentRequestField` instances.
+        - Setting `AccountOnFile` automatically clears non-writable field values set previously
+          on the payment request.
+        - Setting a value to a READ_ONLY field throws `InvalidArgumentError`.
+
+## Added
+
+- `PaymentProduct`: added methods for field access:
+    - `getFields()` - returns all fields
+    - `getRequiredFields()` - returns only required fields
+    - `getField(id)` - returns specific field by ID
+- `PaymentRequestField` - Internal class for field value management with methods:
+    - `getValue()`, `setValue(value)`, `clearValue()`
+    - `getMaskedValue()`, `getType()`
+    - `getId()`, `getLabel()`, `getPlaceholder()`, `isRequired()`, `shouldObfuscate()`
+    - `validate()` - validates individual field value
+- `PaymentRequest`: added methods:
+    - `getField(id)` - returns `PaymentRequestField` for fluent API
+    - `getValues()` - returns all unmasked values as object
+    - `validate()` - validates entire request, returns `ValidationResult` (see below)
+- `AccountOnFile`: added methods
+    - `getValue(fieldId)` - get stored value for field
+    - `getRequiredAttributes()` - get attributes that must be provided
+    - `isWritable(fieldId)` - check if field can be modified
+- `BasicPaymentProduct`: added method
+    - `getAccountOnFile(id)` - retrieve specific account on file
+- `ValidationResult` - New class wrapping validation results with:
+    - `isValid` - boolean indicating if validation passed
+    - `errors` - array of `ValidationErrorMessage`
+- Error hierarchy:
+    - `SDKError` - Abstract base class for all SDK errors
+    - `ConfigurationError` - Invalid session/config data
+    - `InvalidArgumentError` - Invalid method arguments
+    - `ResponseError` - API request failures (includes HTTP status)
+    - `EncryptionError` - Encryption or validation failures
+- `SdkConfiguration` parameter with `appIdentifier` property to identify the integrating
+  application.
+
+## Removed
+
+- `JSON` properties not returned from methods anymore (direct object access instead).
+- `BasicPaymentItems` class removed.
+- `getBasicPaymentItems()` method removed from facade. Use `getBasicPaymentProducts()` instead.
+- `Session` class removed. Use `init()` function to create `OnlinePaymentSdk` instance. The
+  interface of the previous `Session` and new `OnlinePaymentsSdk` instances is mostly the same.
+
 # 3.6.2
 
 ## Changed

@@ -2,19 +2,20 @@ node_modules
 /.project
 /npm-debug.log
 .vscode
-.idea
-*.iml
 *.tsbuildinfo
 .DS_Store
 .cache
 
 # Distribution
 /dist/
-*.tgz
 
 # Tests
 .test-results.xml
 /test-apps
+/test-results
+/coverage
+*.local.json
 
 # Environment variable files
 .env
+*.tgz

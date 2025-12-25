@@ -7,8 +7,7 @@
         "sourceMap": true,
         "module": "ESNext",
         "noEmit": true,
-        "rootDir": "./",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "verbatimModuleSyntax": true,
@@ -19,9 +18,7 @@
         "strict": true,
         "skipLibCheck": false,
         "allowSyntheticDefaultImports": true,
-        "declaration": true,
-        "declarationDir": "./dist/types"
+        "declaration": true
     },
-    "include": ["src", "types/global.d.ts"],
-    "exclude": ["src/__test__"]
+    "include": ["src", "tests", "types/global.d.ts"]
 }

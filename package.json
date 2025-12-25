@@ -1,29 +1,31 @@
 {
     "name": "onlinepayments-sdk-client-js",
-    "version": "3.6.2",
+    "version": "4.0.0",
     "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Online Payments platform.",
     "source": "./src/index.ts",
-    "types": "./dist/types/src/index.d.ts",
+    "types": "./dist/types/index.d.ts",
     "main": "./dist/onlinepayments-sdk-client-js.js",
     "module": "./dist/onlinepayments-sdk-client-js.module.js",
     "umd:main": "./dist/onlinepayments-sdk-client-js.umd.js",
     "amdName": "onlinepaymentssdk",
     "creator": "OnlinePayments",
     "exports": {
-        "types": "./dist/types/src/index.d.ts",
+        "types": "./dist/types/index.d.ts",
         "default": "./dist/onlinepayments-sdk-client-js.js"
     },
     "type": "module",
     "packageManager": "yarn@1.22.22",
     "scripts": {
         "watch": "microbundle watch",
-        "build": "microbundle build -f umd,modern,esm --target web",
+        "build": "microbundle build --tsconfig tsconfig.build.json -f umd,modern,esm --target web",
         "format": "prettier --write \"**/*.ts\"",
         "lint": "eslint ./src --ext .ts",
         "lint:fix": "eslint ./src --ext .ts --fix",
         "audit": "yarn audit --groups dependencies",
-        "test": "vitest --run --config ./src/__test__/unit/vitest.config.ts",
-        "test:integration": "vitest --run --config ./src/__test__/integration/vitest.config.ts",
+        "test": "vitest --run",
+        "test:coverage": "vitest --run --coverage",
+        "test:unit": "vitest --run --project unit",
+        "test:integration": "vitest --run --project integration",
         "tsc": "tsc --noEmit -p .",
         "prepare": "husky"
     },
@@ -45,6 +47,7 @@
         "@types/node-forge": "^1.3.11",
         "@typescript-eslint/eslint-plugin": "^8.18.2",
         "@typescript-eslint/parser": "^8.18.2",
+        "@vitest/coverage-v8": "^4.0.16",
         "browserslist": "^4.28.0",
         "dotenv": "^16.4.7",
         "edge-paths": "^3.0.5",
@@ -55,16 +58,17 @@
         "husky": "^9.1.7",
         "microbundle": "^0.15.1",
         "node-forge": "^1.3.1",
-        "onlinepayments-sdk-nodejs": "^6.3.1",
+        "onlinepayments-sdk-nodejs": "^6.4.1",
         "prettier": "^3.4.2",
         "pretty-quick": "^4.0.0",
         "puppeteer-core": "^24.29.1",
         "typescript": "^5.7.2",
-        "vitest": "^4.0.12"
+        "typescript-eslint": "^8.50.1",
+        "vitest": "^4.0.16",
+        "vitest-mock-extended": "^3.1.0"
     },
     "volta": {
         "node": "20.11.1",
         "yarn": "1.22.22"
-    },
-    "dependencies": {}
+    }
 }
