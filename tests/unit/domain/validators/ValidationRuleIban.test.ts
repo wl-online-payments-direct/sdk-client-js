@@ -1,93 +1,39 @@
-import { describe, expect, it } from 'vitest';
-import { ValidationRuleIban } from '../../../../src/domain/validators/ValidationRuleIban';
-import type { EmptyValidatorJson, ValidationRuleDefinition } from '../../../../src/types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
 
-describe('ValidationRuleIban', () => {
-    const createValidator = (): ValidationRuleIban => {
-        const json: ValidationRuleDefinition<EmptyValidatorJson> = {
-            type: 'iban',
-            attributes: {},
-        };
-        return new ValidationRuleIban(json);
-    };
+import { ValidationRuleIban } from '../../../../src/domain/validation/rules/ValidationRuleIban';
+import { createValidationRuleTest } from './helpers/create-validation-rule-test';
 
-    it('should validate correct IBAN numbers', () => {
-        const validator = createValidator();
+const rule = new ValidationRuleIban();
 
-        // Valid IBANs from different countries
-        expect(validator.validate('DE89370400440532013000')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('GB82WEST12345698765432')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('FR1420041010050500013M02606')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('NL91ABNA0417164300')).toEqual({
-            valid: true,
-            message: '',
-        });
-    });
-
-    it('should validate IBAN with spaces', () => {
-        const validator = createValidator();
-
-        expect(validator.validate('DE89 3704 0044 0532 0130 00')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('GB82 WEST 1234 5698 7654 32')).toEqual({
-            valid: true,
-            message: '',
-        });
-    });
-
-    it('should reject invalid IBAN numbers', () => {
-        const validator = createValidator();
-
-        // Invalid check digits
-        expect(validator.validate('DE89370400440532013001')).toEqual({
-            valid: false,
-            message: 'IBAN is not in the correct format.',
-        });
-
-        // Too short
-        expect(validator.validate('DE8937040044')).toEqual({
-            valid: false,
-            message: 'IBAN is not in the correct format.',
-        });
-
-        // Invalid country code
-        expect(validator.validate('XX89370400440532013000')).toEqual({
-            valid: false,
-            message: 'IBAN is not in the correct format.',
-        });
-    });
-
-    it('should reject non-IBAN values', () => {
-        const validator = createValidator();
-
-        expect(validator.validate('not-an-iban')).toEqual({
-            valid: false,
-            message: 'IBAN is not in the correct format.',
-        });
-
-        expect(validator.validate('1234567890')).toEqual({
-            valid: false,
-            message: 'IBAN is not in the correct format.',
-        });
-
-        expect(validator.validate('')).toEqual({
-            valid: false,
-            message: 'IBAN is not in the correct format.',
-        });
-    });
-});
+createValidationRuleTest(rule, [
+    ...['DE89370400440532013000', 'GB82WEST12345698765432', 'NL91ABNA0417164300', 'FR1420041010050500013M02606'].map(
+        (value) => ({
+            msg: 'should validate correct IBAN numbers',
+            value,
+            isValid: true,
+        }),
+    ),
+    ...['DE89 3704 0044 0532 0130 00', 'GB82 WEST 1234 5698 7654 32'].map((value) => ({
+        msg: 'should validate IBAN numbers with spaces',
+        value,
+        isValid: true,
+    })),
+    ...['DE89370400440532013001', 'DE8937040044', 'XX89370400440532013000'].map((value) => ({
+        msg: 'should reject invalid IBAN numbers',
+        value,
+        isValid: false,
+    })),
+    ...['not-an-iban', '1234567890', ''].map((value) => ({
+        msg: 'should reject non-IBAN values',
+        value,
+        isValid: false,
+    })),
+]);

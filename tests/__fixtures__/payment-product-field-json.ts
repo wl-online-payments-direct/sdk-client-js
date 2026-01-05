@@ -1,6 +1,16 @@
-import type { PaymentProductFieldJson } from '../../src/types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
 
-export const paymentProductFieldJson: PaymentProductFieldJson = {
+import type { PaymentProductFieldDto } from '../../src/infrastructure/apiModels/paymentProduct/PaymentProductFieldDto';
+
+export const paymentProductFieldJson: PaymentProductFieldDto = {
     dataRestrictions: {
         isRequired: true,
         validators: {
@@ -33,7 +43,7 @@ export const paymentProductFieldJson: PaymentProductFieldJson = {
     type: 'numericstring',
 };
 
-export const cardNumberFieldJson: PaymentProductFieldJson = {
+export const cardNumberFieldJson: PaymentProductFieldDto = {
     dataRestrictions: { isRequired: true, validators: { luhn: {} } },
     id: 'cardNumber',
     type: 'numericstring',

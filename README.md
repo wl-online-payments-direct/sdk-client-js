@@ -203,7 +203,7 @@ Steps" for more details on these steps.
         .then((encryptedRequest) => {
             /*
              * enrcyptedRequest is the encrypted payment request which can safely be send to your
-             * server. It consists of two parts: encryptedFields and encodedClientMetaInfo.
+             * server. It consists of two parts: encryptedCustomerInput and encodedClientMetaInfo.
              */
         })
         .catch((err) => {
@@ -443,15 +443,15 @@ should be provided with feedback about these errors as explained above. Each
 appropriate feedback.
 
 ```typescript
-const validationErrorMessages = paymentRequest.validate();
+const validationResult = paymentRequest.validate();
 
-if (validationErrorMessages.length) {
-    console.log('the following fields are invalid', validationErrorMessages);
+if (!validationResult.isValid) {
+    console.log('the following fields are invalid', validationResult.errors);
 }
 ```
 
 Validations are defined in the `PaymentProductField` (contained within each `PaymentRequestField`)
-and return `ValidationErrorMessage` such as:
+and they return `ValidationErrorMessage` such as:
 
 ```typescript
 paymentRequest.setValue('cardNumber', '456735000042797');
@@ -518,7 +518,7 @@ sdk.encryptTokenRequest(tokenRequest)
         /*
          * enrcyptedRequest is the encrypted token request which can safely be send to your
          * server.
-         * It consists of two parts: encryptedFields and encodedClientMetaInfo.
+         * It consists of two parts: encryptedCustomerInput and encodedClientMetaInfo.
          */
     })
     .catch((err) => {
@@ -718,10 +718,10 @@ const paymentRequest = new PaymentRequest(paymentProduct);
 paymentRequest.getField('cardholderName').setValue('John Do');
 // set other fields...
 
-const validationErrorMessages = paymentRequest.validate();
+const validationResult = paymentRequest.validate();
 
-if (validationMessages.lenght) {
-    // display errors to the user.
+if (!validationResult.isValid) {
+    // use validationResult.errors to display errors to the user.
 } else {
     sdk.encryptPaymentRequest(paymentRequest)
         .then((encryptedRequest: EncryptedRequest) => {

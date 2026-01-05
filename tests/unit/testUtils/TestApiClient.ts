@@ -1,6 +1,17 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { type ApiClient } from '../../../src/infrastructure/interfaces/ApiClient';
-import { ApiVersion, type SdkResponse } from '../../../src/types';
-import { type PaymentContext } from '../../../src/types/context/PaymentContext';
+import { type PaymentContext } from '../../../src/domain/PaymentContext';
+import type { ApiVersion } from '../../../src/infrastructure/models/ApiVersion';
+import type { SdkResponse } from '../../../src';
 
 export class TestApiClient implements ApiClient {
     /**

@@ -1,3 +1,19 @@
+# 4.1.0
+
+## Changed
+
+- Reduced code by extracting common logic.
+- The `EncryptionService.encrypt` will now throw `InvalidArgumentError` instead of
+  `EncryptionError` if the payment request is not valid.
+- Fixed bug in caching payment products that might not be available.
+- Reorganized code internally. This does not affect external usage.
+
+## Added
+
+- Added `CommunicationError` that is thrown when the communication with the API cannot be
+  established.
+- Added more unit tests
+
 # 4.0.0
 
 The SDK was internally refactored to be unified with Client SDKs in other technologies.
@@ -20,6 +36,8 @@ file.
         - Setting `AccountOnFile` automatically clears non-writable field values set previously
           on the payment request.
         - Setting a value to a READ_ONLY field throws `InvalidArgumentError`.
+- The `EncryptedRequest` object's `encryptedFields` property is renamed to
+  `encryptedCustomerInput` to match the property name for the Create Payment Request.
 
 ## Added
 
@@ -114,7 +132,7 @@ You can use it to get the encrypted data for the tokenization request.
     - Intersolve (id: 5700)
     - Sodexo & Sport Culture (id: 5772)
     - VVV Giftcard (id: 5784)
-- The property `PaymentProductField.DisplayHints.Tooltip.image` is marked deprecated and will be
+- The property `PaymentProductField.DisplayHints.TooltipDto.image` is marked deprecated and will be
   removed in the next release since it is not being sent from the API.
 - The boolean properties of the `BasicPaymentProduct` type were properly marked as undefinable.
 

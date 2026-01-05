@@ -1,56 +1,52 @@
-import { describe, expect, it } from 'vitest';
-import { ValidationRuleEmailAddress } from '../../../../src/domain/validators/ValidationRuleEmailAddress';
-import type { EmptyValidatorJson, ValidationRuleDefinition } from '../../../../src/types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
 
-describe('ValidationRuleEmailAddress', () => {
-    const createValidator = (): ValidationRuleEmailAddress => {
-        const json: ValidationRuleDefinition<EmptyValidatorJson> = {
-            type: 'emailAddress',
-            attributes: {},
-        };
-        return new ValidationRuleEmailAddress(json);
-    };
+import { ValidationRuleEmailAddress } from '../../../../src/domain/validation/rules/ValidationRuleEmailAddress';
+import { createValidationRuleTest } from './helpers/create-validation-rule-test';
 
-    it('should validate correct email addresses', () => {
-        const validator = createValidator();
+const rule = new ValidationRuleEmailAddress();
 
-        expect(validator.validate('test@example.com')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('user.name@example.com')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('user+tag@example.co.uk')).toEqual({
-            valid: true,
-            message: '',
-        });
-    });
-
-    it('should reject invalid email addresses', () => {
-        const validator = createValidator();
-
-        expect(validator.validate('invalid')).toEqual({
-            valid: false,
-            message: 'Email address is not in the correct format.',
-        });
-
-        expect(validator.validate('@example.com')).toEqual({
-            valid: false,
-            message: 'Email address is not in the correct format.',
-        });
-
-        expect(validator.validate('user@')).toEqual({
-            valid: false,
-            message: 'Email address is not in the correct format.',
-        });
-
-        expect(validator.validate('user@.com')).toEqual({
-            valid: false,
-            message: 'Email address is not in the correct format.',
-        });
-    });
-});
+createValidationRuleTest(rule, [
+    {
+        msg: 'should validate correct email addresses',
+        value: 'test@example.com',
+        isValid: true,
+    },
+    {
+        msg: 'should validate correct email address with dot in name',
+        value: 'user.name@example.com',
+        isValid: true,
+    },
+    {
+        msg: 'should validate correct email address with plus in name',
+        value: 'user+name@example.com',
+        isValid: true,
+    },
+    {
+        msg: 'should reject invalid email address',
+        value: 'user',
+        isValid: false,
+    },
+    {
+        msg: 'should reject invalid email address',
+        value: '@example.com',
+        isValid: false,
+    },
+    {
+        msg: 'should reject invalid email address',
+        value: 'user@',
+        isValid: false,
+    },
+    {
+        msg: 'should reject invalid email address',
+        value: 'user@.com',
+        isValid: false,
+    },
+]);

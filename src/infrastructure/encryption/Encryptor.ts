@@ -1,11 +1,21 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { random as forgeRandom, util as forgeUtil } from 'node-forge';
-import type { PublicKeyResponse } from '../../dataModel';
-import { EncryptionError } from '../../dataModel';
-import type { DeviceInformation } from '../../types';
+
 import { JOSEEncryptor } from './JOSEEncryptor';
 import type { CreditCardTokenRequest } from '../../domain/paymentRequest/CreditCardTokenRequest';
 import { PaymentRequest } from '../../domain/paymentRequest/PaymentRequest';
 import { Util } from '../utils/Util';
+import type { DeviceInformation } from './Metadata';
+import { EncryptionError, PublicKeyResponse } from '../../domain';
 
 interface EncryptedCustomerInput {
     clientSessionId: string;

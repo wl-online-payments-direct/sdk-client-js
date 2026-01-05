@@ -1,12 +1,21 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { awaitTimes, getApiClientSpyMock } from '../utils';
 import { getConfiguration, getSessionDetails } from '../setup';
 import { OnlinePaymentSdk } from '../../../src/facade/OnlinePaymentSdk';
 import { paymentContext } from '../../__fixtures__/payment-context';
-import { ResponseError } from '../../../src/dataModel';
 import { GOOGLE_PAY_ID } from '../../__fixtures__/payment_ids';
-import { init } from '../../../src';
+import { init, ResponseError } from '../../../src';
 
 describe('session.getPaymentProductNetworks', () => {
     let session: OnlinePaymentSdk;
@@ -15,15 +24,17 @@ describe('session.getPaymentProductNetworks', () => {
     });
 
     it('should throw a response error when paymentProductId is not correct', async () => {
-        const expectedErrorJson = {
-            retriable: false,
-            category: 'DIRECT_PLATFORM_ERROR',
-            code: '1431',
-            errorCode: '50001111',
-            httpStatusCode: 400,
-            id: 'PAYMENT_PRODUCT_ID_MISMATCH',
-            message: 'The given payment product id does not correspond to the paymentproductid in the given token.',
-        };
+        const expectedErrorJson = [
+            {
+                retriable: false,
+                category: 'DIRECT_PLATFORM_ERROR',
+                code: '1431',
+                errorCode: '50001111',
+                httpStatusCode: 400,
+                id: 'PAYMENT_PRODUCT_ID_MISMATCH',
+                message: 'The given payment product id does not correspond to the paymentproductid in the given token.',
+            },
+        ];
         try {
             await session.getPaymentProductNetworks(1, paymentContext);
             expect.fail('Should throw an error');
@@ -34,7 +45,7 @@ describe('session.getPaymentProductNetworks', () => {
             const errors = metadata.errors;
 
             expect(errors).toBeInstanceOf(Array);
-            expect(errors).toContainEqual(expectedErrorJson);
+            expect(errors).toEqual(expectedErrorJson);
         }
     });
 

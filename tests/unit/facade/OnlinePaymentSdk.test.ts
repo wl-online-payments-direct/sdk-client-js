@@ -1,11 +1,20 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { OnlinePaymentSdk } from '../../../src/facade/OnlinePaymentSdk';
-import type { PaymentContext, SdkConfiguration, SessionData } from '../../../src/types';
 import type { ServiceFactory } from '../../../src/infrastructure/interfaces/ServiceFactory';
 import type { EncryptionService } from '../../../src/services/interfaces/EncryptionService';
 import type { PaymentProductService } from '../../../src/services/interfaces/PaymentProductService';
 import type { ClientService } from '../../../src/services/interfaces/ClientService';
-import { init } from '../../../src';
+import { init, type PaymentContext, type SdkConfiguration, type SessionData } from '../../../src';
 
 describe('OnlinePaymentSdk', () => {
     let sessionData: SessionData;

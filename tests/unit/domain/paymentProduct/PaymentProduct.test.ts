@@ -1,11 +1,22 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { beforeEach, describe, expect, it } from 'vitest';
 import { cardPaymentProductJson } from '../../../__fixtures__/payment-product-json';
 import { PaymentProduct } from '../../../../src/domain/paymentProduct/PaymentProduct';
+import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
 
 describe('getFields', () => {
     let paymentProduct: PaymentProduct;
     beforeEach(() => {
-        paymentProduct = new PaymentProduct(cardPaymentProductJson);
+        paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
     });
 
     it('should return correct length`', () => {
@@ -23,7 +34,7 @@ describe('getFields', () => {
 describe('getRequiredFields', () => {
     let paymentProduct: PaymentProduct;
     beforeEach(() => {
-        paymentProduct = new PaymentProduct(cardPaymentProductJson);
+        paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
     });
 
     it('should return correct length`', () => {
@@ -41,7 +52,7 @@ describe('getRequiredFields', () => {
 describe('getField', () => {
     let paymentProduct: PaymentProduct;
     beforeEach(() => {
-        paymentProduct = new PaymentProduct(cardPaymentProductJson);
+        paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
     });
 
     it('should return `cardNumber` field', () => {
@@ -77,7 +88,7 @@ describe('getField', () => {
 describe('Fluent API methods', () => {
     let paymentProduct: PaymentProduct;
     beforeEach(() => {
-        paymentProduct = new PaymentProduct(cardPaymentProductJson);
+        paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
     });
 
     it('applyMask on field', () => {
@@ -87,7 +98,8 @@ describe('Fluent API methods', () => {
 
     it('validate field', () => {
         const validationMessages = paymentProduct.getField('cardNumber')?.validate('12345678901234567890');
-        expect(validationMessages?.map((message) => message.type)).toEqual(['length', 'luhn']);
+        const result = validationMessages?.map((message) => message.type).sort((a, b) => (a > b ? 1 : -1));
+        expect(result).toEqual(['length', 'luhn']);
     });
 
     it('isRequired field', () => {

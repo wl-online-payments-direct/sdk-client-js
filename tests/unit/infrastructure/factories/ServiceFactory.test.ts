@@ -1,5 +1,14 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { SessionData } from '../../../../src/types';
 import { DefaultServiceFactory } from '../../../../src/infrastructure/factories/DefaultServiceFactory';
 import { DefaultClientService } from '../../../../src/services/DefaultClientService';
 import { DefaultEncryptionService } from '../../../../src/services/DefaultEncryptionService';
@@ -9,13 +18,7 @@ import { mock } from 'vitest-mock-extended';
 import type { ClientService } from '../../../../src/services/interfaces/ClientService';
 import type { EncryptionService } from '../../../../src/services/interfaces/EncryptionService';
 import type { PaymentProductService } from '../../../../src/services/interfaces/PaymentProductService';
-
-const sessionData: SessionData = {
-    clientSessionId: 'test-session-id',
-    customerId: 'test-customer-id',
-    clientApiUrl: 'https://api.example.com/client',
-    assetUrl: 'https://assets.example.com',
-};
+import { sessionData } from '../../testUtils/SessionData';
 
 afterEach(() => {
     vi.restoreAllMocks();

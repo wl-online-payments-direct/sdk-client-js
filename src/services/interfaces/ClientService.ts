@@ -1,23 +1,32 @@
-import type {
-    AmountOfMoney,
-    CurrencyConversionResponse,
-    PartialCard,
-    PaymentContextWithAmount,
-    SurchargeCalculationResponse,
-    Token,
-} from '../../types';
-import { IinDetailsResponse } from '../../dataModel';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
+import {
+    type AmountOfMoney,
+    type CurrencyConversionResponse,
+    IinDetailsResponse,
+    type PartialCard,
+    type PaymentContextWithAmount,
+    type SurchargeCalculationResponse,
+} from '../../domain';
 
 export interface ClientService {
     getIinDetails(partialCreditCardNumber: string, context: PaymentContextWithAmount): Promise<IinDetailsResponse>;
 
     getCurrencyConversionQuote(
         amountOfMoney: AmountOfMoney,
-        cardOrToken: PartialCard | Token,
+        cardOrToken: PartialCard | string,
     ): Promise<CurrencyConversionResponse>;
 
     getSurchargeCalculation(
         amountOfMoney: AmountOfMoney,
-        cardOrToken: PartialCard | Token,
+        cardOrToken: PartialCard | string,
     ): Promise<SurchargeCalculationResponse>;
 }

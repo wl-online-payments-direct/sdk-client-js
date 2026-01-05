@@ -1,5 +1,15 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { version } from '../../../package.json';
-import type { DeviceInformation, Metadata } from '../../types';
+import type { DeviceInformation, Metadata } from '../encryption/Metadata';
 
 export const Util = {
     getMetadata(appIdentifier?: string): Metadata {

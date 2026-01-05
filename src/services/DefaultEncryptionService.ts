@@ -1,43 +1,58 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { Encryptor } from '../infrastructure/encryption/Encryptor';
-import { EncryptionError, PublicKeyResponse, ResponseError } from '../dataModel';
-import { type EncryptedRequest, type PublicKeyJson, type SdkConfiguration, type SessionData } from '../types';
 import { PaymentRequest } from '../domain/paymentRequest/PaymentRequest';
 import type { CreditCardTokenRequest } from '../domain/paymentRequest/CreditCardTokenRequest';
 import type { ApiClient } from '../infrastructure/interfaces/ApiClient';
 import { Util } from '../infrastructure/utils/Util';
 import type { CacheManager } from '../infrastructure/utils/CacheManager';
 import type { EncryptionService } from './interfaces/EncryptionService';
+import { BaseService } from './BaseService';
+import {
+    type EncryptedRequest,
+    InvalidArgumentError,
+    PublicKeyResponse,
+    type SdkConfiguration,
+    type SessionData,
+} from '../domain';
 
-export class DefaultEncryptionService implements EncryptionService {
+export class DefaultEncryptionService extends BaseService implements EncryptionService {
     constructor(
         private readonly sessionData: SessionData,
-        private readonly cacheManager: CacheManager,
-        private readonly apiClient: ApiClient,
+        cacheManager: CacheManager,
+        apiClient: ApiClient,
         private readonly configuration?: SdkConfiguration,
-    ) {}
+    ) {
+        super(cacheManager, apiClient);
+    }
 
     async getPublicKey(): Promise<PublicKeyResponse> {
         const cacheKey = 'publicKey';
         if (this.cacheManager.has(cacheKey)) {
-            return this.cacheManager.get(cacheKey)!;
+            return this.cacheManager.get<PublicKeyResponse>(cacheKey)!;
         }
 
-        const response = await this.apiClient.get<PublicKeyJson>('/crypto/publickey');
+        const response = await this.apiClient.get<PublicKeyResponse>('/crypto/publickey');
 
-        if (!response?.success) {
-            throw new ResponseError(response ?? {}, 'Could not fetch the public key.');
-        }
+        this.validateResponse(response, 'Error while trying to fetch the public key.');
 
-        const publicKeyResponse = new PublicKeyResponse(response.data);
-        this.cacheManager.set(cacheKey, publicKeyResponse);
+        this.cacheManager.set<PublicKeyResponse>(cacheKey, response.data);
 
-        return publicKeyResponse;
+        return response.data;
     }
 
     async encryptPaymentRequest(request: PaymentRequest): Promise<EncryptedRequest> {
         const validationResult = request.validate();
         if (!validationResult.isValid) {
-            throw new EncryptionError('Error encrypting payment request: the payment request is not valid.', {
+            throw new InvalidArgumentError('The payment request is not valid.', {
                 data: validationResult,
             });
         }

@@ -1,28 +1,38 @@
-import { IinDetailsResponse, InvalidArgumentError, ResponseError } from '../dataModel';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import type { ApiClient } from '../infrastructure/interfaces/ApiClient';
+
+import type { CacheManager } from '../infrastructure/utils/CacheManager';
+import type { ClientService } from './interfaces/ClientService';
+import { BaseService } from './BaseService';
 import {
     type AmountOfMoney,
-    ApiVersion,
-    type Card,
+    type CardSource,
     type CurrencyConversionResponse,
-    type GetIINDetailsRequestJson,
-    type GetIINDetailsResponseJson,
-    IinDetailsStatus,
+    type IinDetailsRequest,
+    IinDetailsResponse,
+    IinDetailStatus,
+    InvalidArgumentError,
     type PartialCard,
     type PaymentContext,
     type PaymentContextWithAmount,
+    type SurchargeCalculationRequest,
     type SurchargeCalculationResponse,
-    type SurchargeRequestJson,
-    type Token,
-} from '../types';
-import type { CacheManager } from '../infrastructure/utils/CacheManager';
-import type { ClientService } from './interfaces/ClientService';
+} from '../domain';
+import { ApiVersion } from '../infrastructure/models/ApiVersion';
 
-export class DefaultClientService implements ClientService {
-    constructor(
-        private readonly cacheManager: CacheManager,
-        private readonly apiClient: ApiClient,
-    ) {}
+export class DefaultClientService extends BaseService implements ClientService {
+    constructor(cacheManager: CacheManager, apiClient: ApiClient) {
+        super(cacheManager, apiClient);
+    }
 
     async getIinDetails(
         partialCreditCardNumber: string,
@@ -39,26 +49,28 @@ export class DefaultClientService implements ClientService {
         // validate if a credit card number has enough digits
         if (number.length < 6) {
             throw new InvalidArgumentError('Not enough digits in the credit card number. Minimum 6 digits required.', {
-                data: new IinDetailsResponse(IinDetailsStatus.NOT_ENOUGH_DIGITS),
+                data: new IinDetailsResponse(IinDetailStatus.NOT_ENOUGH_DIGITS),
             });
         }
 
         const data = this.convertContextToIinDetailsContext(number, context);
 
-        const response = await this.apiClient.post<GetIINDetailsResponseJson>('/getIINdetails', {
+        const response = await this.apiClient.post<IinDetailsResponse>('/getIINdetails', {
             body: JSON.stringify(data),
         });
 
-        if (!response.success) {
-            throw new ResponseError(response, 'Error while trying to fetch IinDetails.');
-        }
+        this.validateResponse(response, 'Error while trying to fetch IinDetails.');
 
-        const json = response.data;
+        const dto = response.data;
 
         const iinDetailsResponse = new IinDetailsResponse(
-            json.isAllowedInContext !== false ? IinDetailsStatus.SUPPORTED : IinDetailsStatus.EXISTING_BUT_NOT_ALLOWED,
-            json,
+            dto.isAllowedInContext !== false ? IinDetailStatus.SUPPORTED : IinDetailStatus.EXISTING_BUT_NOT_ALLOWED,
+            dto.countryCode,
+            dto.paymentProductId,
+            dto.isAllowedInContext,
+            dto.coBrands,
         );
+
         this.cacheManager.set(cacheKey, iinDetailsResponse);
 
         return iinDetailsResponse;
@@ -66,7 +78,7 @@ export class DefaultClientService implements ClientService {
 
     async getSurchargeCalculation(
         amountOfMoney: AmountOfMoney,
-        cardOrToken: PartialCard | Token,
+        cardOrToken: PartialCard | string,
     ): Promise<SurchargeCalculationResponse> {
         const cacheKeySuffix = this.getCacheKeySuffix(cardOrToken);
         const cacheKey = `getSurchargeCalculation-${amountOfMoney.amount}-${amountOfMoney.currencyCode}-${cacheKeySuffix}`;
@@ -79,7 +91,7 @@ export class DefaultClientService implements ClientService {
         const cardSource = this.getCardSource(cardOrToken);
 
         // Create Surcharge Calculation Request POST body
-        const requestJson: SurchargeRequestJson = {
+        const requestJson: SurchargeCalculationRequest = {
             cardSource,
             amountOfMoney,
         };
@@ -88,9 +100,7 @@ export class DefaultClientService implements ClientService {
             body: JSON.stringify(requestJson),
         });
 
-        if (!response.success) {
-            throw new ResponseError(response, 'Something went wrong while trying to fetch surcharge calculations.');
-        }
+        this.validateResponse(response, 'Error while trying to fetch surcharge calculations.');
 
         this.cacheManager.set<SurchargeCalculationResponse>(cacheKey, response.data);
 
@@ -99,7 +109,7 @@ export class DefaultClientService implements ClientService {
 
     async getCurrencyConversionQuote(
         amountOfMoney: AmountOfMoney,
-        cardOrToken: PartialCard | Token,
+        cardOrToken: PartialCard | string,
     ): Promise<CurrencyConversionResponse> {
         const cacheKeySuffix = this.getCacheKeySuffix(cardOrToken);
         const cacheKey = `getCurrencyConversionQuote-${amountOfMoney.amount}-${amountOfMoney.currencyCode}-${cacheKeySuffix}`;
@@ -126,9 +136,7 @@ export class DefaultClientService implements ClientService {
             ApiVersion.V2,
         );
 
-        if (!response.success) {
-            throw new ResponseError(response, 'Something went wrong while trying to fetch currency conversion.');
-        }
+        this.validateResponse(response, 'Error while trying to fetch currency conversion.');
 
         this.cacheManager.set<CurrencyConversionResponse>(cacheKey, response.data);
 
@@ -138,7 +146,7 @@ export class DefaultClientService implements ClientService {
     private convertContextToIinDetailsContext(
         partialCreditCardNumber: string,
         context: PaymentContext,
-    ): GetIINDetailsRequestJson {
+    ): IinDetailsRequest {
         return { bin: partialCreditCardNumber, paymentContext: context };
     }
 
@@ -149,11 +157,11 @@ export class DefaultClientService implements ClientService {
      * @param {PartialCard | Token} cardOrToken - The object to check, which can either be a PartialCard or a Token.
      * @return {boolean} - Returns true if the provided object is a PartialCard, otherwise false.
      */
-    private isPartialCard(cardOrToken: PartialCard | Token): cardOrToken is PartialCard {
+    private isPartialCard(cardOrToken: PartialCard | string): cardOrToken is PartialCard {
         return typeof cardOrToken === 'object';
     }
 
-    private getCacheKeySuffix(cardOrToken: PartialCard | Token): string {
+    private getCacheKeySuffix(cardOrToken: PartialCard | string): string {
         return this.isPartialCard(cardOrToken) ? cardOrToken.partialCreditCardNumber : cardOrToken;
     }
 
@@ -171,7 +179,7 @@ export class DefaultClientService implements ClientService {
      * @param {PartialCard | Token} cardOrToken - The partial card or token to extract the source from.
      * @return {{ card: Card } | { token: Token }} An object containing either the card details or the token.
      */
-    private getCardSource(cardOrToken: PartialCard | Token): { card: Card } | { token: Token } {
+    private getCardSource(cardOrToken: PartialCard | string): CardSource {
         return this.isPartialCard(cardOrToken)
             ? {
                   card: {

@@ -1,4 +1,15 @@
-import type { PaymentProductsJson } from '../../types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
+import type { ErrorResponse } from '../../domain';
+import type { BasicPaymentProductsDto } from '../apiModels/paymentProduct/BasicPaymentProductsDto';
 
 const applePayPaymentProductId = 302;
 const maestroPaymentProductId = 117;
@@ -24,7 +35,7 @@ export const SupportedProductsUtil = {
         return !this.sdkUnsupportedProducts.includes(id);
     },
 
-    filterOutBrowserUnsupportedProducts<Json extends Partial<PaymentProductsJson>>(json: Json) {
+    filterOutBrowserUnsupportedProducts<Json extends Partial<BasicPaymentProductsDto>>(json: Json) {
         if (!json.paymentProducts) {
             return;
         }
@@ -32,7 +43,7 @@ export const SupportedProductsUtil = {
         json.paymentProducts = json.paymentProducts.filter(({ id }) => this.isSupportedInBrowser(id));
     },
 
-    filterOutSdkUnsupportedProducts<Json extends Partial<PaymentProductsJson>>(json: Json) {
+    filterOutSdkUnsupportedProducts<Json extends Partial<BasicPaymentProductsDto>>(json: Json) {
         if (!json.paymentProducts) {
             return;
         }
@@ -40,12 +51,12 @@ export const SupportedProductsUtil = {
         json.paymentProducts = json.paymentProducts.filter(({ id }) => this.isSupportedInSdk(id));
     },
 
-    get404Error() {
+    get404Error(): ErrorResponse {
         return {
             errorId: '48b78d2d-1b35-4f8b-92cb-57cc2638e901',
             errors: [
                 {
-                    code: '1007',
+                    errorCode: '1007',
                     propertyName: 'productId',
                     message: 'UNKNOWN_PRODUCT_ID',
                     httpStatusCode: 404,

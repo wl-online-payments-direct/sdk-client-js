@@ -1,8 +1,20 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { PaymentProduct } from '../paymentProduct/PaymentProduct';
 import { PaymentRequestField } from './PaymentRequestField';
-import { InvalidArgumentError, type ValidationErrorMessage, ValidationResult } from '../../dataModel';
-import type { AccountOnFile } from '../paymentProduct/AccountOnFile';
-import type { PaymentProductField } from '../paymentProduct/PaymentProductField';
+import type { AccountOnFile } from '../accountOnFile/AccountOnFile';
+import type { PaymentProductField } from '../paymentProduct/productField/PaymentProductField';
+import { InvalidArgumentError } from '../errors/InvalidArgumentError';
+import { ValidationResult } from '../validation/ValidationResult';
+import type { ValidationErrorMessage } from '../validation/ValidationErrorMessage';
 
 export class PaymentRequest {
     private readonly paymentProduct: PaymentProduct;

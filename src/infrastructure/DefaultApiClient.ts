@@ -1,7 +1,19 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import type { ApiClient } from './interfaces/ApiClient';
-import { ApiVersion, type PaymentContext, type SdkResponse } from '../types';
 import { Util } from './utils/Util';
 import { UrlUtil } from './utils/UrlUtil';
+import { CommunicationError } from '../domain/errors/CommunicationError';
+import { ApiVersion } from './models/ApiVersion';
+import type { PaymentContext, SdkResponse } from '../domain';
 
 const defaultHeaders = {
     'Content-Type': 'application/json',
@@ -10,11 +22,11 @@ const defaultHeaders = {
 
 export class DefaultApiClient implements ApiClient {
     constructor(
-        private readonly apiVersion: ApiVersion,
         private readonly clientApiUrl: string,
         private readonly customerId: string,
         private readonly clientSessionId: string,
         private readonly appIdentifier?: string,
+        private readonly apiVersion = ApiVersion.V1,
     ) {}
 
     /**
@@ -147,11 +159,19 @@ export class DefaultApiClient implements ApiClient {
             headers: headers ? { ...defaultHeaders, ...headers } : defaultHeaders,
         });
 
-        const data = (await this.getResponseBody(response)) as Data;
+        if (!response.headers.get('content-type')?.startsWith('application/json')) {
+            // if the API returned anything other than a JSON response, it indicates an error
+            const responseData = await response.text();
+
+            throw new CommunicationError(response.status, responseData);
+        }
+
+        const data = (await response.json()) as Data;
+        const isValid = this.isValidResponse(response, data);
 
         return {
             status: response.status,
-            success: this.isValidResponse(response, data),
+            success: isValid,
             data: data,
         };
     }
@@ -161,14 +181,5 @@ export class DefaultApiClient implements ApiClient {
      */
     private isValidResponse({ ok, status }: Response, data: unknown) {
         return ok || status === 304 || (status === 0 && !!data);
-    }
-
-    /**
-     * Get the response body as JSON or text.
-     */
-    private getResponseBody(response: Response): Promise<unknown> {
-        const contentType = response.headers.get('content-type') ?? '';
-
-        return contentType.includes('application/json') ? response.json() : response.text();
     }
 }

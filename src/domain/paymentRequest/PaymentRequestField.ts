@@ -1,6 +1,17 @@
-import { PaymentProductField } from '../paymentProduct/PaymentProductField';
-import { InvalidArgumentError, ValidationResult } from '../../dataModel';
-import type { PaymentProductFieldType } from '../../types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
+import { PaymentProductField } from '../paymentProduct/productField/PaymentProductField';
+import { InvalidArgumentError } from '../errors/InvalidArgumentError';
+import type { PaymentProductFieldType } from '../paymentProduct/productField/PaymentProductFieldType';
+import { ValidationResult } from '../validation/ValidationResult';
 
 export class PaymentRequestField {
     private value?: string;

@@ -1,16 +1,17 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { OnlinePaymentSdk } from './facade/OnlinePaymentSdk';
-import type { SdkConfiguration, SessionData } from './types';
+import type { SdkConfiguration, SessionData } from './domain';
 
-export * from './types';
-export * from './dataModel';
-
-export * from './domain/paymentProduct/BasicPaymentProduct';
-export * from './domain/paymentProduct/AccountOnFile';
-export * from './domain/paymentProduct/PaymentProduct';
-export * from './domain/paymentProduct/PaymentProductField';
-export * from './domain/paymentRequest/PaymentRequest';
-export * from './domain/paymentRequest/PaymentRequestField';
-export * from './domain/paymentRequest/CreditCardTokenRequest';
+export * from './domain';
 export * from './facade/OnlinePaymentSdk';
 
 /**

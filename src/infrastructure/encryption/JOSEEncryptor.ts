@@ -1,3 +1,13 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import {
     asn1 as forgeAsn1,
     cipher as forgeCipher,
@@ -6,7 +16,7 @@ import {
     random as forgeRandom,
     util as forgeUtil,
 } from 'node-forge';
-import type { PublicKeyResponse } from '../../dataModel';
+import { PublicKeyResponse } from '../../domain';
 
 const CEKKEYLENGTH = 512;
 const IVLENGTH = 128;

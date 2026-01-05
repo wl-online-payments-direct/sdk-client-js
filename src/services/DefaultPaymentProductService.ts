@@ -1,51 +1,68 @@
-import { ApplePay, type BasicPaymentProducts, ResponseError } from '../dataModel';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import type { PaymentProductFactory } from '../infrastructure/interfaces/PaymentProductFactory';
 import type { PaymentProduct } from '../domain/paymentProduct/PaymentProduct';
 import type { ApiClient } from '../infrastructure/interfaces/ApiClient';
-import {
-    type PaymentContext,
-    type PaymentProductJson,
-    type PaymentProductNetworksResponseJson,
-    type PaymentProductsJson,
-} from '../types';
+
 import type { CacheManager } from '../infrastructure/utils/CacheManager';
 import type { PaymentProductService } from './interfaces/PaymentProductService';
 import { SupportedProductsUtil } from '../infrastructure/utils/SupportedProductsUtil';
+import { BaseService } from './BaseService';
+import { ApplePay } from './models/ApplePay';
+import { BasicPaymentProducts, type PaymentContext, ResponseError } from '../domain';
+import type { BasicPaymentProductsDto } from '../infrastructure/apiModels/paymentProduct/BasicPaymentProductsDto';
+import type { PaymentProductDto } from '../infrastructure/apiModels/paymentProduct/PaymentProduct';
+import type { PaymentProductNetworksResponse } from '../domain/paymentProduct/PaymentProductNetworksResponse';
 
-export class DefaultPaymentProductService implements PaymentProductService {
+export class DefaultPaymentProductService extends BaseService implements PaymentProductService {
     constructor(
-        private readonly cacheManager: CacheManager,
-        private readonly apiClient: ApiClient,
+        cacheManager: CacheManager,
+        apiClient: ApiClient,
         private readonly paymentProductFactory: PaymentProductFactory,
-    ) {}
+    ) {
+        super(cacheManager, apiClient);
+
+        if (
+            !ApplePay.isApplePayAvailable() &&
+            !SupportedProductsUtil.browserUnsupportedProducts.includes(SupportedProductsUtil.applePayPaymentProductId)
+        ) {
+            SupportedProductsUtil.browserUnsupportedProducts.push(SupportedProductsUtil.applePayPaymentProductId);
+        }
+    }
 
     async getBasicPaymentProducts(context: PaymentContext): Promise<BasicPaymentProducts> {
         const cacheKey = this.cacheManager.createCacheKeyFromContext({ context, prefix: 'getPaymentProducts' });
 
         if (this.cacheManager.has(cacheKey)) {
-            return this.paymentProductFactory.createBasicPaymentProducts(this.cacheManager.get(cacheKey)!);
+            return this.cacheManager.get<BasicPaymentProducts>(cacheKey)!;
         }
 
-        const response = await this.apiClient.getWithContext<PaymentProductsJson>('products', context, {
+        const response = await this.apiClient.getWithContext<BasicPaymentProductsDto>('products', context, {
             useCacheBuster: true,
             queryParams: { hide: 'fields' },
         });
 
-        if (!response.success) {
-            throw new ResponseError(response, 'Could not fetch BasicPaymentProducts.');
-        }
+        this.validateResponse(response, 'Error while trying to fetch payment products.');
 
         SupportedProductsUtil.filterOutBrowserUnsupportedProducts(response.data);
         SupportedProductsUtil.filterOutSdkUnsupportedProducts(response.data);
 
         if (response.data.paymentProducts.length === 0) {
-            throw new ResponseError({ status: 404, data: [], success: false }, 'No payment products available.');
+            throw new ResponseError(SupportedProductsUtil.get404Error(), 404, 'No payment products available.');
         }
 
-        this.cacheManager.set(cacheKey, response.data);
-        this.filterApplePay(response.data);
+        const result = this.paymentProductFactory.createBasicPaymentProducts(response.data);
+        this.cacheManager.set(cacheKey, result);
 
-        return this.paymentProductFactory.createBasicPaymentProducts(response.data);
+        return result;
     }
 
     async getPaymentProduct(paymentProductId: number, context: PaymentContext): Promise<PaymentProduct> {
@@ -53,10 +70,7 @@ export class DefaultPaymentProductService implements PaymentProductService {
             !SupportedProductsUtil.isSupportedInBrowser(paymentProductId) ||
             !SupportedProductsUtil.isSupportedInSdk(paymentProductId)
         ) {
-            throw new ResponseError(
-                { status: 404, data: SupportedProductsUtil.get404Error(), success: false },
-                'Product not found or not available.',
-            );
+            throw new ResponseError(SupportedProductsUtil.get404Error(), 404, 'Product not found or not available.');
         }
 
         const cacheKey = this.cacheManager.createCacheKeyFromContext({
@@ -65,10 +79,10 @@ export class DefaultPaymentProductService implements PaymentProductService {
         });
 
         if (this.cacheManager.has(cacheKey)) {
-            return this.paymentProductFactory.createPaymentProduct(this.cacheManager.get(cacheKey)!);
+            return this.cacheManager.get<PaymentProduct>(cacheKey)!;
         }
 
-        const response = await this.apiClient.getWithContext<PaymentProductJson & Partial<PaymentProductsJson>>(
+        const response = await this.apiClient.getWithContext<PaymentProductDto>(
             `products/${paymentProductId}`,
             context,
             {
@@ -76,49 +90,36 @@ export class DefaultPaymentProductService implements PaymentProductService {
             },
         );
 
-        if (!response.success) {
-            throw new ResponseError(response, `Failed to retrieve payment product ${paymentProductId}.`);
-        }
+        this.validateResponse(response, `Error while trying to fetch the payment product ${paymentProductId}.`);
 
-        this.cacheManager.set(cacheKey, response.data);
-        this.filterApplePay(response.data);
+        const result = this.paymentProductFactory.createPaymentProduct(response.data);
+        this.cacheManager.set(cacheKey, result);
 
-        return this.paymentProductFactory.createPaymentProduct(response.data);
+        return result;
     }
 
     async getPaymentProductNetworks(
         paymentProductId: number,
         context: PaymentContext,
-    ): Promise<PaymentProductNetworksResponseJson> {
+    ): Promise<PaymentProductNetworksResponse> {
         const cacheKey = this.cacheManager.createCacheKeyFromContext({
             prefix: `paymentProductNetworks-${paymentProductId}`,
             context,
         });
 
         if (this.cacheManager.has(cacheKey)) {
-            return this.cacheManager.get(cacheKey)!;
+            return this.cacheManager.get<PaymentProductNetworksResponse>(cacheKey)!;
         }
 
-        const response = await this.apiClient.getWithContext<PaymentProductNetworksResponseJson>(
+        const response = await this.apiClient.getWithContext<PaymentProductNetworksResponse>(
             `products/${paymentProductId}/networks`,
             context,
         );
 
-        if (!response.success) {
-            throw new ResponseError(response, 'The input data provided is incorrect.');
-        }
+        this.validateResponse(response, 'Error while trying to fetch the payment product networks.');
 
         this.cacheManager.set(cacheKey, response.data);
 
         return response.data;
-    }
-
-    private filterApplePay(json: Partial<PaymentProductsJson>) {
-        if (ApplePay.isApplePayAvailable()) {
-            return;
-        }
-
-        SupportedProductsUtil.browserUnsupportedProducts.push(SupportedProductsUtil.applePayPaymentProductId);
-        SupportedProductsUtil.filterOutBrowserUnsupportedProducts(json);
     }
 }

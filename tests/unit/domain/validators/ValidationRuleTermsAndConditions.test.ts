@@ -1,14 +1,19 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { describe, expect, it } from 'vitest';
-import { ValidationRuleTermsAndConditions } from '../../../../src/domain/validators/ValidationRuleTermsAndConditions';
-import type { EmptyValidatorJson, ValidationRuleDefinition } from '../../../../src/types';
+import { ValidationRuleTermsAndConditions } from '../../../../src/domain/validation/rules/ValidationRuleTermsAndConditions';
 
 describe('ValidationRuleTermsAndConditions', () => {
     const createValidator = (): ValidationRuleTermsAndConditions => {
-        const json: ValidationRuleDefinition<EmptyValidatorJson> = {
-            type: 'termsAndConditions',
-            attributes: {},
-        };
-        return new ValidationRuleTermsAndConditions(json);
+        return new ValidationRuleTermsAndConditions();
     };
 
     it('should validate boolean true', () => {

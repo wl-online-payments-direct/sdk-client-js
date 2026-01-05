@@ -1,4 +1,13 @@
-import { ApiVersion, type SdkConfiguration, type SessionData } from '../../types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import type { PaymentProductFactory } from '../interfaces/PaymentProductFactory';
 import { DefaultPaymentProductFactory } from './DefaultPaymentProductFactory';
 import type { ServiceFactory } from '../interfaces/ServiceFactory';
@@ -11,6 +20,7 @@ import type { ClientService } from '../../services/interfaces/ClientService';
 import { DefaultEncryptionService } from '../../services/DefaultEncryptionService';
 import { DefaultClientService } from '../../services/DefaultClientService';
 import { DefaultPaymentProductService } from '../../services/DefaultPaymentProductService';
+import type { SdkConfiguration, SessionData } from '../../domain';
 
 export interface ServiceFactoryProps {
     sessionData: SessionData;
@@ -34,7 +44,6 @@ export class DefaultServiceFactory implements ServiceFactory {
         this.apiClient =
             props.apiClient ??
             new DefaultApiClient(
-                ApiVersion.V1,
                 props.sessionData.clientApiUrl,
                 props.sessionData.customerId,
                 props.sessionData.clientSessionId,

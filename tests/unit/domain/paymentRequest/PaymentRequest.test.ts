@@ -1,15 +1,29 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { cardPaymentProductJson } from '../../../__fixtures__/payment-product-json';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { accountOnFileJson } from '../../../__fixtures__/account-on-file-json';
-import { PaymentProduct } from '../../../../src/domain/paymentProduct/PaymentProduct';
-import { AccountOnFile } from '../../../../src/domain/paymentProduct/AccountOnFile';
-import { PaymentRequest } from '../../../../src/domain/paymentRequest/PaymentRequest';
-import { EncryptionError, ValidationResult } from '../../../../src/dataModel';
 import { DefaultEncryptionService } from '../../../../src/services/DefaultEncryptionService';
 import type { EncryptionService } from '../../../../src/services/interfaces/EncryptionService';
 import { CacheManager } from '../../../../src/infrastructure/utils/CacheManager';
 import { TestApiClient } from '../../testUtils/TestApiClient';
-import { type SessionData } from '../../../../src';
+import {
+    AccountOnFile,
+    InvalidArgumentError,
+    PaymentProduct,
+    PaymentRequest,
+    type SessionData,
+    ValidationResult,
+} from '../../../../src';
+import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
 
 let paymentProduct: PaymentProduct;
 let paymentRequest: PaymentRequest;
@@ -17,8 +31,8 @@ let accountOnFile: AccountOnFile;
 let sessionData: SessionData;
 
 beforeEach(() => {
-    paymentProduct = new PaymentProduct(cardPaymentProductJson);
-    accountOnFile = new AccountOnFile(accountOnFileJson);
+    paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
+    accountOnFile = new DefaultPaymentProductFactory().createAccountOnFile(accountOnFileJson);
 
     sessionData = {
         clientApiUrl: 'https://test-url',
@@ -112,8 +126,8 @@ describe('setTokenize and getTokenize', () => {
 
 describe('Test values that are `READ_ONLY`', () => {
     beforeEach(() => {
-        paymentProduct = new PaymentProduct(cardPaymentProductJson);
-        accountOnFile = new AccountOnFile(accountOnFileJson);
+        paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
+        accountOnFile = new DefaultPaymentProductFactory().createAccountOnFile(accountOnFileJson);
         paymentRequest = new PaymentRequest(paymentProduct, accountOnFile);
     });
 
@@ -175,7 +189,7 @@ describe('encrypt', () => {
             assetUrl: 'test-url',
         };
 
-        paymentProduct = new PaymentProduct(cardPaymentProductJson);
+        paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
 
         paymentRequest = new PaymentRequest(paymentProduct);
         service = new DefaultEncryptionService(sessionData, new CacheManager(), new TestApiClient());
@@ -185,8 +199,10 @@ describe('encrypt', () => {
         try {
             await service.encryptPaymentRequest(paymentRequest);
         } catch (error: unknown) {
-            expect(error).toBeInstanceOf(EncryptionError);
-            expect((error as EncryptionError).metadata!.data).toBeInstanceOf(ValidationResult);
+            expect(error).toBeInstanceOf(InvalidArgumentError);
+            expect(((error as InvalidArgumentError).metadata as { data: ValidationResult })!.data).toBeInstanceOf(
+                ValidationResult,
+            );
         }
     });
 });

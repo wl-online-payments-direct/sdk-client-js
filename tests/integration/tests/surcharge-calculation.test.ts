@@ -1,4 +1,12 @@
-import type { PartialCard } from '../../../src/types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -7,7 +15,7 @@ import {
     withNoSurchargeCalculationResponse,
     withSurchargeCalculationResponse,
 } from '../__fixtures__/surcharge-calculation';
-import type { AmountOfMoney } from '../../../src';
+import type { AmountOfMoney, PartialCard } from '../../../src';
 import { init, OnlinePaymentSdk } from '../../../src';
 import { getConfiguration } from '../setup';
 

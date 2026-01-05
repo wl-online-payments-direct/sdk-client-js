@@ -1,13 +1,17 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { basePaymentProductJson } from '../../__fixtures__/base-payment-product-json';
 import { cardPaymentProductJson } from '../../__fixtures__/payment-product-json';
-import type {
-    PaymentContext,
-    PaymentProductNetworksResponseJson,
-    PaymentProductsJson,
-    SdkResponse,
-} from '../../../src/types';
-import { BasicPaymentProducts } from '../../../src/dataModel';
+
 import { DefaultPaymentProductService } from '../../../src/services/DefaultPaymentProductService';
 import { PaymentProduct } from '../../../src/domain/paymentProduct/PaymentProduct';
 import { UrlUtil } from '../../../src/infrastructure/utils/UrlUtil';
@@ -16,6 +20,9 @@ import type { PaymentProductService } from '../../../src/services/interfaces/Pay
 import { CacheManager } from '../../../src/infrastructure/utils/CacheManager';
 import { TestApiClient } from '../testUtils/TestApiClient';
 import { DefaultPaymentProductFactory } from '../../../src/infrastructure/factories/DefaultPaymentProductFactory';
+import { BasicPaymentProducts, type PaymentContext, type SdkResponse } from '../../../src';
+import type { BasicPaymentProductsDto } from '../../../src/infrastructure/apiModels/paymentProduct/BasicPaymentProductsDto';
+import type { PaymentProductNetworksResponse } from '../../../src/domain/paymentProduct/PaymentProductNetworksResponse';
 
 let service: PaymentProductService;
 
@@ -30,9 +37,10 @@ const paymentContext = {
 
 const cacheKey = 'cache-key';
 
-const products = { paymentProducts: [basePaymentProductJson] } as PaymentProductsJson;
-const paymentProduct = cardPaymentProductJson;
-const networks = { networks: ['network'] } as PaymentProductNetworksResponseJson;
+const products = { paymentProducts: [basePaymentProductJson] } as BasicPaymentProductsDto;
+const paymentProductDto = cardPaymentProductJson;
+const paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(paymentProductDto);
+const networks = { networks: ['network'] } as PaymentProductNetworksResponse;
 
 let cacheSpy: Mock<
     ({ prefix, suffix, context }: { context: PaymentContext; prefix: string; suffix?: string }) => string
@@ -58,7 +66,7 @@ describe('getBasicPaymentProducts', () => {
     beforeEach(() => {
         vi.spyOn(SupportedProductsUtil, 'filterOutBrowserUnsupportedProducts').mockImplementation(() => {});
         vi.spyOn(SupportedProductsUtil, 'filterOutSdkUnsupportedProducts').mockImplementation(() => {});
-        basicPaymentProducts = new BasicPaymentProducts(products);
+        basicPaymentProducts = new DefaultPaymentProductFactory().createBasicPaymentProducts(products);
     });
 
     it('returns from cache if present', async () => {
@@ -67,7 +75,7 @@ describe('getBasicPaymentProducts', () => {
         );
 
         const cacheHasSpy = vi.spyOn(CacheManager.prototype, 'has').mockResolvedValue(true);
-        const cacheGetSpy = vi.spyOn(CacheManager.prototype, 'get').mockResolvedValue(products);
+        const cacheGetSpy = vi.spyOn(CacheManager.prototype, 'get').mockResolvedValue(basicPaymentProducts);
         const result = await service.getBasicPaymentProducts(paymentContext);
 
         expect(cacheSpy).toHaveBeenCalledWith({
@@ -89,7 +97,7 @@ describe('getBasicPaymentProducts', () => {
         expect(apiSpy).toHaveBeenCalledTimes(1);
         expect(SupportedProductsUtil.filterOutBrowserUnsupportedProducts).toHaveBeenCalledWith(products);
         expect(SupportedProductsUtil.filterOutSdkUnsupportedProducts).toHaveBeenCalledWith(products);
-        expect(cacheSetSpy).toHaveBeenCalledWith(cacheKey, products);
+        expect(cacheSetSpy).toHaveBeenCalledWith(cacheKey, basicPaymentProducts);
         expect(result.paymentProducts).toEqual(basicPaymentProducts.paymentProducts);
     });
 
@@ -118,8 +126,9 @@ describe('getBasicPaymentProducts', () => {
             true,
         );
 
+        // noinspection ES6RedundantAwait It is not redundant.
         await expect(service.getBasicPaymentProducts(paymentContext)).rejects.toThrow(
-            'Could not fetch BasicPaymentProducts.',
+            'Error while trying to fetch payment products.',
         );
 
         expect(apiSpy).toHaveBeenCalledTimes(1);
@@ -162,9 +171,6 @@ describe('getPaymentProduct', () => {
     it('returns from cache if present', async () => {
         vi.spyOn(SupportedProductsUtil, 'isSupportedInBrowser').mockImplementation(() => true);
         vi.spyOn(SupportedProductsUtil, 'isSupportedInSdk').mockImplementation(() => true);
-        vi.spyOn(DefaultPaymentProductFactory.prototype, 'createPaymentProduct').mockReturnValue(
-            new PaymentProduct(paymentProduct),
-        );
 
         const cacheHasSpy = vi.spyOn(CacheManager.prototype, 'has').mockResolvedValue(true);
         const cacheGetSpy = vi.spyOn(CacheManager.prototype, 'get').mockResolvedValue(paymentProduct);
@@ -190,10 +196,8 @@ describe('getPaymentProduct', () => {
         vi.spyOn(SupportedProductsUtil, 'isSupportedInBrowser');
         vi.spyOn(SupportedProductsUtil, 'isSupportedInSdk');
         const cacheSetSpy = vi.spyOn(CacheManager.prototype, 'set');
-        vi.spyOn(DefaultPaymentProductFactory.prototype, 'createPaymentProduct').mockReturnValue(
-            new PaymentProduct(paymentProduct),
-        );
-        const apiSpy = getTestApiSpy('getWithContext', paymentProduct);
+        vi.spyOn(DefaultPaymentProductFactory.prototype, 'createPaymentProduct').mockReturnValue(paymentProduct);
+        const apiSpy = getTestApiSpy('getWithContext', paymentProductDto);
 
         const result = await service.getPaymentProduct(1, paymentContext);
 
@@ -209,6 +213,7 @@ describe('getPaymentProduct', () => {
         vi.spyOn(SupportedProductsUtil, 'isSupportedInBrowser').mockImplementation(() => false);
         vi.spyOn(SupportedProductsUtil, 'isSupportedInSdk').mockImplementation(() => false);
 
+        // noinspection ES6RedundantAwait Should await.
         await expect(service.getPaymentProduct(1, paymentContext)).rejects.toThrow(
             'Product not found or not available.',
         );

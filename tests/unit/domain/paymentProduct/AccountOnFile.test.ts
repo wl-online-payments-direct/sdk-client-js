@@ -1,16 +1,26 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { beforeEach, describe, expect, it } from 'vitest';
 import { accountOnFileJson } from '../../../__fixtures__/account-on-file-json';
-import { AccountOnFile } from '../../../../src/domain/paymentProduct/AccountOnFile';
+import { AccountOnFile } from '../../../../src/domain/accountOnFile/AccountOnFile';
+import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
 
 let accountOnFile: AccountOnFile;
 beforeEach(() => {
-    accountOnFile = new AccountOnFile(accountOnFileJson);
+    accountOnFile = new DefaultPaymentProductFactory().createAccountOnFile(accountOnFileJson);
 });
 
 describe('getLabel', () => {
     it('should return label as `4111 11XX XXXX 1111`', () => {
-        const label = accountOnFile.label;
-        expect(label).toBe('4111 11XX XXXX 1111');
+        expect(accountOnFile.label).toBe('4111 11XX XXXX 1111');
     });
 });
 

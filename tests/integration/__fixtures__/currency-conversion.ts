@@ -1,9 +1,19 @@
-import type { CurrencyConversionResponse, ErrorResponseJson } from '../../../src/types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
+import { ConversionResultType, type CurrencyConversionResponse, type ErrorResponse } from '../../../src';
 
 export const withCurrencyConversion: CurrencyConversionResponse = {
     docSessionId: '91e6bfec501c484bbcd27d8d7972f2b5q',
     result: {
-        result: 'Allowed',
+        result: ConversionResultType.Allowed,
     },
     proposal: {
         baseAmount: {
@@ -24,7 +34,7 @@ export const withCurrencyConversion: CurrencyConversionResponse = {
     },
 };
 
-export const withNoCurrencyConversionErrorResponseJson: ErrorResponseJson = {
+export const withNoCurrencyConversionErrorResponseJson: ErrorResponse = {
     errorId: '93614968-572c-473d-b355-708132bc33c1',
     errors: [
         {

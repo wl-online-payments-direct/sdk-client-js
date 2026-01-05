@@ -1,6 +1,17 @@
-import type { PaymentProductFieldJson, PaymentProductJson } from '../../src/types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
 
-const fields: PaymentProductFieldJson[] = [
+import type { PaymentProductFieldDto } from '../../src/infrastructure/apiModels/paymentProduct/PaymentProductFieldDto';
+import type { PaymentProductDto } from '../../src/infrastructure/apiModels/paymentProduct/PaymentProduct';
+
+const fields: PaymentProductFieldDto[] = [
     {
         dataRestrictions: {
             isRequired: false,
@@ -116,7 +127,7 @@ const fields: PaymentProductFieldJson[] = [
     },
 ];
 
-export const cardPaymentProductJson: PaymentProductJson = {
+export const cardPaymentProductJson: PaymentProductDto = {
     allowsRecurring: true,
     allowsTokenization: true,
     displayHints: {
@@ -124,13 +135,6 @@ export const cardPaymentProductJson: PaymentProductJson = {
         label: 'VISA',
         logo: 'https://assets.test.cdn.v-psp.com/s2s/7331a71bcf6fa3aed5a8/images/pm/VISA.gif',
     },
-    displayHintsList: [
-        {
-            displayOrder: 0,
-            label: 'VISA',
-            logo: 'https://assets.test.cdn.v-psp.com/s2s/7331a71bcf6fa3aed5a8/images/pm/VISA.gif',
-        },
-    ],
     fields: fields,
     id: 1,
     paymentMethod: 'card',
@@ -139,7 +143,7 @@ export const cardPaymentProductJson: PaymentProductJson = {
     allowsAuthentication: true,
 };
 
-export const unsupportedCardPaymentProductJson: PaymentProductJson = {
+export const unsupportedCardPaymentProductJson: PaymentProductDto = {
     allowsRecurring: true,
     allowsTokenization: false,
     displayHints: {
@@ -147,13 +151,6 @@ export const unsupportedCardPaymentProductJson: PaymentProductJson = {
         label: 'Maestro',
         logo: 'https://assets.test.cdn.v-psp.com/s2s/7331a71bcf6fa3aed5a8/images/pm/Maestro.gif',
     },
-    displayHintsList: [
-        {
-            displayOrder: 1,
-            label: 'Maestro',
-            logo: 'https://assets.test.cdn.v-psp.com/s2s/7331a71bcf6fa3aed5a8/images/pm/Maestro.gif',
-        },
-    ],
     fields: fields,
     id: 117,
     paymentMethod: 'card',

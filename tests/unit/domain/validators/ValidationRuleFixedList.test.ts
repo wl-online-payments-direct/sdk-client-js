@@ -1,48 +1,40 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { describe, expect, it } from 'vitest';
-import { ValidationRuleFixedList } from '../../../../src/domain/validators/ValidationRuleFixedList';
-import type { FixedListValidatorJson, ValidationRuleDefinition } from '../../../../src/types';
+import { ValidationRuleFixedList } from '../../../../src/domain/validation/rules/ValidationRuleFixedList';
 
 describe('ValidationRuleFixedList', () => {
     const createValidator = (allowedValues: string[]): ValidationRuleFixedList => {
-        const json: ValidationRuleDefinition<FixedListValidatorJson> = {
-            type: 'fixedList',
-            attributes: {
-                allowedValues,
-            },
-        };
-        return new ValidationRuleFixedList(json);
+        return new ValidationRuleFixedList(allowedValues);
     };
 
     it('should validate value that is in the allowed list', () => {
         const validator = createValidator(['visa', 'mastercard', 'amex']);
 
-        expect(validator.validate('visa')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('mastercard')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('amex')).toEqual({
-            valid: true,
-            message: '',
+        ['visa', 'mastercard', 'amex'].forEach((value) => {
+            expect(validator.validate(value)).toEqual({
+                valid: true,
+                message: '',
+            });
         });
     });
 
     it('should reject value that is not in the allowed list', () => {
         const validator = createValidator(['visa', 'mastercard', 'amex']);
 
-        expect(validator.validate('discover')).toEqual({
-            valid: false,
-            message: 'Provided value is not allowed.',
-        });
-
-        expect(validator.validate('jcb')).toEqual({
-            valid: false,
-            message: 'Provided value is not allowed.',
+        ['discover', 'jcb'].forEach((value) => {
+            expect(validator.validate(value)).toEqual({
+                valid: false,
+                message: 'Provided value is not allowed.',
+            });
         });
     });
 

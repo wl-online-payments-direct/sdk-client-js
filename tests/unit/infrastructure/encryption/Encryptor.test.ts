@@ -1,13 +1,23 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cardPaymentProductJson } from '../../../__fixtures__/payment-product-json';
 import { cardNumberFieldJson } from '../../../__fixtures__/payment-product-field-json';
 import { publicKeyResponse } from '../../../__fixtures__/public-key-response';
-import { PaymentProduct } from '../../../../src/domain/paymentProduct/PaymentProduct';
 import { PaymentRequest } from '../../../../src/domain/paymentRequest/PaymentRequest';
 import { CreditCardTokenRequest } from '../../../../src/domain/paymentRequest/CreditCardTokenRequest';
 import { Encryptor } from '../../../../src/infrastructure/encryption/Encryptor';
+import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
 
-const paymentProduct = new PaymentProduct({
+const paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct({
     ...cardPaymentProductJson,
     fields: [cardNumberFieldJson],
 });

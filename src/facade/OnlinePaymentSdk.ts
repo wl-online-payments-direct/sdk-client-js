@@ -1,17 +1,13 @@
-import { type BasicPaymentProducts, PublicKeyResponse } from '../dataModel';
-import type {
-    AmountOfMoney,
-    CurrencyConversionResponse,
-    EncryptedRequest,
-    PartialCard,
-    PaymentContext,
-    PaymentContextWithAmount,
-    PaymentProductNetworksResponseJson,
-    SdkConfiguration,
-    SessionData,
-    SurchargeCalculationResponse,
-    Token,
-} from '../types';
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import type { ServiceFactory } from '../infrastructure/interfaces/ServiceFactory';
 import { DefaultServiceFactory } from '../infrastructure/factories/DefaultServiceFactory';
 import type { PaymentProduct } from '../domain/paymentProduct/PaymentProduct';
@@ -21,6 +17,20 @@ import { normalize } from './SessionDataNormalizer';
 import type { EncryptionService } from '../services/interfaces/EncryptionService';
 import type { PaymentProductService } from '../services/interfaces/PaymentProductService';
 import type { ClientService } from '../services/interfaces/ClientService';
+import {
+    type AmountOfMoney,
+    BasicPaymentProducts,
+    type CurrencyConversionResponse,
+    type EncryptedRequest,
+    type PartialCard,
+    type PaymentContext,
+    type PaymentContextWithAmount,
+    PublicKeyResponse,
+    type SdkConfiguration,
+    type SessionData,
+    type SurchargeCalculationResponse,
+} from '../domain';
+import type { PaymentProductNetworksResponse } from '../domain/paymentProduct/PaymentProductNetworksResponse';
 
 export class OnlinePaymentSdk {
     private readonly encryptionService: EncryptionService;
@@ -53,20 +63,20 @@ export class OnlinePaymentSdk {
     getPaymentProductNetworks(
         paymentProductId: number,
         paymentContext: PaymentContext,
-    ): Promise<PaymentProductNetworksResponseJson> {
+    ): Promise<PaymentProductNetworksResponse> {
         return this.paymentProductService.getPaymentProductNetworks(paymentProductId, paymentContext);
     }
 
     getSurchargeCalculation(
         amountOfMoney: AmountOfMoney,
-        cardOrToken: PartialCard | Token,
+        cardOrToken: PartialCard | string,
     ): Promise<SurchargeCalculationResponse> {
         return this.clientService.getSurchargeCalculation(amountOfMoney, cardOrToken);
     }
 
     getCurrencyConversionQuote(
         amountOfMoney: AmountOfMoney,
-        cardOrToken: PartialCard | Token,
+        cardOrToken: PartialCard | string,
     ): Promise<CurrencyConversionResponse> {
         return this.clientService.getCurrencyConversionQuote(amountOfMoney, cardOrToken);
     }

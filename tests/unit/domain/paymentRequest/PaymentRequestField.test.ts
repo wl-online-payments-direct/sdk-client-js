@@ -1,14 +1,25 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { paymentProductFieldJson } from '../../../__fixtures__/payment-product-field-json';
-import { PaymentProductField } from '../../../../src/domain/paymentProduct/PaymentProductField';
+import { PaymentProductField } from '../../../../src/domain/paymentProduct/productField/PaymentProductField';
 import { PaymentRequestField } from '../../../../src/domain/paymentRequest/PaymentRequestField';
+import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
 
 let paymentProductField: PaymentProductField;
 let paymentRequestField: PaymentRequestField;
 
 beforeEach(() => {
-    paymentProductField = new PaymentProductField(paymentProductFieldJson);
+    paymentProductField = new DefaultPaymentProductFactory().createPaymentProductField(paymentProductFieldJson);
     paymentRequestField = new PaymentRequestField(paymentProductField, false);
 });
 
@@ -104,7 +115,7 @@ describe('validate', () => {
 
 describe('setValue for `READ_ONLY` field', () => {
     beforeEach(() => {
-        paymentProductField = new PaymentProductField(paymentProductFieldJson);
+        paymentProductField = new DefaultPaymentProductFactory().createPaymentProductField(paymentProductFieldJson);
         paymentRequestField = new PaymentRequestField(paymentProductField, true);
     });
 

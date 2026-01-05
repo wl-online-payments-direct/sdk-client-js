@@ -1,7 +1,16 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { describe, expect, it } from 'vitest';
-import { type SessionData } from '../../../src';
+import { ConfigurationError, type SessionData } from '../../../src';
 import { normalize } from '../../../src/facade/SessionDataNormalizer';
-import { ConfigurationError } from '../../../src/dataModel';
 
 describe('normalize SessionData', () => {
     const getValidSessionData = (): SessionData => ({

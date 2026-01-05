@@ -1,17 +1,29 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type {
-    CurrencyConversionRequest,
-    CurrencyConversionResponse,
-    GetIINDetailsResponseJson,
-    PartialCard,
-    SdkResponse,
-    SurchargeCalculationResponse,
-    SurchargeRequestJson,
-} from '../../../src/types';
-import { IinDetailsStatus } from '../../../src/types';
 import type { ClientService } from '../../../src/services/interfaces/ClientService';
-import type { AmountOfMoney, PaymentContextWithAmount } from '../../../src';
-import { IinDetailsResponse } from '../../../src/dataModel';
+import {
+    type AmountOfMoney,
+    ConversionResultType,
+    type CurrencyConversionRequest,
+    type CurrencyConversionResponse,
+    IinDetailsResponse,
+    IinDetailStatus,
+    type PartialCard,
+    type PaymentContextWithAmount,
+    type SdkResponse,
+    type SurchargeCalculationRequest,
+    type SurchargeCalculationResponse,
+    SurchargeResult,
+} from '../../../src';
 import { DefaultClientService } from '../../../src/services/DefaultClientService';
 import { CacheManager } from '../../../src/infrastructure/utils/CacheManager';
 import { TestApiClient } from '../testUtils/TestApiClient';
@@ -36,7 +48,7 @@ beforeEach(() => {
 
     currencyConversionResponse = {
         docSessionId: '1',
-        result: { resultReason: 'test reason', result: 'Allowed' },
+        result: { resultReason: 'test reason', result: ConversionResultType.Allowed },
         proposal: {
             baseAmount: {
                 amount: 1000,
@@ -62,13 +74,10 @@ afterEach(() => {
 });
 
 describe('getIinDetails', () => {
-    let json: GetIINDetailsResponseJson;
+    let iinDetails: IinDetailsResponse;
     let paymentContextWithAmount: PaymentContextWithAmount;
     beforeEach(() => {
-        json = {
-            countryCode: 'NL',
-            paymentProductId: 1,
-        };
+        iinDetails = new IinDetailsResponse(IinDetailStatus.SUPPORTED, 'NL', 1);
 
         paymentContextWithAmount = {
             countryCode: 'NL',
@@ -80,8 +89,6 @@ describe('getIinDetails', () => {
     });
 
     it('should return iinDetails response from cache', async () => {
-        const iinDetails = new IinDetailsResponse(IinDetailsStatus.SUPPORTED, json);
-
         const apiSpy = vi.spyOn(TestApiClient.prototype, 'post');
         const cacheHasSpy = vi.spyOn(CacheManager.prototype, 'has').mockResolvedValue(true);
         const cacheGetSpy = vi.spyOn(CacheManager.prototype, 'get').mockResolvedValue(iinDetails);
@@ -99,12 +106,10 @@ describe('getIinDetails', () => {
     });
 
     it('should return iinDetails from API', async () => {
-        const iinDetails = new IinDetailsResponse(IinDetailsStatus.SUPPORTED, json);
-
-        const apiResponse: SdkResponse<GetIINDetailsResponseJson> = {
+        const apiResponse: SdkResponse<IinDetailsResponse> = {
             status: 200,
             success: true,
-            data: json,
+            data: iinDetails,
         };
 
         const apiSpy = vi.spyOn(TestApiClient.prototype, 'post').mockResolvedValue(apiResponse);
@@ -123,7 +128,7 @@ describe('getCurrencyConversionQuote', () => {
     it('returns cached value when available and does not call API for currency quote', async () => {
         const cachedValue: CurrencyConversionResponse = {
             docSessionId: '1',
-            result: { resultReason: 'test reason', result: 'Allowed' },
+            result: { resultReason: 'test reason', result: ConversionResultType.Allowed },
             proposal: {
                 baseAmount: {
                     amount: 1000,
@@ -208,7 +213,7 @@ describe('getSurchargeCalculation', () => {
         const cachedValue: SurchargeCalculationResponse = {
             surcharges: [
                 {
-                    result: 'OK',
+                    result: SurchargeResult.OK,
                     paymentProductId: 1,
                     surchargeAmount: { amount: 25, currencyCode: 'EUR' },
                     netAmount: {
@@ -244,7 +249,7 @@ describe('getSurchargeCalculation', () => {
     });
 
     it('calls API, caches result, and returns data when not cached', async () => {
-        const request: SurchargeRequestJson = {
+        const request: SurchargeCalculationRequest = {
             cardSource: {
                 card: {
                     cardNumber: partialCard.partialCreditCardNumber,

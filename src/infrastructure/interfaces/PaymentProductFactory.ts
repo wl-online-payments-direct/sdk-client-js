@@ -1,12 +1,20 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import type { PaymentProduct } from '../../domain/paymentProduct/PaymentProduct';
-import type { BasicPaymentProduct } from '../../domain/paymentProduct/BasicPaymentProduct';
-import type { BasicPaymentProductJson, PaymentProductJson, PaymentProductsJson } from '../../types';
-import type { BasicPaymentProducts } from '../../dataModel';
+import type { PaymentProductDto } from '../apiModels/paymentProduct/PaymentProduct';
+import type { BasicPaymentProductsDto } from '../apiModels/paymentProduct/BasicPaymentProductsDto';
+import { BasicPaymentProducts } from '../../domain';
 
 export interface PaymentProductFactory {
-    createPaymentProduct(json: PaymentProductJson): PaymentProduct;
+    createBasicPaymentProducts(dto: BasicPaymentProductsDto): BasicPaymentProducts;
 
-    createBasicPaymentProduct(json: BasicPaymentProductJson): BasicPaymentProduct;
-
-    createBasicPaymentProducts(json: PaymentProductsJson): BasicPaymentProducts;
+    createPaymentProduct(dto: PaymentProductDto): PaymentProduct;
 }

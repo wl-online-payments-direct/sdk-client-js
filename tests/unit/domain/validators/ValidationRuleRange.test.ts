@@ -1,87 +1,61 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { describe, expect, it } from 'vitest';
-import { ValidationRuleRange } from '../../../../src/domain/validators/ValidationRuleRange';
-import type { RangeValidatorJson, ValidationRuleDefinition } from '../../../../src/types';
+import { ValidationRuleRange } from '../../../../src/domain/validation/rules/ValidationRuleRange';
 
 describe('ValidationRuleRange', () => {
     const createValidator = (minValue: number, maxValue: number): ValidationRuleRange => {
-        const json: ValidationRuleDefinition<RangeValidatorJson> = {
-            type: 'range',
-            attributes: {
-                minValue,
-                maxValue,
-            },
-        };
-        return new ValidationRuleRange(json);
+        return new ValidationRuleRange(minValue, maxValue);
     };
 
     it('should validate numeric values within range', () => {
         const validator = createValidator(1, 100);
 
-        expect(validator.validate(1)).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate(50)).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate(100)).toEqual({
-            valid: true,
-            message: '',
+        [1, 50, 100].forEach((value) => {
+            expect(validator.validate(value)).toEqual({
+                valid: true,
+                message: '',
+            });
         });
     });
 
     it('should validate string values within range', () => {
         const validator = createValidator(1, 100);
-
-        expect(validator.validate('1')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('50')).toEqual({
-            valid: true,
-            message: '',
-        });
-
-        expect(validator.validate('100')).toEqual({
-            valid: true,
-            message: '',
+        ['1', '50', '100'].forEach((value) => {
+            expect(validator.validate(value)).toEqual({
+                valid: true,
+                message: '',
+            });
         });
     });
 
     it('should reject numeric values outside range', () => {
         const validator = createValidator(1, 100);
 
-        expect(validator.validate(0)).toEqual({
-            valid: false,
-            message: 'Provided value is must be between 1 and 100.',
-        });
-
-        expect(validator.validate(101)).toEqual({
-            valid: false,
-            message: 'Provided value is must be between 1 and 100.',
-        });
-
-        expect(validator.validate(-5)).toEqual({
-            valid: false,
-            message: 'Provided value is must be between 1 and 100.',
+        [0, 101, -5].forEach((value) => {
+            expect(validator.validate(value)).toEqual({
+                valid: false,
+                message: 'Provided value is must be between 1 and 100.',
+            });
         });
     });
 
     it('should reject string values outside range', () => {
         const validator = createValidator(1, 100);
 
-        expect(validator.validate('0')).toEqual({
-            valid: false,
-            message: 'Provided value is must be between 1 and 100.',
-        });
-
-        expect(validator.validate('101')).toEqual({
-            valid: false,
-            message: 'Provided value is must be between 1 and 100.',
+        ['0', '101', '-5'].forEach((value) => {
+            expect(validator.validate(value)).toEqual({
+                valid: false,
+                message: 'Provided value is must be between 1 and 100.',
+            });
         });
     });
 

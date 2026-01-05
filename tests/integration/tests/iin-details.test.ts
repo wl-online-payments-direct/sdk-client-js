@@ -1,3 +1,13 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { awaitTimes, getApiClientSpyMock } from '../utils';
@@ -6,9 +16,8 @@ import { OnlinePaymentSdk } from '../../../src/facade/OnlinePaymentSdk';
 import { cardNumber } from '../../__fixtures__/card_number';
 import { iinDetailsResponse } from '../../__fixtures__/iin-details';
 import { paymentContextWithAmount } from '../../__fixtures__/payment-context';
-import { IinDetailsResponse, InvalidArgumentError, ResponseError } from '../../../src/dataModel';
 import { cardPaymentProductJson } from '../../__fixtures__/payment-product-json';
-import { IinDetailsStatus, init } from '../../../src';
+import { IinDetailsResponse, IinDetailStatus, init, InvalidArgumentError } from '../../../src';
 
 describe('session.getIinDetails', () => {
     let session: OnlinePaymentSdk;
@@ -56,8 +65,8 @@ describe('session.getIinDetails', () => {
             expect.fail('Should throw an error');
         } catch (error) {
             expect(error).toBeInstanceOf(InvalidArgumentError);
-            const res = (error as ResponseError).metadata?.data as IinDetailsResponse;
-            expect(res.status).toBe(IinDetailsStatus.NOT_ENOUGH_DIGITS);
+            const res = ((error as InvalidArgumentError).metadata as { data: IinDetailsResponse })?.data;
+            expect(res.status).toBe(IinDetailStatus.NOT_ENOUGH_DIGITS);
         }
     });
 });

@@ -1,3 +1,13 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { paymentContext } from '../../__fixtures__/payment-context';
@@ -6,17 +16,16 @@ import { getConfiguration, getSessionDetails } from '../setup';
 import { OnlinePaymentSdk } from '../../../src/facade/OnlinePaymentSdk';
 import { cardPaymentProductJson } from '../../__fixtures__/payment-product-json';
 import { PaymentProduct } from '../../../src/domain/paymentProduct/PaymentProduct';
-import { ResponseError } from '../../../src/dataModel';
-import { init } from '../../../src';
+import { type ErrorResponse, init, ResponseError } from '../../../src';
 import { SupportedProductsUtil } from '../../../src/infrastructure/utils/SupportedProductsUtil';
 
 describe('session.getPaymentProduct', () => {
     let session: OnlinePaymentSdk;
-    const error404 = {
+    const error404: ErrorResponse = {
         errorId: '48b78d2d-1b35-4f8b-92cb-57cc2638e901',
         errors: [
             {
-                code: '1007',
+                errorCode: '1007',
                 propertyName: 'productId',
                 message: 'UNKNOWN_PRODUCT_ID',
                 httpStatusCode: 404,
@@ -34,8 +43,9 @@ describe('session.getPaymentProduct', () => {
     });
 
     it('response failed; (invalid data)', async () => {
-        await expect(() => session.getPaymentProduct(99999, paymentContext)).rejects.toThrowError(
-            'Failed to retrieve payment product 99999',
+        // noinspection ES6RedundantAwait It is not redundant.
+        await expect(session.getPaymentProduct(99999, paymentContext)).rejects.toThrowError(
+            'Error while trying to fetch the payment product 99999.',
         );
     });
 

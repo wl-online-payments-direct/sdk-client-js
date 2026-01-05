@@ -1,14 +1,25 @@
+/*
+ * Do not remove or alter the notices in this preamble.
+ *
+ * Copyright © 2026 Worldline and/or its affiliates.
+ *
+ * All rights reserved. License grant and user rights and obligations according to the applicable license agreement.
+ *
+ * Please contact Worldline for questions regarding license and user rights.
+ */
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getConfiguration, getSessionDetails } from '../setup';
 import { OnlinePaymentSdk } from '../../../src/facade/OnlinePaymentSdk';
 import { cardPaymentProductJson } from '../../__fixtures__/payment-product-json';
 import { PaymentProduct } from '../../../src/domain/paymentProduct/PaymentProduct';
-import { AccountOnFile, CreditCardTokenRequest, init, PaymentRequest } from '../../../src';
+import { CreditCardTokenRequest, init, PaymentRequest } from '../../../src';
 import { accountOnFileJson } from '../../__fixtures__/account-on-file-json';
 import { createPaymentFromSdk, createTokenRequest, getApiClientSpyMock, getEnvVar, getSessionFromSdk } from '../utils';
 import { publicKeyResponse } from '../../__fixtures__/public-key-response';
 import { cardNumber } from '../../__fixtures__/card_number';
 import { paymentContext } from '../../__fixtures__/payment-context';
+import { DefaultPaymentProductFactory } from '../../../src/infrastructure/factories/DefaultPaymentProductFactory';
 
 const SDK_MERCHANT_ID = getEnvVar('VITE_ONLINEPAYMENTS_SDK_MERCHANT_ID');
 
@@ -19,7 +30,7 @@ describe('session.createPaymentRequest', () => {
 
     beforeEach(() => {
         session = init(getSessionDetails(), getConfiguration());
-        paymentProduct = new PaymentProduct(cardPaymentProductJson);
+        paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
         tokenRequest = new CreditCardTokenRequest();
     });
 
@@ -45,16 +56,15 @@ describe('session.createPaymentRequest', () => {
         request.getField('cvv').setValue('123');
         request.getField('expiryDate').setValue('12/2026');
 
-        await expect(session.encryptPaymentRequest(request)).rejects.toThrow(
-            'Error encrypting payment request: the payment request is not valid.',
-        );
+        // noinspection ES6RedundantAwait It is not redundant.
+        await expect(session.encryptPaymentRequest(request)).rejects.toThrow('The payment request is not valid.');
 
         expect(spy).not.toHaveBeenCalled();
         vi.restoreAllMocks();
     });
 
     it('if account on file present cannot change mandatory field`', async () => {
-        const accountOnFile = new AccountOnFile(accountOnFileJson);
+        const accountOnFile = new DefaultPaymentProductFactory().createAccountOnFile(accountOnFileJson);
         const request = new PaymentRequest(paymentProduct, accountOnFile);
 
         expect(() => request.getField('cardNumber').setValue('4222422242224222')).toThrow(
