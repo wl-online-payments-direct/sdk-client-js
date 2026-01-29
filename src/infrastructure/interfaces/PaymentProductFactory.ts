@@ -9,7 +9,7 @@
  */
 
 import type { PaymentProduct } from '../../domain/paymentProduct/PaymentProduct';
-import type { PaymentProductDto } from '../apiModels/paymentProduct/PaymentProduct';
+import type { PaymentProductDto } from '../apiModels/paymentProduct/PaymentProductDto';
 import type { BasicPaymentProductsDto } from '../apiModels/paymentProduct/BasicPaymentProductsDto';
 import { BasicPaymentProducts } from '../../domain';
 

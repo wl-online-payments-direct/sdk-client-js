@@ -19,7 +19,7 @@ import { BaseService } from './BaseService';
 import { ApplePay } from './models/ApplePay';
 import { BasicPaymentProducts, type PaymentContext, ResponseError } from '../domain';
 import type { BasicPaymentProductsDto } from '../infrastructure/apiModels/paymentProduct/BasicPaymentProductsDto';
-import type { PaymentProductDto } from '../infrastructure/apiModels/paymentProduct/PaymentProduct';
+import type { PaymentProductDto } from '../infrastructure/apiModels/paymentProduct/PaymentProductDto';
 import type { PaymentProductNetworksResponse } from '../domain/paymentProduct/PaymentProductNetworksResponse';
 
 export class DefaultPaymentProductService extends BaseService implements PaymentProductService {

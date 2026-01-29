@@ -9,7 +9,7 @@
  */
 
 import type { PaymentProductFieldDto } from '../../src/infrastructure/apiModels/paymentProduct/PaymentProductFieldDto';
-import type { PaymentProductDto } from '../../src/infrastructure/apiModels/paymentProduct/PaymentProduct';
+import type { PaymentProductDto } from '../../src/infrastructure/apiModels/paymentProduct/PaymentProductDto';
 
 const fields: PaymentProductFieldDto[] = [
     {

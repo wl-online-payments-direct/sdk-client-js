@@ -55,7 +55,7 @@ export class DefaultClientService extends BaseService implements ClientService {
 
         const data = this.convertContextToIinDetailsContext(number, context);
 
-        const response = await this.apiClient.post<IinDetailsResponse>('/getIINdetails', {
+        const response = await this.apiClient.post<IinDetailsResponse>('/services/getIINdetails', {
             body: JSON.stringify(data),
         });
 
@@ -96,7 +96,7 @@ export class DefaultClientService extends BaseService implements ClientService {
             amountOfMoney,
         };
 
-        const response = await this.apiClient.post<SurchargeCalculationResponse>('services/surchargeCalculation', {
+        const response = await this.apiClient.post<SurchargeCalculationResponse>('/services/surchargeCalculation', {
             body: JSON.stringify(requestJson),
         });
 
@@ -126,7 +126,7 @@ export class DefaultClientService extends BaseService implements ClientService {
         };
 
         const response = await this.apiClient.post<CurrencyConversionResponse>(
-            'services/dccrate',
+            '/services/dccrate',
             {
                 body: JSON.stringify({
                     cardSource,

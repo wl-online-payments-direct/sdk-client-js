@@ -8,7 +8,7 @@
  * Please contact Worldline for questions regarding license and user rights.
  */
 
-import type { AccountOnFileDto } from '../accountOnFile/AccountOnFile';
+import type { AccountOnFileDto } from '../accountOnFile/AccountOnFileDto';
 import type { PaymentProductDisplayHintsDto } from './displayHints/PaymentProductDisplayHintsDto';
 import { PaymentProduct302SpecificData, PaymentProduct320SpecificData } from '../../../domain';
 

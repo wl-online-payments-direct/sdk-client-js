@@ -8,7 +8,7 @@
  * Please contact Worldline for questions regarding license and user rights.
  */
 
-import type { AccountOnFileDto } from '../../src/infrastructure/apiModels/accountOnFile/AccountOnFile';
+import type { AccountOnFileDto } from '../../src/infrastructure/apiModels/accountOnFile/AccountOnFileDto';
 import { AccountOnFileAttributeStatus } from '../../src';
 
 export const accountOnFileJson: AccountOnFileDto = {

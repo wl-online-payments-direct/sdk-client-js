@@ -32,6 +32,15 @@ describe('session.getIinDetails', () => {
         expect(result).toBeInstanceOf(IinDetailsResponse);
         expect(result.status).toBe('SUPPORTED');
         expect(result.paymentProductId).toBe(1);
+        const [path, options] = spy.mock.calls[0];
+        const parsedBody = JSON.parse(options?.body as string);
+
+        expect(path).toBe('/services/getIINdetails');
+        expect(parsedBody).toEqual({
+            bin: '40000000',
+            paymentContext: paymentContextWithAmount,
+        });
+
         spy.mockRestore();
     });
 

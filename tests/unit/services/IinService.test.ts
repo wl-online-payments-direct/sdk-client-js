@@ -112,13 +112,24 @@ describe('getIinDetails', () => {
             data: iinDetails,
         };
 
+        const bin = '42424242';
+
         const apiSpy = vi.spyOn(TestApiClient.prototype, 'post').mockResolvedValue(apiResponse);
 
         const cacheSetSpy = vi.spyOn(CacheManager.prototype, 'set');
 
-        const result = await service.getIinDetails('42424242', paymentContextWithAmount);
+        const result = await service.getIinDetails(bin, paymentContextWithAmount);
 
         expect(apiSpy).toHaveBeenCalledTimes(1);
+        const [path, options] = apiSpy.mock.calls[0];
+        const parsedBody = JSON.parse(options?.body as string);
+
+        expect(path).toBe('/services/getIINdetails');
+        expect(parsedBody).toEqual({
+            bin,
+            paymentContext: paymentContextWithAmount,
+        });
+
         expect(cacheSetSpy).toHaveBeenCalled();
         expect(result).toEqual(iinDetails);
     });
@@ -197,7 +208,7 @@ describe('getCurrencyConversionQuote', () => {
         const [path, options, apiVersion] = apiSpy.mock.calls[0];
         const parsedBody = JSON.parse(options?.body as string);
 
-        expect(path).toBe('services/dccrate');
+        expect(path).toBe('/services/dccrate');
         expect(apiVersion).toBe('v2');
         expect(parsedBody).toEqual(request);
 
@@ -275,7 +286,7 @@ describe('getSurchargeCalculation', () => {
         const [path, options] = apiSpy.mock.calls[0];
         const parsedBody = JSON.parse(options?.body as string);
 
-        expect(path).toBe('services/surchargeCalculation');
+        expect(path).toBe('/services/surchargeCalculation');
         expect(parsedBody).toEqual(request);
 
         expect(cacheSetSpy).toHaveBeenCalledTimes(1);

@@ -9,31 +9,12 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { PaymentRequest } from '../../../../../src';
-import { cardNumberFieldJson } from '../../../../__fixtures__/payment-product-field-json';
-import { cardPaymentProductJson } from '../../../../__fixtures__/payment-product-json';
 import type { ValidationRule } from '../../../../../src/domain/validation/rules/ValidationRule';
-import { DefaultPaymentProductFactory } from '../../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
-import type { PaymentProductFieldDto } from '../../../../../src/infrastructure/apiModels/paymentProduct/PaymentProductFieldDto';
 
 interface TestData {
     msg: string;
     isValid?: boolean;
     value?: string;
-}
-
-const paymentProductField: PaymentProductFieldDto = {
-    ...cardNumberFieldJson,
-    dataRestrictions: { isRequired: true, validators: {} },
-};
-
-function createPaymentRequest(): PaymentRequest {
-    const paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct({
-        ...cardPaymentProductJson,
-        fields: [paymentProductField],
-    });
-
-    return new PaymentRequest(paymentProduct);
 }
 
 /**
@@ -45,11 +26,6 @@ function createPaymentRequest(): PaymentRequest {
 export function createValidationRuleTest(rule: ValidationRule, data: TestData[]) {
     describe(rule.type + ' `validate`', () => {
         it.each(data)('$msg', ({ isValid, value }) => {
-            const paymentRequest = createPaymentRequest();
-            if (value !== undefined) {
-                paymentRequest.setValue(paymentProductField.id, value);
-            }
-
             if (isValid !== undefined) {
                 expect(rule.validate(value as string).valid).toBe(isValid);
             }

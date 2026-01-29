@@ -94,7 +94,7 @@ describe('session.createPaymentRequest', () => {
         expect(result.payment?.id).toBeDefined();
     });
 
-    it('can create payment with valid AOF`', async () => {
+    it('can create payment with valid AOF', async () => {
         tokenRequest.setCardNumber('4567350000427977');
         tokenRequest.setCardholderName('Darwin Núñez');
         tokenRequest.setExpiryDate('1230');

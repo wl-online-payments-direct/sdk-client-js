@@ -11,7 +11,7 @@
 import { PaymentProduct } from '../../domain/paymentProduct/PaymentProduct';
 import type { PaymentProductFactory } from '../interfaces/PaymentProductFactory';
 import { BasicPaymentProduct } from '../../domain/paymentProduct/BasicPaymentProduct';
-import type { PaymentProductDto } from '../apiModels/paymentProduct/PaymentProduct';
+import type { PaymentProductDto } from '../apiModels/paymentProduct/PaymentProductDto';
 import type { BasicPaymentProductDto } from '../apiModels/paymentProduct/BasicPaymentProductDto';
 import type { BasicPaymentProductsDto } from '../apiModels/paymentProduct/BasicPaymentProductsDto';
 import {
@@ -21,7 +21,7 @@ import {
     PaymentProductField,
     ProductFieldDisplayHints,
 } from '../../domain';
-import type { AccountOnFileDto } from '../apiModels/accountOnFile/AccountOnFile';
+import type { AccountOnFileDto } from '../apiModels/accountOnFile/AccountOnFileDto';
 import { Formatter } from '../utils/Formatter';
 import type { PaymentProductFieldDto } from '../apiModels/paymentProduct/PaymentProductFieldDto';
 import { DataRestrictions } from '../../domain/paymentProduct/productField/DataRestrictions';

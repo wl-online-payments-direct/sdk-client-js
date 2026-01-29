@@ -1,3 +1,9 @@
+# 4.1.1
+
+## Changed
+
+- Fixed bug in fetching IIN details. The service URL has been updated.
+
 # 4.1.0
 
 ## Changed
