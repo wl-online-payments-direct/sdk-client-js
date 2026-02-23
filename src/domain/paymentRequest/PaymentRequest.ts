@@ -99,17 +99,39 @@ export class PaymentRequest {
         this.tokenize = tokenize;
     }
 
+    /**
+     * Validates the payment request based on whether an account on file is being used.
+     *
+     * When using an account on file:
+     * - Fields not defined in AOF: always validated
+     * - Fields defined in AOF with status MUST_WRITE: always validated
+     * - Fields defined in AOF with status CAN_WRITE or READ_ONLY: only validated if the user provided a value
+     *
+     * When not using an account on file:
+     * - Validates all payment product fields normally
+     *
+     * @returns {ValidationResult} Object containing validation status and any error messages
+     */
     validate(): ValidationResult {
         const allErrors: ValidationErrorMessage[] = [];
 
-        if (this.accountOnFile && this.accountOnFile.getRequiredAttributes().length > 0) {
+        if (this.accountOnFile) {
             const requiredAttributes = this.accountOnFile.getRequiredAttributes();
 
-            const requiredFields = this.paymentProduct
-                .getFields()
-                .filter((a) => requiredAttributes.some((b) => a.id === b.key));
+            const fieldsToValidate = this.paymentProduct.getFields().filter((field) => {
+                const userValue = this.getValue(field.id);
 
-            this.validateFields(requiredFields, allErrors);
+                if (!this.accountOnFile?.getAttribute(field.id)) {
+                    // if field in payment product but not in AOF, validate it
+                    return true;
+                }
+
+                const isMustWrite = requiredAttributes.some((a) => a.key === field.id);
+
+                return isMustWrite || !!userValue;
+            });
+
+            this.validateFields(fieldsToValidate, allErrors);
         } else {
             this.validateFields(this.paymentProduct.getFields(), allErrors);
         }

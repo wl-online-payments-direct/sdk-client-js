@@ -133,9 +133,11 @@ describe('session.createPaymentRequest', () => {
         request.setValue('cardNumber', '4567350000427977');
         request.setValue('expiryDate', '12/26');
 
+        request.setValue('cvv', '1');
+
         await expect(newSession.encryptPaymentRequest(request)).rejects.toThrow();
 
-        request.setValue('cvv', '123');
+        request.setValue('cvv', '222');
 
         const encryptedData = await newSession.encryptPaymentRequest(request);
 

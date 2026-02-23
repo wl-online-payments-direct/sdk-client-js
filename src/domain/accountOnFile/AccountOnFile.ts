@@ -32,8 +32,20 @@ export class AccountOnFile {
         return this.attributeByKey[fieldId]?.value;
     }
 
+    getAttribute(fieldId: string): AccountOnFileAttribute | undefined {
+        return this.attributeByKey[fieldId];
+    }
+
     getRequiredAttributes(): AccountOnFileAttribute[] {
         return this.attributes.filter((attribute) => attribute.status === AccountOnFileAttributeStatus.MUST_WRITE);
+    }
+
+    getWritableAttributes(): AccountOnFileAttribute[] {
+        return this.attributes.filter((attribute) => attribute.status !== AccountOnFileAttributeStatus.READ_ONLY);
+    }
+
+    getReadOnlyAttributes(): AccountOnFileAttribute[] {
+        return this.attributes.filter((attribute) => attribute.status === AccountOnFileAttributeStatus.READ_ONLY);
     }
 
     isWritable(fieldId: string): boolean {

@@ -49,6 +49,22 @@ describe('getRequiredAttributes', () => {
     });
 });
 
+describe('getWritableAttributes', () => {
+    it('should return attributes that are not `READ_ONLY`', () => {
+        const requiredAttributes = accountOnFile.getWritableAttributes();
+
+        expect(requiredAttributes.length).toBe(1);
+    });
+});
+
+describe('getReadOnlyAttributes', () => {
+    it('should return attributes that are `READ_ONLY`', () => {
+        const requiredAttributes = accountOnFile.getReadOnlyAttributes();
+
+        expect(requiredAttributes.length).toBe(2);
+    });
+});
+
 describe('isWritable', () => {
     it('should return `false` for cardNumber', () => {
         const isWritable = accountOnFile.isWritable('cardNumber');

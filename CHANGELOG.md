@@ -1,3 +1,15 @@
+# 4.1.2
+
+## Added
+
+- Added more unit tests
+- `getAttribute()`, `getWritableAttributes()` and `getReadOnlyAttributes()` methods in AccountOnFile
+
+## Changed
+
+- Fixed bug in `PaymentRequest` validation method. Validation now also checks fields with values
+  when `AccountOnFile` present.
+
 # 4.1.1
 
 ## Changed

@@ -10,7 +10,11 @@
 
 import { cardPaymentProductJson } from '../../../__fixtures__/payment-product-json';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { accountOnFileJson } from '../../../__fixtures__/account-on-file-json';
+import {
+    accountOnFileJson,
+    accountOnFileWithCardHolderNameCanWriteJson,
+    accountOnFileWithMustWriteCvvJson,
+} from '../../../__fixtures__/account-on-file-json';
 import { DefaultEncryptionService } from '../../../../src/services/DefaultEncryptionService';
 import type { EncryptionService } from '../../../../src/services/interfaces/EncryptionService';
 import { CacheManager } from '../../../../src/infrastructure/utils/CacheManager';
@@ -158,12 +162,12 @@ describe('validate', () => {
         expect(validationResult.errors.length).toBe(3);
     });
 
-    it('should return errors for `cvv`: `Field required.` if `accountOnFile` provided.', () => {
+    it('should return errors for `cvv` and `expiryDate`: `Field required.` if `accountOnFile` provided.', () => {
         paymentRequest.setAccountOnFile(accountOnFile);
         const validationResult = paymentRequest.validate();
 
         expect(validationResult.isValid).toBe(false);
-        expect(validationResult.errors.length).toBe(1);
+        expect(validationResult.errors.length).toBe(2);
     });
 
     it('should return empty `errors` and `isValid` when all fields set correctly', () => {
@@ -173,8 +177,90 @@ describe('validate', () => {
         paymentRequest.setValue('cardholderName', 'test');
 
         const validationResult = paymentRequest.validate();
+
         expect(validationResult.isValid).toBe(true);
         expect(validationResult.errors.length).toBe(0);
+    });
+
+    it('should return error for `cvv` when it is `MUST_WRITE` in accountOnFile and user provides no value with AOF', () => {
+        const accountOnFileWithMustWriteCvv = new DefaultPaymentProductFactory().createAccountOnFile(
+            accountOnFileWithMustWriteCvvJson,
+        );
+        paymentRequest.setAccountOnFile(accountOnFileWithMustWriteCvv);
+
+        const validationResult = paymentRequest.validate();
+
+        expect(validationResult.isValid).toBe(false);
+        expect(validationResult.errors.length).toBe(1);
+    });
+
+    it('should return error for `cvv` when it is `MUST_WRITE` and user provides invalid value with AOF', () => {
+        const accountOnFileWithMustWriteCvv = new DefaultPaymentProductFactory().createAccountOnFile(
+            accountOnFileWithMustWriteCvvJson,
+        );
+        paymentRequest.setAccountOnFile(accountOnFileWithMustWriteCvv);
+        paymentRequest.setValue('cvv', '1');
+
+        const validationResult = paymentRequest.validate();
+
+        expect(validationResult.isValid).toBe(false);
+        expect(validationResult.errors.length).toBe(1);
+    });
+
+    it('should pass validation when `cvv` is `MUST_WRITE` and user provides valid value', () => {
+        const accountOnFileWithMustWriteCvv = new DefaultPaymentProductFactory().createAccountOnFile(
+            accountOnFileWithMustWriteCvvJson,
+        );
+        paymentRequest.setAccountOnFile(accountOnFileWithMustWriteCvv);
+        paymentRequest.setValue('cvv', '123');
+
+        const validationResult = paymentRequest.validate();
+        expect(validationResult.isValid).toBe(true);
+        expect(validationResult.errors.length).toBe(0);
+    });
+
+    it('should pass validation when `cardholderName` is `CAN_WRITE` and user does not provide value it should not validate it', () => {
+        const accountOnFileWithCanWriteCardholderName = new DefaultPaymentProductFactory().createAccountOnFile(
+            accountOnFileWithCardHolderNameCanWriteJson,
+        );
+        paymentRequest.setAccountOnFile(accountOnFileWithCanWriteCardholderName);
+        paymentRequest.setValue('cardNumber', '7822551678890142249');
+        paymentRequest.setValue('expiryDate', '11/2026');
+        paymentRequest.setValue('cvv', '123');
+
+        const validationResult = paymentRequest.validate();
+
+        expect(validationResult.isValid).toBe(true);
+        expect(validationResult.errors.length).toBe(0);
+    });
+
+    it('should not pass validation when `cvv` is `MUST_WRITE` and user does not provide value', () => {
+        const accountOnFileWithMustWriteCvv = new DefaultPaymentProductFactory().createAccountOnFile(
+            accountOnFileWithMustWriteCvvJson,
+        );
+        paymentRequest.setAccountOnFile(accountOnFileWithMustWriteCvv);
+        paymentRequest.setValue('expiryDate', '11/2026');
+
+        const validationResult = paymentRequest.validate();
+
+        expect(validationResult.isValid).toBe(false);
+        expect(validationResult.errors.length).toBe(1);
+    });
+
+    it('should return error for `cardholderName` when it is `CAN_WRITE` and user provides an invalid value', () => {
+        const accountOnFileWithCanWriteCardholderName = new DefaultPaymentProductFactory().createAccountOnFile(
+            accountOnFileWithCardHolderNameCanWriteJson,
+        );
+        paymentRequest.setAccountOnFile(accountOnFileWithCanWriteCardholderName);
+        paymentRequest.setValue('cardNumber', '4567350000427977');
+        paymentRequest.setValue('expiryDate', '11/2026');
+        paymentRequest.setValue('cvv', '123');
+        paymentRequest.setValue('cardholderName', 'x'); // too short, minLength is 2
+
+        const validationResult = paymentRequest.validate();
+
+        expect(validationResult.isValid).toBe(false);
+        expect(validationResult.errors.length).toBe(1);
     });
 });
 
