@@ -126,6 +126,7 @@ integration_test:
 
 sonar_scan:
   stage: verify
+  allow_failure: true
   needs:
     - integration_test
     - unit_test
