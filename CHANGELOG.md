@@ -1,3 +1,9 @@
+# 4.1.3
+
+## Changed
+
+- Updated copyright notices
+
 # 4.1.2
 
 ## Added
