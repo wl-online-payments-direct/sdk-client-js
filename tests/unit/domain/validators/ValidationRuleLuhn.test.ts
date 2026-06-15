@@ -35,4 +35,9 @@ createValidationRuleTest(rule, [
         isValid: false,
         value: '79927398712',
     },
+    {
+        msg: 'should pass validation when value contains spaces and dashes',
+        isValid: true,
+        value: '7992 7398-713',
+    },
 ]);

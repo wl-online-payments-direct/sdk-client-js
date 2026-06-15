@@ -10,12 +10,12 @@
  * Please contact Worldline for questions regarding license and user rights.
  */
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, afterEach, describe, expect, it } from 'vitest';
 import { getConfiguration, getSessionDetails } from '../setup';
-import { OnlinePaymentSdk } from '../../../src/facade/OnlinePaymentSdk';
+import { OnlinePaymentSdk } from '../../../src';
 import { paymentContext } from '../../__fixtures__/payment-context';
 import { cardPaymentProductJson, unsupportedCardPaymentProductJson } from '../../__fixtures__/payment-product-json';
-import { PaymentProduct } from '../../../src/domain/paymentProduct/PaymentProduct';
+import { PaymentProduct } from '../../../src';
 import { awaitTimes, getApiClientSpyMock } from '../utils';
 import { BasicPaymentProducts, init } from '../../../src';
 import { SupportedProductsUtil } from '../../../src/infrastructure/utils/SupportedProductsUtil';
@@ -24,6 +24,10 @@ describe('sdk.getBasicPaymentItems', () => {
     let session: OnlinePaymentSdk;
     beforeEach(() => {
         session = init(getSessionDetails(), getConfiguration());
+    });
+
+    afterEach(() => {
+        SupportedProductsUtil.browserUnsupportedProducts = [];
     });
 
     it('response success; should be an instance of `BasicPaymentProducts`', async () => {

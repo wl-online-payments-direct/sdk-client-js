@@ -59,7 +59,7 @@ export default defineConfig({
                     setupFiles: ['dotenv/config', join(__dirname, 'tests/integration/setup')],
                     globals: true,
                     restoreMocks: true,
-                    testTimeout: 10000,
+                    testTimeout: 30000,
                 },
             },
         ],

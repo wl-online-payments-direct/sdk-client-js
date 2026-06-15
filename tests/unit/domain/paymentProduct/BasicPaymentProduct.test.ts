@@ -12,6 +12,7 @@
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { basePaymentProductJson } from '../../../__fixtures__/base-payment-product-json';
+import { AccountOnFile } from '../../../../src/domain/accountOnFile/AccountOnFile';
 import { BasicPaymentProduct } from '../../../../src/domain/paymentProduct/BasicPaymentProduct';
 import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
 
@@ -72,5 +73,30 @@ describe('getAccountOnFile', () => {
         const accountOnFile = basicPaymentProduct.getAccountOnFile('0');
 
         expect(accountOnFile).toBe(undefined);
+    });
+});
+
+describe('constructor', () => {
+    it('filters accounts on file to only those matching the product id', () => {
+        const matchingAof = new AccountOnFile('1', 1);
+        const nonMatchingAof = new AccountOnFile('2', 2);
+        const product = new BasicPaymentProduct(
+            1,
+            'card',
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            [matchingAof, nonMatchingAof],
+        );
+
+        expect(product.accountsOnFile).toHaveLength(1);
+        expect(product.accountsOnFile[0].id).toBe('1');
     });
 });

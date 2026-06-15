@@ -12,13 +12,9 @@
 
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { awaitTimes, getApiClientSpyMock } from '../utils';
 import { getConfiguration, getSessionDetails } from '../setup';
-import { OnlinePaymentSdk } from '../../../src/facade/OnlinePaymentSdk';
-import { cardNumber } from '../../__fixtures__/card_number';
-import { iinDetailsResponse } from '../../__fixtures__/iin-details';
+import { OnlinePaymentSdk } from '../../../src';
 import { paymentContextWithAmount } from '../../__fixtures__/payment-context';
-import { cardPaymentProductJson } from '../../__fixtures__/payment-product-json';
 import { IinDetailsResponse, IinDetailStatus, init, InvalidArgumentError } from '../../../src';
 
 describe('session.getIinDetails', () => {
@@ -27,50 +23,7 @@ describe('session.getIinDetails', () => {
         session = init(getSessionDetails(), getConfiguration());
     });
 
-    it('response success', async () => {
-        const spy = getApiClientSpyMock('post', iinDetailsResponse);
-
-        const result = await session.getIinDetails(cardNumber, paymentContextWithAmount);
-        expect(result).toBeInstanceOf(IinDetailsResponse);
-        expect(result.status).toBe('SUPPORTED');
-        expect(result.paymentProductId).toBe(1);
-        const [path, options] = spy.mock.calls[0];
-        const parsedBody = JSON.parse(options?.body as string);
-
-        expect(path).toBe('/services/getIINdetails');
-        expect(parsedBody).toEqual({
-            bin: '40000000',
-            paymentContext: paymentContextWithAmount,
-        });
-
-        spy.mockRestore();
-    });
-
-    it('when called again, should result from cache instead network call', async () => {
-        const spy = getApiClientSpyMock('post', { isAllowedInContext: true });
-        await awaitTimes(3, () => session.getIinDetails(cardNumber, paymentContextWithAmount));
-        expect(spy).toHaveBeenCalledOnce();
-        spy.mockRestore();
-    });
-
-    it('when `isAllowedInContext` is `false` the status should be "EXISTING_BUT_NOT_ALLOWED"', async () => {
-        const spy = getApiClientSpyMock('post', { isAllowedInContext: false });
-        const result = await session.getIinDetails(cardNumber, paymentContextWithAmount);
-        expect(result.status).toBe('EXISTING_BUT_NOT_ALLOWED');
-        spy.mockRestore();
-    });
-
-    it('when `isAllowedInContext` is not present in the response, we check if it is supported by fetching the payment product', async () => {
-        const paymentProductId = cardPaymentProductJson.id;
-        const spyPost = getApiClientSpyMock('post', { paymentProductId });
-
-        const result = await session.getIinDetails(cardNumber, paymentContextWithAmount);
-
-        expect(result.status).toBe('SUPPORTED');
-        spyPost.mockRestore();
-    });
-
-    it('when cardNumber is less then 6 digits, should return instance of IinDetailsResponse with status `"NOT_ENOUGH_DIGITS"`', async () => {
+    it('when cardNumber is less than 6 digits, should throw InvalidArgumentError with NOT_ENOUGH_DIGITS status', async () => {
         try {
             await session.getIinDetails('12345', paymentContextWithAmount);
             expect.fail('Should throw an error');

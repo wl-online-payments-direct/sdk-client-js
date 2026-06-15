@@ -9,7 +9,6 @@
  *
  * Please contact Worldline for questions regarding license and user rights.
  */
-
 import type { SessionData } from '../../../src';
 
 export const sessionData: SessionData = {

@@ -47,7 +47,7 @@ describe('UrlUtil', () => {
             expect(result).toBe('a=1&b=2');
         });
 
-        it('should filter out falsy values', () => {
+        it('should filter out null and undefined values but keep 0 and false', () => {
             const result = UrlUtil.objectToQueryString({
                 a: 1,
                 b: 2,
@@ -55,7 +55,7 @@ describe('UrlUtil', () => {
                 d: undefined,
                 e: '',
             });
-            expect(result).toBe('a=1&b=2');
+            expect(result).toBe('a=1&b=2&c=0');
         });
 
         it('should handle empty object', () => {
@@ -90,14 +90,14 @@ describe('UrlUtil', () => {
             expect(result).toBe('https://example.com/api/products?page=1&limit=10');
         });
 
-        it('should filter out falsy values in query string', () => {
+        it('should filter out undefined and empty string but keep 0 in query string', () => {
             const result = UrlUtil.urlWithQueryString('https://example.com', {
                 a: 1,
                 b: undefined,
                 c: '',
                 d: 0,
             });
-            expect(result).toBe('https://example.com/?a=1');
+            expect(result).toBe('https://example.com/?a=1&d=0');
         });
 
         it('should encode special characters in query parameters', () => {

@@ -10,9 +10,15 @@
  * Please contact Worldline for questions regarding license and user rights.
  */
 
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { CacheManager } from '../../../../src/infrastructure/utils/CacheManager';
 import type { PaymentContext } from '../../../../src';
+
+let cacheManager: CacheManager;
+
+beforeEach(() => {
+    cacheManager = new CacheManager();
+});
 
 describe('createCacheKeyFromContext', () => {
     const baseContext = {
@@ -25,8 +31,6 @@ describe('createCacheKeyFromContext', () => {
     } as PaymentContext;
 
     it('creates a cache key with prefix and context fields', () => {
-        const cacheManager = new CacheManager();
-
         const key = cacheManager.createCacheKeyFromContext({
             prefix: 'payment',
             context: baseContext,
@@ -36,8 +40,6 @@ describe('createCacheKeyFromContext', () => {
     });
 
     it('includes suffix when provided', () => {
-        const cacheManager = new CacheManager();
-
         const key = cacheManager.createCacheKeyFromContext({
             prefix: 'payment',
             suffix: 'extra',
@@ -47,9 +49,7 @@ describe('createCacheKeyFromContext', () => {
         expect(key).toBe('payment-100_NL_true_EUR_extra');
     });
 
-    it('omits falsy suffix values because of filter(Boolean)', () => {
-        const cacheManager = new CacheManager();
-
+    it('omits undefined and empty-string suffix from key', () => {
         const keyWithUndefinedSuffix = cacheManager.createCacheKeyFromContext({
             prefix: 'payment',
             context: baseContext,
@@ -65,42 +65,64 @@ describe('createCacheKeyFromContext', () => {
         expect(keyWithEmptySuffix).toBe('payment-100_NL_true_EUR');
     });
 
-    it('creates different keys for different contexts', () => {
-        const cacheManager = new CacheManager();
+    it('includes isRecurring=false in key as distinct from absent', () => {
+        const key = cacheManager.createCacheKeyFromContext({
+            prefix: 'payment',
+            context: { ...baseContext, isRecurring: false },
+        });
 
-        const context1 = {
+        expect(key).toBe('payment-100_NL_false_EUR');
+    });
+
+    it('omits isRecurring from key when value is undefined', () => {
+        const key = cacheManager.createCacheKeyFromContext({
+            prefix: 'payment',
+            context: { ...baseContext, isRecurring: undefined },
+        });
+
+        expect(key).toBe('payment-100_NL_EUR');
+    });
+
+    it('includes amount=0 in key', () => {
+        const key = cacheManager.createCacheKeyFromContext({
+            prefix: 'payment',
+            context: { ...baseContext, amountOfMoney: { amount: 0, currencyCode: 'EUR' } },
+        });
+
+        expect(key).toBe('payment-0_NL_true_EUR');
+    });
+
+    it('creates different keys for different contexts', () => {
+        const firstContext = {
             ...baseContext,
             amountOfMoney: { amount: 100, currencyCode: 'EUR' },
         } as PaymentContext;
 
-        const context2 = {
+        const secondContext = {
             ...baseContext,
             amountOfMoney: { amount: 200, currencyCode: 'EUR' },
         } as PaymentContext;
 
-        const key1 = cacheManager.createCacheKeyFromContext({
+        const firstKey = cacheManager.createCacheKeyFromContext({
             prefix: 'payment',
-            context: context1,
+            context: firstContext,
         });
 
-        const key2 = cacheManager.createCacheKeyFromContext({
+        const secondKey = cacheManager.createCacheKeyFromContext({
             prefix: 'payment',
-            context: context2,
+            context: secondContext,
         });
 
-        expect(key1).not.toBe(key2);
+        expect(firstKey).not.toBe(secondKey);
     });
 });
 
 describe('Cache operations', () => {
-    it('returns false from hasCache for unknown keys', () => {
-        const cacheManager = new CacheManager();
-
+    it('returns false from has for unknown keys', () => {
         expect(cacheManager.has('non-existent')).toBe(false);
     });
 
-    it('setKey stores value and hasCache/getKey retrieve it', () => {
-        const cacheManager = new CacheManager();
+    it('set stores value and has/get retrieve it', () => {
         const key = 'test-key';
         const value = { test: 'test' };
 
@@ -110,14 +132,11 @@ describe('Cache operations', () => {
         expect(cacheManager.get(key)).toBe(value);
     });
 
-    it('getKey returns undefined for missing key', () => {
-        const cacheManager = new CacheManager();
-
+    it('get returns undefined for missing key', () => {
         expect(cacheManager.get('missing-key')).toBeUndefined();
     });
 
-    it('setKey overwrites existing value for same key', () => {
-        const cacheManager = new CacheManager();
+    it('set overwrites existing value for same key', () => {
         const key = 'duplicate-key';
 
         cacheManager.set(key, 'first');
@@ -128,7 +147,6 @@ describe('Cache operations', () => {
     });
 
     it('can store different value types', () => {
-        const cacheManager = new CacheManager();
         const key1 = 'string-key';
         const key2 = 'number-key';
         const key3 = 'object-key';

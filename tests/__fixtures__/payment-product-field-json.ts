@@ -12,41 +12,41 @@
 
 import type { PaymentProductFieldDto } from '../../src/infrastructure/apiModels/paymentProduct/PaymentProductFieldDto';
 
-export const paymentProductFieldJson: PaymentProductFieldDto = {
-    dataRestrictions: {
+export const paymentProductFieldJson: PaymentProductFieldDto = Object.freeze({
+    dataRestrictions: Object.freeze({
         isRequired: true,
-        validators: {
-            length: {
+        validators: Object.freeze({
+            length: Object.freeze({
                 maxLength: 19,
                 minLength: 13,
-            },
-            luhn: {},
-            regularExpression: {
+            }),
+            luhn: Object.freeze({}),
+            regularExpression: Object.freeze({
                 regularExpression: '^[0-9]*$',
-            },
-        },
-    },
-    displayHints: {
+            }),
+        }),
+    }),
+    displayHints: Object.freeze({
         alwaysShow: false,
         displayOrder: 0,
-        formElement: {
+        formElement: Object.freeze({
             type: 'text',
-        },
+        }),
         label: 'Card number',
         mask: '{{9999}} {{9999}} {{9999}} {{9999}} {{999}}',
         obfuscate: true,
         placeholderLabel: 'test placeholder',
         preferredInputType: 'StringKeyboard',
-        tooltip: {
+        tooltip: Object.freeze({
             label: '',
-        },
-    },
+        }),
+    }),
     id: 'cardNumber',
     type: 'numericstring',
-};
+}) as PaymentProductFieldDto;
 
-export const cardNumberFieldJson: PaymentProductFieldDto = {
-    dataRestrictions: { isRequired: true, validators: { luhn: {} } },
+export const cardNumberFieldJson: PaymentProductFieldDto = Object.freeze({
+    dataRestrictions: Object.freeze({ isRequired: true, validators: Object.freeze({ luhn: Object.freeze({}) }) }),
     id: 'cardNumber',
     type: 'numericstring',
-};
+}) as PaymentProductFieldDto;

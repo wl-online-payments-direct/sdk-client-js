@@ -45,7 +45,7 @@ describe('ValidationRuleRange', () => {
         [0, 101, -5].forEach((value) => {
             expect(validator.validate(value)).toEqual({
                 valid: false,
-                message: 'Provided value is must be between 1 and 100.',
+                message: 'Provided value must be between 1 and 100.',
             });
         });
     });
@@ -56,7 +56,7 @@ describe('ValidationRuleRange', () => {
         ['0', '101', '-5'].forEach((value) => {
             expect(validator.validate(value)).toEqual({
                 valid: false,
-                message: 'Provided value is must be between 1 and 100.',
+                message: 'Provided value must be between 1 and 100.',
             });
         });
     });
@@ -66,7 +66,7 @@ describe('ValidationRuleRange', () => {
 
         expect(validator.validate('abc')).toEqual({
             valid: false,
-            message: 'Provided value is must be between 1 and 100.',
+            message: 'Provided value must be between 1 and 100.',
         });
     });
 });

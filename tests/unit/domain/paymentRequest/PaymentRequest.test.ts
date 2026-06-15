@@ -174,7 +174,7 @@ describe('validate', () => {
 
     it('should return empty `errors` and `isValid` when all fields set correctly', () => {
         paymentRequest.setValue('cardNumber', '7822551678890142249');
-        paymentRequest.setValue('expiryDate', '11/2026');
+        paymentRequest.setValue('expiryDate', '11/2036');
         paymentRequest.setValue('cvv', '123');
         paymentRequest.setValue('cardholderName', 'test');
 
@@ -227,7 +227,7 @@ describe('validate', () => {
         );
         paymentRequest.setAccountOnFile(accountOnFileWithCanWriteCardholderName);
         paymentRequest.setValue('cardNumber', '7822551678890142249');
-        paymentRequest.setValue('expiryDate', '11/2026');
+        paymentRequest.setValue('expiryDate', '11/2036');
         paymentRequest.setValue('cvv', '123');
 
         const validationResult = paymentRequest.validate();
@@ -241,7 +241,7 @@ describe('validate', () => {
             accountOnFileWithMustWriteCvvJson,
         );
         paymentRequest.setAccountOnFile(accountOnFileWithMustWriteCvv);
-        paymentRequest.setValue('expiryDate', '11/2026');
+        paymentRequest.setValue('expiryDate', '11/2036');
 
         const validationResult = paymentRequest.validate();
 
@@ -255,7 +255,7 @@ describe('validate', () => {
         );
         paymentRequest.setAccountOnFile(accountOnFileWithCanWriteCardholderName);
         paymentRequest.setValue('cardNumber', '4567350000427977');
-        paymentRequest.setValue('expiryDate', '11/2026');
+        paymentRequest.setValue('expiryDate', '11/2036');
         paymentRequest.setValue('cvv', '123');
         paymentRequest.setValue('cardholderName', 'x'); // too short, minLength is 2
 
@@ -284,13 +284,9 @@ describe('encrypt', () => {
     });
 
     it('should throw error if mandatory data not set', async () => {
-        try {
-            await service.encryptPaymentRequest(paymentRequest);
-        } catch (error: unknown) {
-            expect(error).toBeInstanceOf(InvalidArgumentError);
-            expect(((error as InvalidArgumentError).metadata as { data: ValidationResult })!.data).toBeInstanceOf(
-                ValidationResult,
-            );
-        }
+        await expect(service.encryptPaymentRequest(paymentRequest)).rejects.toBeInstanceOf(InvalidArgumentError);
+        await expect(service.encryptPaymentRequest(paymentRequest)).rejects.toMatchObject({
+            metadata: { data: expect.any(ValidationResult) },
+        });
     });
 });

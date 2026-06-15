@@ -31,13 +31,6 @@ export class DefaultPaymentProductService extends BaseService implements Payment
         private readonly paymentProductFactory: PaymentProductFactory,
     ) {
         super(cacheManager, apiClient);
-
-        if (
-            !ApplePay.isApplePayAvailable() &&
-            !SupportedProductsUtil.browserUnsupportedProducts.includes(SupportedProductsUtil.applePayPaymentProductId)
-        ) {
-            SupportedProductsUtil.browserUnsupportedProducts.push(SupportedProductsUtil.applePayPaymentProductId);
-        }
     }
 
     async getBasicPaymentProducts(context: PaymentContext): Promise<BasicPaymentProducts> {
@@ -57,6 +50,12 @@ export class DefaultPaymentProductService extends BaseService implements Payment
         SupportedProductsUtil.filterOutBrowserUnsupportedProducts(response.data);
         SupportedProductsUtil.filterOutSdkUnsupportedProducts(response.data);
 
+        if (!ApplePay.isApplePayAvailable() && response.data.paymentProducts) {
+            response.data.paymentProducts = response.data.paymentProducts.filter(
+                ({ id }) => id !== SupportedProductsUtil.applePayPaymentProductId,
+            );
+        }
+
         if (response.data.paymentProducts.length === 0) {
             throw new ResponseError(SupportedProductsUtil.get404Error(), 404, 'No payment products available.');
         }
@@ -70,7 +69,8 @@ export class DefaultPaymentProductService extends BaseService implements Payment
     async getPaymentProduct(paymentProductId: number, context: PaymentContext): Promise<PaymentProduct> {
         if (
             !SupportedProductsUtil.isSupportedInBrowser(paymentProductId) ||
-            !SupportedProductsUtil.isSupportedInSdk(paymentProductId)
+            !SupportedProductsUtil.isSupportedInSdk(paymentProductId) ||
+            (paymentProductId === SupportedProductsUtil.applePayPaymentProductId && !ApplePay.isApplePayAvailable())
         ) {
             throw new ResponseError(SupportedProductsUtil.get404Error(), 404, 'Product not found or not available.');
         }

@@ -43,7 +43,7 @@ export class CacheManager {
             amountOfMoney: { amount, currencyCode },
         } = context;
 
-        return `${prefix}-${[amount, countryCode, isRecurring, currencyCode, suffix].filter(Boolean).join('_')}`;
+        return `${prefix}-${[amount, countryCode, isRecurring, currencyCode, suffix].filter((v) => v != null && v !== '').join('_')}`;
     }
 
     has(key: string): boolean {

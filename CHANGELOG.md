@@ -1,3 +1,19 @@
+# 4.2.0
+
+## Changed
+
+- Fixed typo in `ValidationRuleRange` error message.
+- `SessionDataNormalizer` now throws `ConfigurationError` when `clientApiUrl` contains a query
+  string or fragment.
+- Fixed incorrect falsy check in `CacheManager` and `UrlUtil` that caused numeric `0` and boolean
+  `false` values to be dropped when building cache keys and query parameters.
+- Apple Pay availability is now evaluated when calling `getBasicPaymentProducts()` and
+  `getPaymentProduct()` instead of at SDK initialization time.
+
+## Added
+
+- Significantly expanded unit and integration test coverage across all major SDK components.
+
 # 4.1.3
 
 ## Changed

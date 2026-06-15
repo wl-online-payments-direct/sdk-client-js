@@ -9,10 +9,10 @@
  *
  * Please contact Worldline for questions regarding license and user rights.
  */
-
 import { beforeEach, describe, expect, it } from 'vitest';
 import { accountOnFileJson } from '../../../__fixtures__/account-on-file-json';
 import { AccountOnFile } from '../../../../src/domain/accountOnFile/AccountOnFile';
+import { AccountOnFileAttributeStatus } from '../../../../src/domain/accountOnFile/AccountOnFileAttribute';
 import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
 
 let accountOnFile: AccountOnFile;
@@ -88,5 +88,16 @@ describe('getValue', () => {
     it('should return `` for cvv', () => {
         const value = accountOnFile.getValue('cvv');
         expect(value).toBe('');
+    });
+});
+
+describe('getAttribute', () => {
+    it('returns the AccountOnFileAttribute for an existing field key', () => {
+        const attribute = accountOnFile.getAttribute('cardNumber');
+
+        expect(attribute).toBeDefined();
+        expect(attribute?.key).toBe('cardNumber');
+        expect(attribute?.status).toBe(AccountOnFileAttributeStatus.READ_ONLY);
+        expect(attribute?.value).toBe('9999-9999-9999-9999');
     });
 });

@@ -28,7 +28,7 @@ export class ValidationRuleRange extends ValidationRule {
 
         return {
             valid: result,
-            message: !result ? `Provided value is must be between ${this.minValue} and ${this.maxValue}.` : '',
+            message: !result ? `Provided value must be between ${this.minValue} and ${this.maxValue}.` : '',
         };
     }
 }

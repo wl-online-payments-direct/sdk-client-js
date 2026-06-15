@@ -36,7 +36,7 @@ type PaymentContext = Parameters<typeof defaultSdkClient.sessions.createSession>
 type CreatePaymentRequest = Parameters<typeof defaultSdkClient.payments.createPayment>[1];
 
 export function createSdkClient(options: Partial<Parameters<typeof sdk.init>[0]> = {}) {
-    return sdk.init({ ...options, ...defaultOptions });
+    return sdk.init({ ...defaultOptions, ...options });
 }
 
 /**
@@ -77,8 +77,8 @@ export async function createPaymentFromSdk(
     client: Client = defaultSdkClient,
 ): Promise<CreatePaymentResponse> {
     const request: CreatePaymentRequest = {
-        ...postData,
         order: getOrderDetails(),
+        ...postData,
     };
     const sdkResponse = await client.payments.createPayment(merchantId, request, paymentContext);
     if (!sdkResponse?.body) {

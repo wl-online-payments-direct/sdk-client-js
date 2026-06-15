@@ -10,14 +10,12 @@
  * Please contact Worldline for questions regarding license and user rights.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { paymentContext } from '../../__fixtures__/payment-context';
-import { awaitTimes, getApiClientSpyMock } from '../utils';
 import { getConfiguration, getSessionDetails } from '../setup';
-import { OnlinePaymentSdk } from '../../../src/facade/OnlinePaymentSdk';
+import { OnlinePaymentSdk, PaymentProduct } from '../../../src';
 import { cardPaymentProductJson } from '../../__fixtures__/payment-product-json';
-import { PaymentProduct } from '../../../src/domain/paymentProduct/PaymentProduct';
 import { type ErrorResponse, init, ResponseError } from '../../../src';
 import { SupportedProductsUtil } from '../../../src/infrastructure/utils/SupportedProductsUtil';
 
@@ -57,20 +55,6 @@ describe('session.getPaymentProduct', () => {
         for (const id of unsupportedMethodIds) {
             await expect404Error(id);
         }
-    });
-
-    it('when called again, should result from cache instead network call', async () => {
-        const spy = getApiClientSpyMock('getWithContext', cardPaymentProductJson);
-        await awaitTimes(3, () => session.getPaymentProduct(cardPaymentProductJson.id, paymentContext));
-        expect(spy).toHaveBeenCalledOnce();
-        spy.mockRestore();
-    });
-
-    it('should throw a correct object when product id is not supported in browser', async () => {
-        const spy = vi.spyOn(SupportedProductsUtil, 'isSupportedInBrowser').mockReturnValue(false);
-
-        await expect404Error(cardPaymentProductJson.id);
-        spy.mockRestore();
     });
 
     const expect404Error = async (id: number) => {

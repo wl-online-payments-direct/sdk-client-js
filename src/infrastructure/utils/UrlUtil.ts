@@ -36,7 +36,7 @@ export const UrlUtil = {
         const params = new URLSearchParams();
         for (const key of Object.keys(obj)) {
             const value = obj[key];
-            if (!value) {
+            if (value == null || value === '') {
                 continue;
             }
 

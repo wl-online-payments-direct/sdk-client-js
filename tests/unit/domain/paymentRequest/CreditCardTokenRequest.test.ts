@@ -26,13 +26,14 @@ describe('getValues', () => {
     it('should return all values', () => {
         tokenRequest.setCardNumber('4567350000427977');
         tokenRequest.setCardholderName('John Doe');
-        tokenRequest.setExpiryDate('12/2030');
+        tokenRequest.setExpiryDate('12/2036');
         tokenRequest.setSecurityCode('123');
         expect(tokenRequest.getValues()).toEqual({
             cardNumber: '4567350000427977',
             cardholderName: 'John Doe',
-            expiryDate: '12/2030',
+            expiryDate: '12/2036',
             cvv: '123',
+            paymentProductId: undefined,
         });
     });
 
@@ -63,8 +64,8 @@ describe('sets and gets individual fields', () => {
     });
 
     it('should set expiry date', () => {
-        tokenRequest.setExpiryDate('12/2030');
-        expect(tokenRequest.getExpiryDate()).toEqual('12/2030');
+        tokenRequest.setExpiryDate('12/2036');
+        expect(tokenRequest.getExpiryDate()).toEqual('12/2036');
     });
 
     it('should set payment product ID', () => {

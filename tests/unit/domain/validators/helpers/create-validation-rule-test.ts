@@ -15,7 +15,7 @@ import type { ValidationRule } from '../../../../../src/domain/validation/rules/
 
 interface TestData {
     msg: string;
-    isValid?: boolean;
+    isValid: boolean;
     value?: string;
 }
 
@@ -28,9 +28,7 @@ interface TestData {
 export function createValidationRuleTest(rule: ValidationRule, data: TestData[]) {
     describe(rule.type + ' `validate`', () => {
         it.each(data)('$msg', ({ isValid, value }) => {
-            if (isValid !== undefined) {
-                expect(rule.validate(value as string).valid).toBe(isValid);
-            }
+            expect(rule.validate(value as string).valid).toBe(isValid);
         });
     });
 }

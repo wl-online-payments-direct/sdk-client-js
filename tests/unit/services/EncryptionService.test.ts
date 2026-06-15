@@ -14,29 +14,27 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cardPaymentProductJson } from '../../__fixtures__/payment-product-json';
 import { publicKeyResponse } from '../../__fixtures__/public-key-response';
 import { DefaultEncryptionService } from '../../../src/services/DefaultEncryptionService';
-import { PaymentRequest } from '../../../src/domain/paymentRequest/PaymentRequest';
-import { CreditCardTokenRequest } from '../../../src/domain/paymentRequest/CreditCardTokenRequest';
+import { PaymentRequest, CreditCardTokenRequest } from '../../../src';
 import { CacheManager } from '../../../src/infrastructure/utils/CacheManager';
 import { TestApiClient } from '../testUtils/TestApiClient';
-import { PublicKeyResponse, type SdkConfiguration, type SessionData } from '../../../src';
+import { PublicKeyResponse, ResponseError, type SdkConfiguration, type SessionData } from '../../../src';
 import { DefaultPaymentProductFactory } from '../../../src/infrastructure/factories/DefaultPaymentProductFactory';
+import { Encryptor } from '../../../src/infrastructure/encryption/Encryptor';
 
 let service: DefaultEncryptionService;
-let sessionData: SessionData;
-let configuration: SdkConfiguration;
+
+const sessionData: SessionData = {
+    clientSessionId: 'test-session-id',
+    customerId: 'test-customer-id',
+    assetUrl: 'test-url',
+    clientApiUrl: 'https://test-client-api',
+};
+
+const configuration: SdkConfiguration = {
+    appIdentifier: 'test-appIdentifier',
+};
 
 beforeEach(() => {
-    sessionData = {
-        clientSessionId: 'test-session-id',
-        customerId: 'test-customer-id',
-        assetUrl: 'test-url',
-        clientApiUrl: 'https://test-client-api',
-    };
-
-    configuration = {
-        appIdentifier: 'test-appIdentifier',
-    };
-
     service = new DefaultEncryptionService(sessionData, new CacheManager(), new TestApiClient(), configuration);
 });
 
@@ -44,28 +42,37 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-describe('DefaultEncryptionService (integration)', () => {
-    it('encryptPaymentRequest returns encryptedFields', async () => {
+describe('DefaultEncryptionService', () => {
+    const createValidPaymentRequest = () => {
         const paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
         const request = new PaymentRequest(paymentProduct);
-
         request.setValue('cvv', '123');
-        request.setValue('expiryDate', '12/2026');
+        request.setValue('expiryDate', '12/2036');
         request.setValue('cardNumber', '4242424242424242');
+        return request;
+    };
+
+    const createValidTokenRequest = () => {
+        const token = new CreditCardTokenRequest();
+        token.setSecurityCode('123');
+        token.setCardNumber('424242424242');
+        token.setProductPaymentId(1);
+        return token;
+    };
+
+    it('encryptPaymentRequest returns encrypted customer input', async () => {
+        const request = createValidPaymentRequest();
 
         getTestApiSpy();
+
         const result = await service.encryptPaymentRequest(request);
 
         expect(result).toHaveProperty('encryptedCustomerInput');
         expect(result.encryptedCustomerInput).toBeDefined();
     });
 
-    it('encryptTokenRequest returns encryptedFields', async () => {
-        const token = new CreditCardTokenRequest();
-
-        token.setSecurityCode('123');
-        token.setCardNumber('424242424242');
-        token.setProductPaymentId(1);
+    it('encryptTokenRequest returns encrypted customer input', async () => {
+        const token = createValidTokenRequest();
 
         getTestApiSpy();
         const result = await service.encryptTokenRequest(token);
@@ -76,8 +83,8 @@ describe('DefaultEncryptionService (integration)', () => {
 
     it('getPublicKey returns from cache when available', async () => {
         const apiSpy = getTestApiSpy();
-        const cacheHasSpy = vi.spyOn(CacheManager.prototype, 'has').mockResolvedValue(true);
-        const cacheGetSpy = vi.spyOn(CacheManager.prototype, 'get').mockResolvedValue(publicKeyResponse);
+        const cacheHasSpy = vi.spyOn(CacheManager.prototype, 'has').mockReturnValue(true);
+        const cacheGetSpy = vi.spyOn(CacheManager.prototype, 'get').mockReturnValue(publicKeyResponse);
         const result = await service.getPublicKey();
 
         expect(cacheHasSpy).toHaveBeenCalledWith('publicKey');
@@ -93,7 +100,6 @@ describe('DefaultEncryptionService (integration)', () => {
         };
 
         const cacheSetSpy = vi.spyOn(CacheManager.prototype, 'set');
-
         const apiSpy = getTestApiSpy(publicKeyDto);
 
         const result = await service.getPublicKey();
@@ -103,10 +109,75 @@ describe('DefaultEncryptionService (integration)', () => {
         expect(result).toBeInstanceOf(Object);
         expect(result.keyId).toBe('test-key-id');
     });
+
+    it('getPublicKey throws ResponseError when API response is invalid', async () => {
+        vi.spyOn(TestApiClient.prototype, 'get').mockResolvedValue({ success: false, status: 400, data: undefined });
+
+        const promise = service.getPublicKey();
+
+        await expect(promise).rejects.toThrow(ResponseError);
+        await expect(promise).rejects.toThrow('Error while trying to fetch the public key.');
+    });
+
+    it('encryptPaymentRequest returns encodedClientMetaInfo', async () => {
+        const request = createValidPaymentRequest();
+        getTestApiSpy();
+
+        const result = await service.encryptPaymentRequest(request);
+
+        expect(result.encodedClientMetaInfo).toBeDefined();
+        expect(result.encodedClientMetaInfo).toBeTruthy();
+    });
+
+    it('encryptPaymentRequest uses Encryptor.encrypt when request is a PaymentRequest', async () => {
+        const request = createValidPaymentRequest();
+        const encryptSpy = vi.spyOn(Encryptor.prototype, 'encrypt');
+        const encryptTokenSpy = vi.spyOn(Encryptor.prototype, 'encryptTokenRequest');
+        getTestApiSpy();
+
+        await service.encryptPaymentRequest(request);
+
+        expect(encryptSpy).toHaveBeenCalledWith(publicKeyResponse, request);
+        expect(encryptTokenSpy).not.toHaveBeenCalled();
+    });
+
+    it('encryptTokenRequest returns encodedClientMetaInfo', async () => {
+        const token = createValidTokenRequest();
+        getTestApiSpy();
+
+        const result = await service.encryptTokenRequest(token);
+
+        expect(result.encodedClientMetaInfo).toBeDefined();
+        expect(result.encodedClientMetaInfo).toBeTruthy();
+    });
+
+    it('encryptPaymentRequest throws InvalidArgumentError when PaymentRequest is invalid', async () => {
+        const paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct(cardPaymentProductJson);
+        const request = new PaymentRequest(paymentProduct);
+        // Intentionally leave required fields unset so validation fails
+
+        getTestApiSpy();
+
+        await expect(service.encryptPaymentRequest(request)).rejects.toThrow('The payment request is not valid.');
+    });
+
+    it('encryptTokenRequest uses Encryptor.encryptTokenRequest when request is a CreditCardTokenRequest', async () => {
+        const token = createValidTokenRequest();
+        const encryptTokenSpy = vi.spyOn(Encryptor.prototype, 'encryptTokenRequest');
+        const encryptSpy = vi.spyOn(Encryptor.prototype, 'encrypt');
+        getTestApiSpy();
+
+        await service.encryptTokenRequest(token);
+
+        expect(encryptTokenSpy).toHaveBeenCalledWith(publicKeyResponse, token);
+        expect(encryptSpy).not.toHaveBeenCalled();
+    });
 });
 
-function getTestApiSpy(publicKeyJson?: PublicKeyResponse) {
-    return vi
-        .spyOn(TestApiClient.prototype, 'get')
-        .mockReturnValue(Promise.resolve({ success: true, status: 200, data: publicKeyJson ?? publicKeyResponse }));
+function getTestApiSpy(publicKeyJson: PublicKeyResponse = publicKeyResponse) {
+    return vi.spyOn(TestApiClient.prototype, 'get').mockResolvedValue({
+        success: true,
+        status: 200,
+        data: publicKeyJson,
+    });
 }

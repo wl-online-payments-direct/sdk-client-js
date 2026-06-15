@@ -10,13 +10,20 @@
  * Please contact Worldline for questions regarding license and user rights.
  */
 
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { basePaymentProductJson, basePaymentProductJson2 } from '../../../__fixtures__/base-payment-product-json';
+import { cardPaymentProductJson } from '../../../__fixtures__/payment-product-json';
+import { accountOnFileJson, accountOnFileJson2 } from '../../../__fixtures__/account-on-file-json';
 import { BasicPaymentProduct } from '../../../../src/domain/paymentProduct/BasicPaymentProduct';
 import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
+import { ProductFieldDisplayHints } from '../../../../src/domain';
 
 describe('DefaultPaymentProductFactory', () => {
-    const factory = new DefaultPaymentProductFactory();
+    let factory: DefaultPaymentProductFactory;
+
+    beforeEach(() => {
+        factory = new DefaultPaymentProductFactory();
+    });
 
     it('createBasicPaymentProduct should return BasicPaymentProduct instance', () => {
         const product = factory.createBasicPaymentProduct(basePaymentProductJson);
@@ -27,14 +34,58 @@ describe('DefaultPaymentProductFactory', () => {
     });
 
     it('createBasicPaymentProducts should return a list of BasicPaymentProduct instances', () => {
-        const product = factory.createBasicPaymentProducts({
+        const basicPaymentProducts = factory.createBasicPaymentProducts({
             paymentProducts: [basePaymentProductJson, basePaymentProductJson2],
         });
 
-        expect(product.paymentProducts[0]).toBeInstanceOf(BasicPaymentProduct);
-        expect(product.paymentProducts[0].id).toBe(1);
+        expect(basicPaymentProducts.paymentProducts[0]).toBeInstanceOf(BasicPaymentProduct);
+        expect(basicPaymentProducts.paymentProducts[0].id).toBe(1);
 
-        expect(product.paymentProducts[1]).toBeInstanceOf(BasicPaymentProduct);
-        expect(product.paymentProducts[1].id).toBe(2);
+        expect(basicPaymentProducts.paymentProducts[1]).toBeInstanceOf(BasicPaymentProduct);
+        expect(basicPaymentProducts.paymentProducts[1].id).toBe(2);
+    });
+
+    it('createBasicPaymentProducts deduplicates accounts on file shared across multiple products', () => {
+        const product1 = { ...basePaymentProductJson, accountsOnFile: [accountOnFileJson, accountOnFileJson2] };
+        const product2 = { ...basePaymentProductJson2, accountsOnFile: [accountOnFileJson, accountOnFileJson2] };
+
+        const result = factory.createBasicPaymentProducts({ paymentProducts: [product1, product2] });
+
+        const ids = result.accountsOnFile.map((a) => a.id);
+        expect(ids).toHaveLength(2);
+        expect(ids).toContain(accountOnFileJson.id);
+        expect(ids).toContain(accountOnFileJson2.id);
+    });
+
+    it('createBasicPaymentProduct maps paymentProduct320SpecificData from DTO', () => {
+        const product = factory.createBasicPaymentProduct(basePaymentProductJson);
+
+        expect(product.paymentProduct320SpecificData).toEqual(basePaymentProductJson.paymentProduct320SpecificData);
+    });
+
+    it('createPaymentProduct sorts fields by displayOrder ascending', () => {
+        const product = factory.createPaymentProduct(cardPaymentProductJson);
+        const fields = product.getFields();
+
+        for (let i = 1; i < fields.length; i++) {
+            expect(fields[i].getDisplayOrder()).toBeGreaterThanOrEqual(fields[i - 1].getDisplayOrder());
+        }
+        expect(fields[0].id).toBe('cardNumber');
+    });
+
+    it('createDisplayHintsForField uses default values when DTO is undefined', () => {
+        const hints = factory.createDisplayHintsForField(undefined);
+
+        expect(hints).toBeInstanceOf(ProductFieldDisplayHints);
+        expect(hints.label).toBe('');
+        expect(hints.mask).toBe('');
+        expect(hints.obfuscate).toBe(false);
+        expect(hints.displayOrder).toBe(Number.MAX_VALUE);
+    });
+
+    it('createDataRestrictions defaults isRequired to false when missing from DTO', () => {
+        const restrictions = factory.createDataRestrictions({ validators: {} } as never);
+
+        expect(restrictions.isRequired).toBe(false);
     });
 });

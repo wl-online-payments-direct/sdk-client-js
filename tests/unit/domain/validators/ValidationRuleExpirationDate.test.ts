@@ -27,6 +27,8 @@ const validExpireDate6Digits = getFormattedDate(new Date(), {
     year: 'numeric',
 });
 
+const beyondMaxExpireDate = `01${new Date().getFullYear() + 26}`;
+
 const rule = new ValidationRuleExpirationDate();
 
 createValidationRuleTest(rule, [
@@ -53,5 +55,10 @@ createValidationRuleTest(rule, [
         msg: 'should fail validation with an invalid date format',
         isValid: false,
         value: '12345',
+    },
+    {
+        msg: 'should fail validation with an expire date beyond the maximum of 25 years',
+        isValid: false,
+        value: beyondMaxExpireDate,
     },
 ]);

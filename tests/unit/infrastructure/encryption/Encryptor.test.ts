@@ -17,7 +17,10 @@ import { publicKeyResponse } from '../../../__fixtures__/public-key-response';
 import { PaymentRequest } from '../../../../src/domain/paymentRequest/PaymentRequest';
 import { CreditCardTokenRequest } from '../../../../src/domain/paymentRequest/CreditCardTokenRequest';
 import { Encryptor } from '../../../../src/infrastructure/encryption/Encryptor';
+import { JOSEEncryptor } from '../../../../src/infrastructure/encryption/JOSEEncryptor';
 import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
+import { AccountOnFile } from '../../../../src/domain/accountOnFile/AccountOnFile';
+import { EncryptionError } from '../../../../src/domain';
 
 const paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct({
     ...cardPaymentProductJson,
@@ -36,14 +39,14 @@ describe('encrypt', () => {
         request = new PaymentRequest(paymentProduct);
     });
 
-    const encryptAndValidate = (request: PaymentRequest) => {
+    const encryptPaymentRequestAndValidateHeader = (request: PaymentRequest) => {
         const encryptedString = encryptor.encrypt(publicKeyResponse, request);
 
         const parts = encryptedString.split('.');
 
         expect(parts.length).toBe(5);
 
-        // the header can be checked at this point, the rest is binary data
+        // Only the header can be validated here because the remaining parts contain encrypted binary data.
         const header = JSON.parse(Buffer.from(parts[0], 'base64').toString());
         expect(header).toStrictEqual({
             alg: 'RSA-OAEP',
@@ -55,7 +58,53 @@ describe('encrypt', () => {
     it('should resolve with correct response when valid request is provided', () => {
         request.setValue(cardNumberFieldJson.id, '4567350000427977');
 
-        encryptAndValidate(request);
+        encryptPaymentRequestAndValidateHeader(request);
+    });
+
+    it('includes accountOnFileId in payload when account on file is set', () => {
+        const accountOnFile = new AccountOnFile('aof-123', paymentProduct.id);
+        request.setAccountOnFile(accountOnFile);
+
+        const joseEncryptSpy = vi.spyOn(JOSEEncryptor, 'encrypt').mockReturnValue('a.b.c.d.e');
+        encryptor.encrypt(publicKeyResponse, request);
+
+        expect(joseEncryptSpy.mock.calls[0][0]).toMatchObject({ accountOnFileId: 'aof-123' });
+    });
+
+    it('includes tokenize in payload when tokenize is set to true', () => {
+        request.setTokenize(true);
+
+        const joseEncryptSpy = vi.spyOn(JOSEEncryptor, 'encrypt').mockReturnValue('a.b.c.d.e');
+        encryptor.encrypt(publicKeyResponse, request);
+
+        expect(joseEncryptSpy.mock.calls[0][0]).toMatchObject({ tokenize: true });
+    });
+
+    it('omits tokenize from payload when tokenize is not set (defaults to false)', () => {
+        request.setValue(cardNumberFieldJson.id, '4567350000427977');
+
+        const joseEncryptSpy = vi.spyOn(JOSEEncryptor, 'encrypt').mockReturnValue('a.b.c.d.e');
+        encryptor.encrypt(publicKeyResponse, request);
+
+        const payload = joseEncryptSpy.mock.calls[0][0] as Record<string, unknown>;
+        expect(payload.tokenize).toBe(false);
+    });
+
+    it('sends full plainTextValues payload shape with all expected fields', () => {
+        request.setValue(cardNumberFieldJson.id, '4567350000427977');
+
+        const joseEncryptSpy = vi.spyOn(JOSEEncryptor, 'encrypt').mockReturnValue('a.b.c.d.e');
+        encryptor.encrypt(publicKeyResponse, request);
+
+        const payload = joseEncryptSpy.mock.calls[0][0] as Record<string, unknown>;
+        expect(payload).toMatchObject({
+            clientSessionId: 'sessionId',
+            paymentProductId: paymentProduct.id,
+            paymentValues: expect.arrayContaining([{ key: cardNumberFieldJson.id, value: '4567350000427977' }]),
+            collectedDeviceInformation: expect.any(Object),
+        });
+        expect(typeof payload.nonce).toBe('string');
+        expect((payload.nonce as string).length).toBeGreaterThan(0);
     });
 });
 
@@ -65,14 +114,14 @@ describe('encryptTokenRequest', () => {
         tokenRequest = new CreditCardTokenRequest();
     });
 
-    const encryptAndValidate = (tokenRequest: CreditCardTokenRequest) => {
+    const encryptTokenRequestAndValidateHeader = (tokenRequest: CreditCardTokenRequest) => {
         const encryptedString = encryptor.encryptTokenRequest(publicKeyResponse, tokenRequest);
 
         const parts = encryptedString.split('.');
 
         expect(parts.length).toBe(5);
 
-        // the header can be checked at this point, the rest is binary data
+        // Only the header can be validated here because the remaining parts contain encrypted binary data.
         const header = JSON.parse(Buffer.from(parts[0], 'base64').toString());
         expect(header).toStrictEqual({
             alg: 'RSA-OAEP',
@@ -84,10 +133,17 @@ describe('encryptTokenRequest', () => {
     it('should resolve with correct response when token request is provided', () => {
         tokenRequest.setCardholderName('Darwin Núñez');
         tokenRequest.setCardNumber('4242424242424242');
-        tokenRequest.setExpiryDate('1230');
+        tokenRequest.setExpiryDate('1236');
         tokenRequest.setSecurityCode('123');
         tokenRequest.setProductPaymentId(paymentProduct.id);
 
-        encryptAndValidate(tokenRequest);
+        encryptTokenRequestAndValidateHeader(tokenRequest);
+    });
+
+    it('throws EncryptionError when payment product id is not set', () => {
+        const action = () => encryptor.encryptTokenRequest(publicKeyResponse, new CreditCardTokenRequest());
+
+        expect(action).toThrow(EncryptionError);
+        expect(action).toThrow('Error encrypting credit card token request: the payment product ID not set.');
     });
 });

@@ -38,6 +38,15 @@ export function normalize(sessionData: SessionData): SessionData {
 
 function sanitizeClientApiUrl(inputUrl: string) {
     const url = new URL(inputUrl);
+
+    if (url.search) {
+        throw new ConfigurationError(`The 'clientApiUrl' must not contain a query string, you provided '${inputUrl}'.`);
+    }
+
+    if (url.hash) {
+        throw new ConfigurationError(`The 'clientApiUrl' must not contain a fragment, you provided '${inputUrl}'.`);
+    }
+
     const segments = url.pathname.split('/').filter(Boolean);
 
     // When no path segments are found, add 'client'

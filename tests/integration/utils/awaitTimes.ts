@@ -9,7 +9,6 @@
  *
  * Please contact Worldline for questions regarding license and user rights.
  */
-
 /**
  * Awaiting a promise x times
  */

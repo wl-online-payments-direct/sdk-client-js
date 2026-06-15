@@ -13,6 +13,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { paymentProductFieldJson } from '../../../__fixtures__/payment-product-field-json';
 import { PaymentProductField } from '../../../../src/domain/paymentProduct/productField/PaymentProductField';
+import { DataRestrictions } from '../../../../src/domain/paymentProduct/productField/DataRestrictions';
 import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
 
 describe('PaymentProductField', () => {
@@ -91,6 +92,34 @@ describe('PaymentProductField', () => {
             const sortedErrors = errorMessages.sort((a, b) => (a.type > b.type ? 1 : -1));
             expect(sortedErrors[0].type).toBe('length');
             expect(sortedErrors[1].type).toBe('luhn');
+        });
+    });
+
+    describe('getLabel when no display hints', () => {
+        it('returns the field id as the label when no display hints are defined', () => {
+            const field = new PaymentProductField('myFieldId', 'string', new DataRestrictions(false));
+
+            expect(field.getLabel()).toBe('myFieldId');
+        });
+    });
+
+    describe('getDisplayOrder when no display hints', () => {
+        it('returns 0 as the display order when no display hints are defined', () => {
+            const field = new PaymentProductField('myFieldId', 'string', new DataRestrictions(false));
+
+            expect(field.getDisplayOrder()).toBe(0);
+        });
+    });
+
+    describe('validate when required and no value', () => {
+        it('returns a required-field error when the field is required and no value is provided', () => {
+            const field = new PaymentProductField('myFieldId', 'string', new DataRestrictions(true));
+
+            const errors = field.validate(undefined);
+
+            expect(errors).toHaveLength(1);
+            expect(errors[0].paymentProductFieldId).toBe('myFieldId');
+            expect(errors[0].type).toBe('requiredField');
         });
     });
 });
