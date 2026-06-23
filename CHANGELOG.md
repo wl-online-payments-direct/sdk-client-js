@@ -1,3 +1,9 @@
+# 4.2.1
+
+## Added
+
+- Additionally expanded integration test coverage across all major SDK components.
+
 # 4.2.0
 
 ## Changed
