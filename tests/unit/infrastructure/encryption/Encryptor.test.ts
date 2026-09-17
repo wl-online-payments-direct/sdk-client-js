@@ -14,13 +14,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cardPaymentProductJson } from '../../../__fixtures__/payment-product-json';
 import { cardNumberFieldJson } from '../../../__fixtures__/payment-product-field-json';
 import { publicKeyResponse } from '../../../__fixtures__/public-key-response';
-import { PaymentRequest } from '../../../../src/domain/paymentRequest/PaymentRequest';
-import { CreditCardTokenRequest } from '../../../../src/domain/paymentRequest/CreditCardTokenRequest';
 import { Encryptor } from '../../../../src/infrastructure/encryption/Encryptor';
 import { JOSEEncryptor } from '../../../../src/infrastructure/encryption/JOSEEncryptor';
 import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
-import { AccountOnFile } from '../../../../src/domain/accountOnFile/AccountOnFile';
-import { EncryptionError } from '../../../../src/domain';
+import { EncryptionError, PaymentRequest, CreditCardTokenRequest, AccountOnFile } from '../../../../src';
 
 const paymentProduct = new DefaultPaymentProductFactory().createPaymentProduct({
     ...cardPaymentProductJson,

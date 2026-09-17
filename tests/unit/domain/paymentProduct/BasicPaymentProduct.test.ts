@@ -12,9 +12,8 @@
 
 import { beforeEach, describe, expect, it } from 'vitest';
 import { basePaymentProductJson } from '../../../__fixtures__/base-payment-product-json';
-import { AccountOnFile } from '../../../../src/domain/accountOnFile/AccountOnFile';
-import { BasicPaymentProduct } from '../../../../src/domain/paymentProduct/BasicPaymentProduct';
 import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
+import { AccountOnFile, BasicPaymentProduct } from '../../../../src';
 
 let basicPaymentProduct: BasicPaymentProduct;
 beforeEach(() => {
@@ -83,6 +82,7 @@ describe('constructor', () => {
         const product = new BasicPaymentProduct(
             1,
             'card',
+            undefined,
             undefined,
             undefined,
             undefined,

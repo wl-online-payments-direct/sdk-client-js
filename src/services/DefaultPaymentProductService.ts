@@ -11,7 +11,7 @@
  */
 
 import type { PaymentProductFactory } from '../infrastructure/interfaces/PaymentProductFactory';
-import type { PaymentProduct } from '../domain/paymentProduct/PaymentProduct';
+import type { PaymentProduct } from '../domain';
 import type { ApiClient } from '../infrastructure/interfaces/ApiClient';
 
 import type { CacheManager } from '../infrastructure/utils/CacheManager';

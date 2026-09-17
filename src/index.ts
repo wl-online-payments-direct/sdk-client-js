@@ -15,6 +15,8 @@ import type { SdkConfiguration, SessionData } from './domain';
 
 export * from './domain';
 export * from './facade/OnlinePaymentSdk';
+export * from './facade/clickToPay/interfaces/ClickToPayInstance';
+export * from './facade/clickToPay/interfaces/ClickToPayComponentBuilder';
 
 /**
  * Initializes the SDK with the provided data.

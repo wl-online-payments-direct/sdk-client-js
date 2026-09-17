@@ -4,5 +4,5 @@
         "rootDir": "./src",
         "declarationDir": "./dist/types"
     },
-    "include": ["src", "types/global.d.ts"]
+    "include": ["src/**/*.ts", "types/**/*.d.ts"]
 }

@@ -14,9 +14,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { basePaymentProductJson, basePaymentProductJson2 } from '../../../__fixtures__/base-payment-product-json';
 import { cardPaymentProductJson } from '../../../__fixtures__/payment-product-json';
 import { accountOnFileJson, accountOnFileJson2 } from '../../../__fixtures__/account-on-file-json';
-import { BasicPaymentProduct } from '../../../../src/domain/paymentProduct/BasicPaymentProduct';
+import { BasicPaymentProduct, ProductFieldDisplayHints, PaymentProduct5002SpecificData } from '../../../../src';
 import { DefaultPaymentProductFactory } from '../../../../src/infrastructure/factories/DefaultPaymentProductFactory';
-import { ProductFieldDisplayHints } from '../../../../src/domain';
 
 describe('DefaultPaymentProductFactory', () => {
     let factory: DefaultPaymentProductFactory;
@@ -87,5 +86,16 @@ describe('DefaultPaymentProductFactory', () => {
         const restrictions = factory.createDataRestrictions({ validators: {} } as never);
 
         expect(restrictions.isRequired).toBe(false);
+    });
+
+    it('createBasicPaymentProduct maps paymentProduct5002SpecificData from DTO', () => {
+        const mastercard = { srcInitiatorId: 'mc-initiator', srciDpaId: 'mc-dpa' };
+        const product = factory.createBasicPaymentProduct({
+            ...basePaymentProductJson,
+            paymentProduct5002SpecificData: new PaymentProduct5002SpecificData({ mastercard }),
+        });
+
+        expect(product.paymentProduct5002SpecificData?.apiParameters?.mastercard).toEqual(mastercard);
+        expect(product.paymentProduct5002SpecificData?.apiParameters?.visa).toBeUndefined();
     });
 });

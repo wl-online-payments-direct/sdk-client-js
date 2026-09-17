@@ -20,5 +20,5 @@
         "allowSyntheticDefaultImports": true,
         "declaration": true
     },
-    "include": ["src", "tests", "types/global.d.ts"]
+    "include": ["src", "tests", "types/global.d.ts", "types/netcetera.d.ts"]
 }

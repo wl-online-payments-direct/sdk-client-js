@@ -10,16 +10,16 @@
  * Please contact Worldline for questions regarding license and user rights.
  */
 
-import { PaymentProduct } from '../../domain/paymentProduct/PaymentProduct';
 import type { PaymentProductFactory } from '../interfaces/PaymentProductFactory';
-import { BasicPaymentProduct } from '../../domain/paymentProduct/BasicPaymentProduct';
 import type { PaymentProductDto } from '../apiModels/paymentProduct/PaymentProductDto';
 import type { BasicPaymentProductDto } from '../apiModels/paymentProduct/BasicPaymentProductDto';
 import type { BasicPaymentProductsDto } from '../apiModels/paymentProduct/BasicPaymentProductsDto';
 import {
     AccountOnFile,
     AccountOnFileAttribute,
+    BasicPaymentProduct,
     BasicPaymentProducts,
+    PaymentProduct,
     PaymentProductField,
     ProductFieldDisplayHints,
 } from '../../domain';
@@ -61,6 +61,7 @@ export class DefaultPaymentProductFactory implements PaymentProductFactory {
             dto.usesRedirectionTo3rdParty,
             dto.paymentProduct302SpecificData,
             dto.paymentProduct320SpecificData,
+            dto.paymentProduct5002SpecificData,
             (dto.accountsOnFile ?? []).map((aof) => this.createAccountOnFile(aof)),
         );
     }
@@ -79,6 +80,7 @@ export class DefaultPaymentProductFactory implements PaymentProductFactory {
             dto.usesRedirectionTo3rdParty,
             dto.paymentProduct302SpecificData,
             dto.paymentProduct320SpecificData,
+            dto.paymentProduct5002SpecificData,
             (dto.accountsOnFile ?? []).map((aof) => this.createAccountOnFile(aof)),
             dto.fields
                 .map((field) => this.createPaymentProductField(field))

@@ -14,6 +14,7 @@ during the payment process.
 - user-friendly formatting of payment data such as card numbers and expiry dates
 - validation of input
 - determining to which payment provider a card number is associated
+- letting recognized customers check out with Click to Pay, without re-entering card details
 
 ## Table of Contents
 
@@ -39,12 +40,23 @@ during the payment process.
             - [AccountOnFile with read-only fields](#accountonfile-with-READ_ONLY-fields)
             - [Encrypt payment request](#encrypt-payment-request)
         - [IINDetails](#iindetails)
+        - [ClickToPayConfig](#clicktopayconfig)
+        - [ClickToPayPaymentResult](#clicktopaypaymentresult)
+        - [ClickToPayCustomerStatus](#clicktopaycustomerstatus)
+        - [ClickToPayCardSelection](#clicktopaycardselection)
     - [Payment steps](#payment-steps)
         - [1. Initialize the JavaScript SDK for this payment](#1-initialize-the-javascript-sdk-for-this-payment)
         - [2. Retrieve the payment products](#2-retrieve-the-payment-products)
         - [3. Retrieve payment product details](#3-retrieve-payment-product-details)
         - [4. Encrypt payment information](#4-encrypt-payment-information)
         - [5. Response from the Server API call](#5-response-from-the-server-api-call)
+    - [Click to Pay](#click-to-pay)
+        - [Initializing Click to Pay](#initializing-click-to-pay)
+        - [Configuring Click to Pay](#configuring-click-to-pay)
+        - [Listening to Click to Pay events](#listening-to-click-to-pay-events)
+        - [Using the mounted component](#using-the-mounted-component)
+        - [Using a custom pay button](#using-a-custom-pay-button)
+        - [Error handling](#error-handling)
     - [Testing](#testing)
         - [Unit tests](#unit-tests)
 
@@ -576,6 +588,79 @@ to verify the card type and check if you can accept this card. The returned `pay
 be used to retrieve the payment product and provide visual feedback to the user by showing the
 appropriate payment product logo.
 
+### ClickToPayConfig
+
+The `ClickToPayConfig` object configures how [Click to Pay](#click-to-pay) behaves for a checkout,
+and is passed to `.config()` when [initializing Click to Pay](#initializing-click-to-pay).
+
+```typescript
+export interface ClickToPayConfig {
+    email?: string; // pre-fills the email address used to recognize a returning customer
+    locale?: string; // required to offer Mastercard; also the display locale for Visa
+    sandbox?: boolean; // set to `true` to run against the Click to Pay test environment
+    hidePayButton?: boolean; // hides the built-in pay button, see "Using a custom pay button"
+    enablePerformanceMeasurement?: boolean; // adds a `performance` snapshot to the payment result
+    // Provide a scheme's object to offer that scheme; omit it and the scheme is not offered.
+    mastercard?: {
+        recognitionToken?: string; // from a previous `ClickToPayPaymentResult.recognitionToken`
+        dpaData?: ClickToPayMastercardDpaData; // overrides your registered DPA presentation name/website
+    };
+    visa?: {
+        dpaData?: ClickToPayVisaDpaData; // overrides your registered DPA presentation name/website
+        authenticationOptions?: {
+            // provide this object to request 3DS authentication for Visa
+            payloadRequested: 'AUTHENTICATED' | 'NON_AUTHENTICATED';
+            challengeIndicator: '01' | '02' | '03' | '04' | '05' | '06' | '07' | '08' | '09';
+        };
+    };
+    uiCustomizations?: ClickToPayUiCustomizations; // matches the component to your checkout page
+}
+```
+
+### ClickToPayPaymentResult
+
+An instance of `ClickToPayPaymentResult` is delivered both as the resolved value of
+`processManualCardEntry()` and as the payload of the `paymentSuccess` event.
+
+```typescript
+export interface ClickToPayPaymentResult {
+    userAction: 'COMPLETE' | 'CANCEL' | 'ERROR'; // outcome of the checkout
+    checkoutResponseSignature: string; // signature to be verified by your server
+    cardScheme: ClickToPayCardScheme; // 'Visa' | 'Mastercard'
+    performance?: ClickToPayPerformance; // present only when `enablePerformanceMeasurement` is set
+    recognitionToken?: string; // Mastercard only; feeds a future `mastercard.recognitionToken`
+}
+```
+
+### ClickToPayCustomerStatus
+
+An instance of `ClickToPayCustomerStatus` is delivered as the payload of the `customerStatus` event,
+and indicates whether the current customer is recognized by Click to Pay.
+
+```typescript
+export interface ClickToPayCustomerStatus {
+    isRecognized: boolean; // whether this customer has a Click to Pay profile
+    hasProfile: boolean;
+    hasCards: boolean;
+    hasProfileInSchemes: ClickToPayCardScheme[];
+    manualCardEntryMandatory?: boolean;
+    maskedEmailAddress?: string;
+    validationChannel?: 'EMAIL_ADDRESS' | 'MOBILE_PHONE_NUMBER';
+}
+```
+
+### ClickToPayCardSelection
+
+An instance of `ClickToPayCardSelection` is delivered as the payload of the `cardSelection` event,
+when the customer selects one of their saved cards.
+
+```typescript
+export interface ClickToPayCardSelection {
+    cardScheme: ClickToPayCardScheme; // 'Visa' | 'Mastercard'
+    maskedCard: ClickToPayMaskedCard; // masked PAN, expiry, billing address, and digital card art
+}
+```
+
 ### Masking
 
 To help in formatting field values based on masks, the SDK offers a base set of masking functions in
@@ -745,6 +830,215 @@ of the Server API call. In some cases, the payment hasn't finished just yet as t
 be redirected to a third party (such as a bank or PayPal) to authorize the payment. See the
 Server API documentation on what kinds of responses the Server API can provide. The Client API
 has no part in the remainder of the payment.
+
+## Click to Pay
+
+Click to Pay is a card-network-backed checkout experience for Mastercard and Visa. Once a customer
+has previously registered a card with Click to Pay (with any merchant, not just yours), the SDK can
+recognize them and let them pay with a saved card without re-entering card details. Offering Click
+to Pay alongside your regular card entry flow can reduce checkout friction for returning customers.
+
+Click to Pay is exposed on `OnlinePaymentsSdk` through `sdk.clickToPay(paymentContext)`, which
+returns a builder that you use to configure and mount the Click to Pay component. As with
+`getIinDetails`, the `paymentContext` for Click to Pay must include `amountOfMoney`, since the
+amount and currency of the payment are part of the checkout flow.
+
+### Initializing Click to Pay
+
+Calling `sdk.clickToPay(paymentContext)` returns a builder immediately, and no network requests are
+made until you call `.mount()`. The builder is configured through a chainable API:
+
+```typescript
+const paymentContext: PaymentContextWithAmount = {
+    countryCode: 'NL',
+    amountOfMoney: {
+        amount: 1000,
+        currencyCode: 'EUR',
+    },
+    isRecurring: false,
+};
+
+sdk.clickToPay(paymentContext)
+    .config({ locale: 'en_US', mastercard: {}, visa: {} })
+    .on('paymentSuccess', (result) => {
+        // result is an instance of `ClickToPayPaymentResult`
+    })
+    .on('paymentError', (error) => {
+        // handle error state
+    })
+    .mount('click-to-pay-container')
+    .then((clickToPayInstance) => {
+        // clickToPayInstance is ready to use
+    })
+    .catch((error) => {
+        // handle error state
+    });
+```
+
+The `.config(config)` call sets the `ClickToPayConfig` for this checkout; see
+[Configuring Click to Pay](#configuring-click-to-pay) for the available options. The `.on(event,
+handler)` call registers a handler for one of the
+[Click to Pay events](#listening-to-click-to-pay-events); you can call `.on()` multiple times to
+register handlers for different events, though registering a handler for the same event twice
+replaces the previous one. The `.mount(containerId)` call mounts the Click to Pay component into
+the DOM element with the given id, and resolves with a `ClickToPayInstance` once mounting succeeds;
+`containerId` must refer to an element that already exists in the DOM.
+
+`.config()` and `.on()` can only be called before `.mount()` has started; calling them afterwards
+throws a `ConfigurationError`. If `.mount()` rejects, the builder remains usable so you can fix the
+configuration or container and call `.mount()` again.
+
+### Configuring Click to Pay
+
+The `ClickToPayConfig` object passed to `.config()` controls how Click to Pay behaves for the
+current checkout; see [ClickToPayConfig](#clicktopayconfig) for its full shape.
+
+Your session determines which of the two card schemes are _available_. You decide which of them you
+actually want to offer, and both schemes work the same way:
+
+**Provide a scheme's object to offer that scheme. A scheme you don't configure is not offered.**
+
+```typescript
+sdk.clickToPay(paymentContext).config({
+    locale: 'en_US',
+    mastercard: {},
+    // no `visa` object, so Visa is not offered even if it is available for your session
+});
+```
+
+You are never required to configure both available schemes, and leaving one out never affects the
+other. `mastercard: {}` and `visa: {}` are empty because neither needs anything from you beyond the
+intention to offer it.
+
+Two options apply beyond a single scheme:
+
+- `locale` is required for Mastercard, which cannot be initialized without it, and is used as the
+  display locale by Visa. If you configure Mastercard without a `locale`, Mastercard is not offered.
+  Any `locale` you do provide is validated against `CLICK_TO_PAY_LOCALES`, the SDK's exported list of
+  supported locales; an unsupported value rejects with a `ConfigurationError`.
+- `visa.authenticationOptions` is optional within `visa`. Provide it to state your 3DS preferences;
+  omit it and Visa applies its own risk-based 3DS.
+
+**Configuring no scheme at all** while your session has schemes available is treated as a mistake
+rather than a choice, and rejects with a `ConfigurationError`: an empty Click to Pay component
+cannot take a payment, so this is reported rather than mounted.
+
+See [Error handling](#error-handling) for the full list of causes.
+
+### Listening to Click to Pay events
+
+You can register handlers for the following events using `.on(event, handler)`:
+
+- The `customerStatus` event is called with a `ClickToPayCustomerStatus` once the SDK has determined
+  whether the current customer is recognized and, if so, what they have on file. See
+  [ClickToPayCustomerStatus](#clicktopaycustomerstatus).
+- The `cardSelection` event is called with a `ClickToPayCardSelection` when the customer selects one
+  of their saved cards. See [ClickToPayCardSelection](#clicktopaycardselection).
+- The `paymentSuccess` event is called with a `ClickToPayPaymentResult` when a payment completes,
+  whether the customer approved or cancelled it. See
+  [ClickToPayPaymentResult](#clicktopaypaymentresult).
+- The `paymentError` event is called with an `SdkError` whenever something goes wrong during
+  checkout. See [Error handling](#error-handling).
+- The `unbindCustomer` event is called when the customer's device or profile is unbound from Click
+  to Pay recognition, for example after they choose to sign out.
+- The `generalEvents` event is called with informational strings about the customer's navigation
+  through the checkout dialog, for example when they close it without completing a payment.
+
+```typescript
+sdk.clickToPay(paymentContext)
+    .config({ locale: 'en_US', mastercard: {}, visa: {} })
+    .on('customerStatus', (status) => {
+        // status.isRecognized indicates whether this customer has a Click to Pay profile
+    })
+    .on('paymentError', (error) => {
+        console.error(error);
+    })
+    .mount('click-to-pay-container');
+```
+
+### Using the mounted component
+
+Once `.mount()` resolves, the returned `ClickToPayInstance` exposes methods for interacting with the
+mounted component:
+
+```typescript
+clickToPayInstance
+    .processManualCardEntry({
+        cardNumber: '4111111111111111',
+        expiryDate: '1230', // MMYY or MMYYYY; non-digit characters are stripped automatically
+        securityCode: '123',
+    })
+    .then((result) => {
+        // result is a `ClickToPayPaymentResult`, with `userAction` set to
+        // 'COMPLETE', 'CANCEL', or 'ERROR'
+    })
+    .catch((error) => {
+        // handle error state
+    });
+```
+
+The `processManualCardEntry(card, options)` method lets a customer enter a new card manually, and
+resolves with a `ClickToPayPaymentResult`. The optional `options` argument lets you prefill
+`profileDetails` for the customer, provide `complianceResourceURLs` required by certain schemes, set
+`skipVerificationNextTime` to skip re-verification on a future payment, and pass an `iframeRef` when
+embedding the entry form in an iframe.
+
+The `processSavedCard()` method triggers checkout with the customer's currently selected saved card,
+equivalent to clicking the built-in pay button. See
+[Using a custom pay button](#using-a-custom-pay-button).
+
+The `displayClickToPayExplanationModal()` method shows the standard Click to Pay explanation dialog,
+useful behind an info icon next to the component.
+
+The `getComplianceResourceURLsForVisa(country)` and `getComplianceResourceURLsForMastercard()`
+methods return the terms-and-conditions and privacy-policy URLs required by those schemes'
+compliance rules; `country` is an ISO 3166-1 alpha-2 country code.
+
+The `unmount()` method removes the component and can only be called once. Calling it again throws a
+`ConfigurationError`. Calling any other instance method after `unmount()` also rejects with a
+`ConfigurationError`; call `sdk.clickToPay(paymentContext)` again to start a new checkout.
+
+### Using a custom pay button
+
+By default, Click to Pay renders its own pay button. If you'd rather trigger checkout from a button
+in your own checkout UI, set `hidePayButton: true` in the configuration and call
+`processSavedCard()` yourself:
+
+```typescript
+sdk.clickToPay(paymentContext)
+    .config({ locale: 'en_US', mastercard: {}, visa: {}, hidePayButton: true })
+    .mount('click-to-pay-container')
+    .then((clickToPayInstance) => {
+        document.getElementById('my-pay-button').addEventListener('click', () => {
+            clickToPayInstance.processSavedCard().catch(console.error);
+        });
+    })
+    .catch(console.error);
+```
+
+Calling `processSavedCard()` without `hidePayButton: true` configured rejects with a
+`ClickToPayError`, since the built-in pay button is still expected to trigger checkout in that case.
+
+### Error handling
+
+Errors raised by Click to Pay are always instances of `SdkError`:
+
+- A `ConfigurationError` indicates that the component was misconfigured or misused: none of the
+  schemes available for your session were configured, an unsupported `locale` was provided, the
+  `paymentContext` has an invalid amount or currency code, Click to Pay isn't enabled for the current
+  session, the component failed to load, you tried to mount into a container that already has a
+  mounted component,
+  or you called a builder/instance method at a point in the lifecycle where it isn't allowed (for
+  example after `.mount()` or `unmount()`). Note that leaving out an individual scheme is not an
+  error: that scheme is simply not offered. See
+  [Configuring Click to Pay](#configuring-click-to-pay).
+- An `InvalidArgumentError` indicates that invalid input was provided: an invalid card number,
+  expiry date, or security code, or a `containerId` that doesn't match an element in the DOM.
+- A `ClickToPayError` indicates any other failure during checkout, for example a declined payment or
+  an unsupported country passed to a compliance-URL method.
+
+Errors that occur while mounting are both delivered as a rejection of the `.mount()` promise, and
+(if you registered one) passed to your `paymentError` handler.
 
 ## Testing
 

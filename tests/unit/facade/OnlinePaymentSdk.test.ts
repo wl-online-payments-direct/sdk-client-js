@@ -23,8 +23,10 @@ import {
     type SdkConfiguration,
     type SessionData,
 } from '../../../src';
+import { DefaultClickToPayComponentBuilder } from '../../../src/facade/clickToPay/DefaultClickToPayComponentBuilder';
 import { DefaultServiceFactory } from '../../../src/infrastructure/factories/DefaultServiceFactory';
 import * as SessionDataNormalizerModule from '../../../src/facade/SessionDataNormalizer';
+import type { ClickToPayService } from '../../../src/services/interfaces/ClickToPayService';
 
 describe('OnlinePaymentSdk', () => {
     let sessionData: SessionData;
@@ -89,6 +91,7 @@ describe('OnlinePaymentSdk', () => {
             getEncryptionService: vi.fn().mockReturnValue(mockEncryptionService),
             getPaymentProductService: vi.fn().mockReturnValue(mockPaymentProductService),
             getClientService: vi.fn().mockReturnValue(mockClientService),
+            getClickToPayService: vi.fn(),
         } as unknown as ServiceFactory;
 
         sdk = new OnlinePaymentSdk(sessionData, undefined, mockServiceFactory);
@@ -331,6 +334,63 @@ describe('OnlinePaymentSdk', () => {
 
             expect(mockEncryptionService.encryptTokenRequest).toHaveBeenCalledWith(mockRequest);
             expect(result).toEqual(mockEncrypted);
+        });
+    });
+
+    describe('clickToPay', () => {
+        const createContext = (): PaymentContextWithAmount => ({
+            countryCode: 'NL',
+            amountOfMoney: { amount: 1000, currencyCode: 'EUR' },
+        });
+
+        const createMockC2PService = (): ClickToPayService => ({
+            on: vi.fn().mockReturnThis(),
+            mount: vi.fn().mockResolvedValue(undefined),
+            unmount: vi.fn(),
+            processManualCardEntry: vi
+                .fn()
+                .mockResolvedValue({ userAction: 'COMPLETE', checkoutResponseSignature: 'sig' }),
+            processSavedCard: vi.fn(),
+            displayClickToPayExplanationModal: vi.fn(),
+            getComplianceResourceURLsForVisa: vi.fn(),
+            getComplianceResourceURLsForMastercard: vi.fn(),
+        });
+
+        it('should return a DefaultClickToPayComponentBuilder synchronously without calling the service factory', () => {
+            const context = createContext();
+
+            const component = sdk.clickToPay(context);
+
+            expect(component).toBeInstanceOf(DefaultClickToPayComponentBuilder);
+            expect(mockServiceFactory.getClickToPayService).not.toHaveBeenCalled();
+        });
+
+        it('should delegate to the service factory with the given context and config on mount', async () => {
+            document.body.innerHTML = '<div id="c2p-container"></div>';
+            const context = createContext();
+            const config = { locale: 'nl_NL' };
+            const mockC2PService = createMockC2PService();
+
+            vi.mocked(mockServiceFactory.getClickToPayService).mockResolvedValue(mockC2PService);
+
+            const component = sdk.clickToPay(context).config(config);
+
+            await component.mount('c2p-container');
+
+            expect(mockServiceFactory.getClickToPayService).toHaveBeenCalledWith(context, config);
+            expect(mockC2PService.mount).toHaveBeenCalledWith(document.getElementById('c2p-container'));
+        });
+
+        it('should propagate rejection from the service factory through mount', async () => {
+            document.body.innerHTML = '<div id="c2p-container"></div>';
+            const context = createContext();
+            const error = new Error('factory error');
+
+            vi.mocked(mockServiceFactory.getClickToPayService).mockRejectedValue(error);
+
+            const component = sdk.clickToPay(context);
+
+            await expect(component.mount('c2p-container')).rejects.toBe(error);
         });
     });
 });

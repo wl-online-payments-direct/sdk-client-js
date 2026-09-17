@@ -12,9 +12,10 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { paymentContext } from '../../__fixtures__/payment-context';
+import { paymentContext, paymentContextWithAmount } from '../../__fixtures__/payment-context';
 import { accountOnFileJson } from '../../__fixtures__/account-on-file-json';
 import { cardPaymentProductJson } from '../../__fixtures__/payment-product-json';
+import { CLICK_TO_PAY_ID } from '../../__fixtures__/payment_ids';
 import { getConfiguration, getSessionDetails } from '../setup';
 import { awaitTimes, getApiClientSpyMock } from '../utils';
 import { type ErrorResponse, init, OnlinePaymentSdk, PaymentProduct, ResponseError } from '../../../src';
@@ -129,15 +130,16 @@ describe('GetPaymentProduct', () => {
     });
 
     it('GetPaymentProduct throws ResponseError with error status code for unsupported or missing payment product', async () => {
-        await expect.assertions(3);
+        expect.assertions(3);
 
         try {
             await session.getPaymentProduct(99999, paymentContext);
         } catch (error) {
             const responseError = error as ResponseError;
+            const errors = responseError.metadata?.errors;
 
             expect(responseError).toBeInstanceOf(ResponseError);
-            expect(responseError.metadata?.errors?.some((apiError) => apiError.httpStatusCode >= 400)).toBe(true);
+            expect(Array.isArray(errors) && errors.some((apiError) => apiError.httpStatusCode >= 400)).toBe(true);
             expect(responseError).toHaveProperty('message', 'Error while trying to fetch the payment product 99999.');
         }
     });
@@ -170,5 +172,17 @@ describe('GetPaymentProduct', () => {
         });
 
         expect(spy).toHaveBeenCalledTimes(2);
+    });
+
+    it('GetPaymentProduct returns the Click to Pay payment product with its scheme parameters', async () => {
+        const paymentProduct = await session.getPaymentProduct(CLICK_TO_PAY_ID, paymentContextWithAmount);
+
+        expect(paymentProduct).toBeInstanceOf(PaymentProduct);
+        expect(paymentProduct.id).toBe(CLICK_TO_PAY_ID);
+
+        const apiParameters = paymentProduct.paymentProduct5002SpecificData?.apiParameters;
+
+        expect(apiParameters).toBeDefined();
+        expect(Object.keys(apiParameters ?? {})).not.toHaveLength(0);
     });
 });

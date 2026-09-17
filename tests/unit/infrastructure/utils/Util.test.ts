@@ -10,7 +10,7 @@
  * Please contact Worldline for questions regarding license and user rights.
  */
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Util } from '../../../../src/infrastructure/utils/Util';
 import { version } from '../../../../package.json';
 
@@ -73,5 +73,55 @@ describe('collectDeviceInformation', () => {
                 innerWidth: expect.any(Number),
             },
         });
+    });
+});
+
+describe('invokeSafely', () => {
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+    });
+
+    it('calls the handler with the arguments bound by the operation', () => {
+        const handler = vi.fn();
+
+        Util.invokeSafely(() => handler('a', 1), 'Click to Pay');
+
+        expect(handler).toHaveBeenCalledWith('a', 1);
+    });
+
+    it('does not log or throw when the operation succeeds', () => {
+        const handler = vi.fn();
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        expect(() => Util.invokeSafely(handler, 'Click to Pay')).not.toThrow();
+        expect(consoleErrorSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns normally and logs when the operation throws', () => {
+        vi.useFakeTimers();
+
+        const error = new Error('handler failed');
+        const handler = vi.fn(() => {
+            throw error;
+        });
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        expect(() => Util.invokeSafely(handler, 'Click to Pay')).not.toThrow();
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Click to Pay: a registered event handler threw an error.', error);
+    });
+
+    it('re-throws the handler error asynchronously on a later tick', () => {
+        vi.useFakeTimers();
+
+        const error = new Error('handler failed');
+        const handler = vi.fn(() => {
+            throw error;
+        });
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        Util.invokeSafely(handler, 'Click to Pay');
+
+        expect(() => vi.runAllTimers()).toThrow('handler failed');
     });
 });

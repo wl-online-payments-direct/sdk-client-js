@@ -13,6 +13,7 @@
 import { AccountOnFile } from '../accountOnFile/AccountOnFile';
 import { PaymentProduct302SpecificData } from './specificData/PaymentProduct302SpecificData';
 import { PaymentProduct320SpecificData } from './specificData/PaymentProduct320SpecificData';
+import { PaymentProduct5002SpecificData } from './specificData/PaymentProduct5002SpecificData';
 
 export class BasicPaymentProduct {
     readonly accountsOnFile: AccountOnFile[] = [];
@@ -30,6 +31,7 @@ export class BasicPaymentProduct {
         readonly usesRedirectionTo3rdParty?: boolean,
         readonly paymentProduct302SpecificData?: PaymentProduct302SpecificData,
         readonly paymentProduct320SpecificData?: PaymentProduct320SpecificData,
+        readonly paymentProduct5002SpecificData?: PaymentProduct5002SpecificData,
         accountsOnFile: AccountOnFile[] = [],
     ) {
         this.accountsOnFile = accountsOnFile.filter((aof) => aof.paymentProductId === this.id);

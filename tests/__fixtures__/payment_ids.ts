@@ -11,3 +11,4 @@
  */
 
 export const GOOGLE_PAY_ID = 320;
+export const CLICK_TO_PAY_ID = 5002;

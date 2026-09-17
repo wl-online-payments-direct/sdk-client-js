@@ -13,6 +13,8 @@
 import type { PaymentProductService } from '../../services/interfaces/PaymentProductService';
 import type { EncryptionService } from '../../services/interfaces/EncryptionService';
 import type { ClientService } from '../../services/interfaces/ClientService';
+import type { ClickToPayService } from '../../services/interfaces/ClickToPayService';
+import type { ClickToPayConfig, PaymentContextWithAmount } from '../../domain';
 
 export interface ServiceFactory {
     getEncryptionService(): EncryptionService;
@@ -20,4 +22,6 @@ export interface ServiceFactory {
     getPaymentProductService(): PaymentProductService;
 
     getClientService(): ClientService;
+
+    getClickToPayService(context: PaymentContextWithAmount, config?: ClickToPayConfig): Promise<ClickToPayService>;
 }

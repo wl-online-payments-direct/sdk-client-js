@@ -12,7 +12,11 @@
 
 import type { AccountOnFileDto } from '../accountOnFile/AccountOnFileDto';
 import type { PaymentProductDisplayHintsDto } from './displayHints/PaymentProductDisplayHintsDto';
-import { PaymentProduct302SpecificData, PaymentProduct320SpecificData } from '../../../domain';
+import {
+    PaymentProduct302SpecificData,
+    PaymentProduct320SpecificData,
+    PaymentProduct5002SpecificData,
+} from '../../../domain';
 
 export interface BasicPaymentProductDto {
     accountsOnFile?: AccountOnFileDto[];
@@ -27,6 +31,7 @@ export interface BasicPaymentProductDto {
     paymentMethod: string;
     paymentProduct302SpecificData?: PaymentProduct302SpecificData;
     paymentProduct320SpecificData?: PaymentProduct320SpecificData;
+    paymentProduct5002SpecificData?: PaymentProduct5002SpecificData;
     paymentProductGroup?: string;
     usesRedirectionTo3rdParty?: boolean;
     allowsAuthentication?: boolean;

@@ -52,7 +52,7 @@ export class Encryptor {
      */
     encrypt(publicKey: PublicKeyResponse, paymentRequest: PaymentRequest): string {
         return JOSEEncryptor.encrypt(
-            this.#createEncryptedConsumerInput(paymentRequest, this.#clientSessionId),
+            this.#createEncryptedCustomerInput(paymentRequest, this.#clientSessionId),
             publicKey,
         );
     }
@@ -67,20 +67,20 @@ export class Encryptor {
      * @throws {EncryptionError} e Will throw an error if the token request has no paymentProductId.
      */
     encryptTokenRequest(publicKey: PublicKeyResponse, tokenRequest: CreditCardTokenRequest): string {
-        const payload = this.#createEncryptedConsumerInputFromTokenRequest(tokenRequest, this.#clientSessionId);
+        const payload = this.#createEncryptedCustomerInputFromTokenRequest(tokenRequest, this.#clientSessionId);
 
         return JOSEEncryptor.encrypt(payload, publicKey);
     }
 
     /**
-     * Generates a consumer input payload based on the provided token request and client session ID.
+     * Generates a customer input payload based on the provided token request and client session ID.
      *
      * @param {CreditCardTokenRequest} tokenRequest - The credit card token request object containing values and other payment
      *     details.
      * @param {string} clientSessionId - The unique identifier for the client's session.
-     * @return {EncryptedCustomerInput} An object containing consumer input data, ready to be encrypted.
+     * @return {EncryptedCustomerInput} An object containing customer input data, ready to be encrypted.
      */
-    #createEncryptedConsumerInputFromTokenRequest(
+    #createEncryptedCustomerInputFromTokenRequest(
         tokenRequest: CreditCardTokenRequest,
         clientSessionId: string,
     ): EncryptedCustomerInput {
@@ -104,14 +104,14 @@ export class Encryptor {
     }
 
     /**
-     * Generates a consumer input payload based on the provided payment request and client session ID.
+     * Generates a customer input payload based on the provided payment request and client session ID.
      *
      * @param {PaymentRequest} paymentRequest - The payment request object containing unmasked values and other payment
      *     details.
      * @param {string} clientSessionId - The unique identifier for the client's session.
-     * @return {EncryptedCustomerInput} An object containing consumer input data, ready to be encrypted.
+     * @return {EncryptedCustomerInput} An object containing customer input data, ready to be encrypted.
      */
-    #createEncryptedConsumerInput(paymentRequest: PaymentRequest, clientSessionId: string): EncryptedCustomerInput {
+    #createEncryptedCustomerInput(paymentRequest: PaymentRequest, clientSessionId: string): EncryptedCustomerInput {
         const values = paymentRequest.getValues();
 
         const blob: EncryptedCustomerInput = {

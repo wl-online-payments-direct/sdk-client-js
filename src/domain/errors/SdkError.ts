@@ -18,6 +18,7 @@ export enum SdkErrorType {
     COMMUNICATION_ERROR = 'COMMUNICATION_ERROR',
     CLIENT_ERROR = 'CLIENT_ERROR',
     ENCRYPTION_ERROR = 'ENCRYPTION_ERROR',
+    CLICK_TO_PAY_ERROR = 'CLICK_TO_PAY_ERROR',
 }
 
 export type SdkErrorMetadata = Record<string, unknown> | ErrorResponse;

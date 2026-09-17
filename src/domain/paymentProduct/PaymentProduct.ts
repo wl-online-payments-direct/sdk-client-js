@@ -14,6 +14,7 @@ import { BasicPaymentProduct } from './BasicPaymentProduct';
 import { PaymentProductField } from './productField/PaymentProductField';
 import { PaymentProduct302SpecificData } from './specificData/PaymentProduct302SpecificData';
 import { PaymentProduct320SpecificData } from './specificData/PaymentProduct320SpecificData';
+import { PaymentProduct5002SpecificData } from './specificData/PaymentProduct5002SpecificData';
 import { AccountOnFile } from '../accountOnFile/AccountOnFile';
 
 export class PaymentProduct extends BasicPaymentProduct {
@@ -32,6 +33,7 @@ export class PaymentProduct extends BasicPaymentProduct {
         usesRedirectionTo3rdParty?: boolean,
         paymentProduct302SpecificData?: PaymentProduct302SpecificData,
         paymentProduct320SpecificData?: PaymentProduct320SpecificData,
+        paymentProduct5002SpecificData?: PaymentProduct5002SpecificData,
         accountsOnFile: AccountOnFile[] = [],
         readonly fields: PaymentProductField[] = [],
     ) {
@@ -48,6 +50,7 @@ export class PaymentProduct extends BasicPaymentProduct {
             usesRedirectionTo3rdParty,
             paymentProduct302SpecificData,
             paymentProduct320SpecificData,
+            paymentProduct5002SpecificData,
             accountsOnFile,
         );
 

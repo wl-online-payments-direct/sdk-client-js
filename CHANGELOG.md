@@ -1,12 +1,55 @@
+# 4.3.0
+
+## Added
+
+- Added Click to Pay support for Mastercard and Visa.
+- `OnlinePaymentSdk`: added `clickToPay(paymentContext)`, which returns a
+  `ClickToPayComponentBuilder`:
+    - `config(clickToPayConfig)` - sets the `ClickToPayConfig` for the checkout
+    - `on(event, handler)` - registers a handler for a `ClickToPayEvent`: `customerStatus`,
+      `cardSelection`, `paymentSuccess`, `paymentError`, `unbindCustomer`, `generalEvents`
+    - `mount(containerId)` - mounts the component into the given container and resolves a
+      `ClickToPayInstance`
+- `ClickToPayInstance`:
+    - `processManualCardEntry(card, options?)` - checks out using manually entered card details
+    - `processSavedCard()` - checks out using the customer's selected saved card
+    - `displayClickToPayExplanationModal()` - shows the Click to Pay explanation modal
+    - `getComplianceResourceURLsForVisa(country)` and `getComplianceResourceURLsForMastercard()` -
+      retrieve compliance resource URLs
+    - `unmount()` - tears down the mounted component
+- Added `ClickToPayConfig`, `ClickToPayPaymentResult`, `ClickToPayCustomerStatus`,
+  `ClickToPayCardSelection`, and other supporting Click to Pay types.
+- Added `CLICK_TO_PAY_LOCALES`, the list of locales accepted by `ClickToPayConfig.locale`.
+- `ClickToPayConfig` selects which card schemes to offer: provide a scheme's object
+  (`mastercard`, `visa`) to offer that scheme, and omit it to leave the scheme out. `visa`
+  accepts the optional `visa.authenticationOptions` to state your 3DS preferences, while
+  `mastercard` also accepts `recognitionToken`. `mastercard.dpaData` and `visa.dpaData`
+  optionally override your registered DPA presentation name/website. `locale` is required for
+  Mastercard and used as the display locale by Visa. Configuring none of the available schemes
+  or providing an unsupported `locale` each reject with a `ConfigurationError`.
+- `ClickToPayConfig` also accepts:
+    - `email` - the customer's email address, so Click to Pay can look up their profile without
+      asking for it again
+    - `hidePayButton` - hides the component's own pay button so you can drive the checkout from
+      your own UI with `processSavedCard()` or `processManualCardEntry()`
+    - `uiCustomizations` - a `ClickToPayUiCustomizations` object styling the component: color
+      scheme, brand, background, text, link and border colors, font family, size and weights,
+      line height, border radii, button text case, and full-width layout
+    - `enablePerformanceMeasurement` - collects timing data for the checkout, returned as
+      `performance` on `ClickToPayPaymentResult`
+- `BasicPaymentProduct` and `PaymentProduct` now expose `paymentProduct5002SpecificData`.
+- Added `ClickToPayError`, thrown for Click to Pay specific failures.
+- Click to Pay is powered by the Netcetera Click to Pay SDK, bundled into the distributed SDK.
+
 # 4.2.1
 
 ## Added
 
-- Additionally expanded integration test coverage across all major SDK components.
+- Significantly expanded integration test coverage across all major SDK components.
 
 # 4.2.0
 
-## Changed
+## Fixed
 
 - Fixed typo in `ValidationRuleRange` error message.
 - `SessionDataNormalizer` now throws `ConfigurationError` when `clientApiUrl` contains a query

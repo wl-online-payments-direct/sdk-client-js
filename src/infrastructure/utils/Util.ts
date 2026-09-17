@@ -53,4 +53,15 @@ export const Util = {
             },
         };
     },
+
+    invokeSafely(operation: () => void, context: string): void {
+        try {
+            operation();
+        } catch (error) {
+            console.error(`${context}: a registered event handler threw an error.`, error);
+            setTimeout(() => {
+                throw error;
+            });
+        }
+    },
 };

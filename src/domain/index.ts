@@ -35,6 +35,7 @@ export * from './errors/CommunicationError';
 export * from './errors/ConfigurationError';
 export * from './errors/EncryptionError';
 export * from './errors/InvalidArgumentError';
+export * from './errors/ClickToPayError';
 export * from './errors/ResponseError';
 
 export * from './iin/IinDetail';
@@ -48,6 +49,7 @@ export * from './paymentProduct/PaymentProduct';
 export * from './paymentProduct/productField/PaymentProductField';
 export * from './paymentProduct/specificData/PaymentProduct302SpecificData';
 export * from './paymentProduct/specificData/PaymentProduct320SpecificData';
+export * from './paymentProduct/specificData/PaymentProduct5002SpecificData';
 export * from './paymentProduct/productField/ProductFieldDisplayHints';
 
 export * from './paymentRequest/PaymentRequest';
@@ -65,6 +67,30 @@ export * from './surchargeCalculation/SurchargeRate';
 
 export * from './validation/ValidationResult';
 export * from './validation/ValidationErrorMessage';
+
+export * from './clickToPay/ClickToPayCardScheme';
+export * from './clickToPay/ClickToPayEvent';
+export * from './clickToPay/ClickToPayCustomerStatus';
+export * from './clickToPay/ClickToPayCorrelationId';
+export * from './clickToPay/ClickToPayMethodPerformance';
+export * from './clickToPay/ClickToPaySdkPerformance';
+export * from './clickToPay/ClickToPayUserAction';
+export * from './clickToPay/ClickToPayPerformance';
+export * from './clickToPay/ClickToPayPaymentResult';
+export * from './clickToPay/ClickToPayManualCardDetails';
+export * from './clickToPay/ClickToPayMaskedCardAddress';
+export * from './clickToPay/ClickToPayMaskedCardDcf';
+export * from './clickToPay/ClickToPayDigitalCardData';
+export * from './clickToPay/ClickToPayMaskedCard';
+export * from './clickToPay/ClickToPayCardSelection';
+export * from './clickToPay/ClickToPayComplianceResourceURLs';
+export * from './clickToPay/ClickToPayUiCustomizations';
+export * from './clickToPay/ClickToPayProfileDetails';
+export * from './clickToPay/ClickToPayManualCardEntryOptions';
+export * from './clickToPay/ClickToPayLocale';
+export * from './clickToPay/ClickToPayDpaData';
+export * from './clickToPay/ClickToPayConfig';
+export * from './clickToPay/ClickToPayEventHandlers';
 
 export * from './AmountOfMoney';
 export * from './PaymentContext';

@@ -12,13 +12,7 @@
 
 import type { ServiceFactory } from '../infrastructure/interfaces/ServiceFactory';
 import { DefaultServiceFactory } from '../infrastructure/factories/DefaultServiceFactory';
-import type { PaymentProduct } from '../domain/paymentProduct/PaymentProduct';
-import { PaymentRequest } from '../domain/paymentRequest/PaymentRequest';
-import type { CreditCardTokenRequest } from '../domain/paymentRequest/CreditCardTokenRequest';
-import { normalize } from './SessionDataNormalizer';
-import type { EncryptionService } from '../services/interfaces/EncryptionService';
-import type { PaymentProductService } from '../services/interfaces/PaymentProductService';
-import type { ClientService } from '../services/interfaces/ClientService';
+import type { CreditCardTokenRequest, PaymentProduct } from '../domain';
 import {
     type AmountOfMoney,
     BasicPaymentProducts,
@@ -27,31 +21,39 @@ import {
     type PartialCard,
     type PaymentContext,
     type PaymentContextWithAmount,
+    PaymentRequest,
     PublicKeyResponse,
     type SdkConfiguration,
     type SessionData,
     type SurchargeCalculationResponse,
 } from '../domain';
+import { normalize } from './SessionDataNormalizer';
+import type { EncryptionService } from '../services/interfaces/EncryptionService';
+import type { PaymentProductService } from '../services/interfaces/PaymentProductService';
+import type { ClientService } from '../services/interfaces/ClientService';
 import type { PaymentProductNetworksResponse } from '../domain/paymentProduct/PaymentProductNetworksResponse';
+import { DefaultClickToPayComponentBuilder } from './clickToPay/DefaultClickToPayComponentBuilder';
+import type { ClickToPayComponentBuilder } from './clickToPay/interfaces/ClickToPayComponentBuilder';
 
 export class OnlinePaymentSdk {
     private readonly encryptionService: EncryptionService;
     private readonly paymentProductService: PaymentProductService;
     private readonly clientService: ClientService;
+    private readonly serviceFactory: ServiceFactory;
 
     constructor(sessionData: SessionData, configuration?: SdkConfiguration, factory?: ServiceFactory) {
         const sessionDetails = normalize(sessionData);
 
-        const serviceFactory =
+        this.serviceFactory =
             factory ??
             new DefaultServiceFactory({
                 sessionData: sessionDetails,
                 configuration,
             });
 
-        this.encryptionService = serviceFactory.getEncryptionService();
-        this.paymentProductService = serviceFactory.getPaymentProductService();
-        this.clientService = serviceFactory.getClientService();
+        this.encryptionService = this.serviceFactory.getEncryptionService();
+        this.paymentProductService = this.serviceFactory.getPaymentProductService();
+        this.clientService = this.serviceFactory.getClientService();
     }
 
     getBasicPaymentProducts(paymentContext: PaymentContext): Promise<BasicPaymentProducts> {
@@ -97,5 +99,11 @@ export class OnlinePaymentSdk {
 
     encryptTokenRequest(request: CreditCardTokenRequest): Promise<EncryptedRequest> {
         return this.encryptionService.encryptTokenRequest(request);
+    }
+
+    clickToPay(paymentContext: PaymentContextWithAmount): ClickToPayComponentBuilder {
+        return new DefaultClickToPayComponentBuilder((config) =>
+            this.serviceFactory.getClickToPayService(paymentContext, config),
+        );
     }
 }
