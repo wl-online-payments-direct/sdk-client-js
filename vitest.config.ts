@@ -56,7 +56,7 @@ export default defineConfig({
                             url: 'https://localhost:3000',
                         },
                     },
-                    setupFiles: ['dotenv/config', join(__dirname, 'tests/integration/setup')],
+                    setupFiles: ['dotenv/config', join(import.meta.dirname, 'tests/integration/setup')],
                     globals: true,
                     restoreMocks: true,
                     testTimeout: 30000,

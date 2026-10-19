@@ -26,7 +26,7 @@ export class TypedEventHandlers<EventMap extends Record<keyof EventMap, (...args
             const handler = this.handlers[event];
 
             if (handler) {
-                (callback as (event: keyof EventMap, handler: EventMap[keyof EventMap]) => void)(event, handler);
+                callback(event, handler);
             }
         });
     }

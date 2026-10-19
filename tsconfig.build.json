@@ -2,7 +2,11 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "rootDir": "./src",
-        "declarationDir": "./dist/types"
+        "declarationDir": "./dist/types",
+        "noEmit": false,
+        "emitDeclarationOnly": true,
+        "incremental": false,
+        "typeRoots": ["./node_modules/@types"]
     },
     "include": ["src/**/*.ts", "types/**/*.d.ts"]
 }

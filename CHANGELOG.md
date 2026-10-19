@@ -1,3 +1,10 @@
+# 4.3.1
+
+## Changed
+
+- Replaced `microbundle` with `vite` for building the SDK.
+- Updated dependencies to resolve reported security vulnerabilities.
+
 # 4.3.0
 
 ## Added
