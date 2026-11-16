@@ -13,7 +13,7 @@
 import { ConversionResultType, type CurrencyConversionResponse, type ErrorResponse } from '../../../src';
 
 export const withCurrencyConversion: CurrencyConversionResponse = {
-    docSessionId: '91e6bfec501c484bbcd27d8d7972f2b5q',
+    dccSessionId: '91e6bfec501c484bbcd27d8d7972f2b5q',
     result: {
         result: ConversionResultType.Allowed,
     },

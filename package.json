@@ -1,6 +1,6 @@
 {
     "name": "onlinepayments-sdk-client-js",
-    "version": "4.3.1",
+    "version": "4.4.0",
     "description": "The JavaScript based client SDK that can be used for client to server communication between you and the Online Payments platform.",
     "types": "./dist/types/index.d.ts",
     "main": "./dist/onlinepayments-sdk-client-js.js",
@@ -23,11 +23,14 @@
         "lint": "eslint ./src --ext .ts",
         "lint:fix": "eslint ./src --ext .ts --fix",
         "audit": "yarn audit",
-        "test": "vitest --run",
+        "test": "yarn skill:check && vitest --run",
         "test:coverage": "vitest --run --coverage",
         "test:unit": "vitest --run --project unit",
         "test:integration": "vitest --run --project integration",
         "tsc": "tsc --noEmit -p .",
+        "skill:check": "tsc --noEmit -p tsconfig.skill.json && node scripts/skill-sync.mjs check",
+        "skill:sync": "node scripts/skill-sync.mjs write",
+        "skill:test": "node --test scripts/skill-sync.test.mjs",
         "prepare": "husky"
     },
     "repository": {
@@ -42,6 +45,7 @@
     "homepage": "https://github.com/wl-online-payments-direct/sdk-client-js#readme",
     "files": [
         "dist",
+        "skills",
         "CHANGELOG.md"
     ],
     "devDependencies": {

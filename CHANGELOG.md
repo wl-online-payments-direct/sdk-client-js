@@ -1,3 +1,16 @@
+# 4.4.0
+
+## Added
+
+- An Agent Skill for AI coding agents in `skills/onlinepayments-sdk-client-js/`. It is included in the npm package.
+  See "Working with AI agents" in `README.md`.
+
+## Fixed
+
+- `CurrencyConversionResponse`: fixed the misspelled property `docSessionId`. It is now `dccSessionId`, the name
+  the API returns. The value was always `undefined` under the old name. TypeScript code that names `docSessionId`
+  must use `dccSessionId`.
+
 # 4.3.1
 
 ## Changed

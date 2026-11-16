@@ -25,6 +25,7 @@ during the payment process.
     - [Distributed packages](#distributed-packages)
         - [Usage Universal Module Definition (UMD)](#usage-universal-module-definition-umd)
         - [Usage ES module (ESM)](#usage-es-module-esm)
+    - [Working with AI agents](#working-with-ai-agents)
     - [Getting started](#getting-started)
     - [Type definitions](#type-definitions)
         - [OnlinePaymentsSdk](#onlinepaymentssdk)
@@ -116,6 +117,23 @@ following way:
 
 ```js
 import * as OnlinePaymentsSdk from 'onlinepayments-sdk-client-js';
+```
+
+## Working with AI agents
+
+This package includes an [Agent Skill](https://agentskills.io) with the rules and tested code for
+integrating this SDK. AI coding agents (Claude Code, Codex, Cursor, GitHub Copilot and others) should
+read it before writing code that uses the SDK.
+
+- In your project, after installation:
+  `node_modules/onlinepayments-sdk-client-js/skills/onlinepayments-sdk-client-js/SKILL.md`
+- Online, for this SDK version:
+  https://raw.githubusercontent.com/wl-online-payments-direct/sdk-client-js/v4.4.0/skills/onlinepayments-sdk-client-js/SKILL.md
+
+To load it in every session, add this line to your project's `AGENTS.md` or `CLAUDE.md`:
+
+```
+For Online Payments checkout code, read node_modules/onlinepayments-sdk-client-js/skills/onlinepayments-sdk-client-js/SKILL.md first and follow it.
 ```
 
 ## Getting started

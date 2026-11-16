@@ -174,7 +174,6 @@ describe('sdk.clickToPay (real Netcetera SDK, real payment product 5002)', () =>
                 mastercard: {
                     srcInitiatorId: apiParameters.mastercard!.srcInitiatorId,
                     srciDpaId: apiParameters.mastercard!.srciDpaId,
-                    authenticationOptions: apiParameters.mastercard!.authenticationOptions,
                     dpaTransactionOptions: {
                         dpaLocale: 'en_US',
                         transactionAmount: { transactionAmount: 10, transactionCurrencyCode: 'EUR' },

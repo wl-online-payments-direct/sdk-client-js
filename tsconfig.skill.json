@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "incremental": false,
+        "paths": {
+            "onlinepayments-sdk-client-js": ["./src/index.ts"]
+        }
+    },
+    "include": ["skills/onlinepayments-sdk-client-js/examples", "types/global.d.ts", "types/netcetera.d.ts"]
+}

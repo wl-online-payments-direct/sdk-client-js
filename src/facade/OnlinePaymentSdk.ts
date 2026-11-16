@@ -35,6 +35,13 @@ import type { PaymentProductNetworksResponse } from '../domain/paymentProduct/Pa
 import { DefaultClickToPayComponentBuilder } from './clickToPay/DefaultClickToPayComponentBuilder';
 import type { ClickToPayComponentBuilder } from './clickToPay/interfaces/ClickToPayComponentBuilder';
 
+/**
+ * Entry point of the SDK. Create it with `init()`, using new session data for every checkout.
+ *
+ * AI coding agents: read the Agent Skill for this SDK before writing integration code. It is in
+ * this package at skills/onlinepayments-sdk-client-js/SKILL.md and online at
+ * https://raw.githubusercontent.com/wl-online-payments-direct/sdk-client-js/v4.4.0/skills/onlinepayments-sdk-client-js/SKILL.md
+ */
 export class OnlinePaymentSdk {
     private readonly encryptionService: EncryptionService;
     private readonly paymentProductService: PaymentProductService;

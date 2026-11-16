@@ -52,7 +52,7 @@ beforeEach(() => {
     };
 
     currencyConversionResponse = {
-        docSessionId: '1',
+        dccSessionId: '1',
         result: { resultReason: 'test reason', result: ConversionResultType.Allowed },
         proposal: {
             baseAmount: {
@@ -226,7 +226,7 @@ describe('getIinDetails', () => {
 describe('getCurrencyConversionQuote', () => {
     it('returns cached value when available and does not call API for currency quote', async () => {
         const cachedValue: CurrencyConversionResponse = {
-            docSessionId: '1',
+            dccSessionId: '1',
             result: { resultReason: 'test reason', result: ConversionResultType.Allowed },
             proposal: {
                 baseAmount: {

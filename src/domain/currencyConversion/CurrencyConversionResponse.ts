@@ -14,7 +14,7 @@ import type { CurrencyConversionResult } from './CurrencyConversionResult';
 import type { DccProposal } from './DccProposal';
 
 export interface CurrencyConversionResponse {
-    docSessionId: string;
+    dccSessionId: string;
     result: CurrencyConversionResult;
     proposal: DccProposal;
 }

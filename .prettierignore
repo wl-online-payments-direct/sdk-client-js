@@ -2,3 +2,6 @@ package-lock.json
 yarn.lock
 node_modules
 .gitlab-ci.yml
+
+# Agent Skill Markdown: code blocks are generated from the examples by scripts/skill-sync.mjs
+skills/**/*.md

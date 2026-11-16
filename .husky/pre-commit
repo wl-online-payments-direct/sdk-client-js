@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
 
 npx pretty-quick --staged
+yarn skill:check

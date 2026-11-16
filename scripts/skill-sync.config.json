@@ -1,0 +1,9 @@
+{
+    "skillDir": "skills/onlinepayments-sdk-client-js",
+    "examplesDir": "skills/onlinepayments-sdk-client-js/examples",
+    "version": {
+        "file": "package.json",
+        "pattern": "\"version\"\\s*:\\s*\"([^\"]+)\""
+    },
+    "versionedLinkFiles": ["README.md", "src/facade/OnlinePaymentSdk.ts"]
+}
